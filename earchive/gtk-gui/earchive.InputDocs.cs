@@ -73,7 +73,7 @@ namespace earchive
 			this.AddAccelGroup (this.UIManager.AccelGroup);
 			this.Name = "earchive.InputDocs";
 			this.Title = global::Mono.Unix.Catalog.GetString ("Ввод документов");
-			this.Icon = global::Gdk.Pixbuf.LoadFromResource ("earchive.icons.scanner.svg");
+			this.Icon = global::Gdk.Pixbuf.LoadFromResource ("earchive.icons.scanner.png");
 			this.WindowPosition = ((global::Gtk.WindowPosition)(4));
 			// Container child earchive.InputDocs.Gtk.Container+ContainerChild
 			this.vbox2 = new global::Gtk.VBox ();
@@ -85,6 +85,7 @@ namespace earchive
 			this.toolbar1.Name = "toolbar1";
 			this.toolbar1.ShowArrow = false;
 			this.toolbar1.ToolbarStyle = ((global::Gtk.ToolbarStyle)(2));
+			this.toolbar1.IconSize = ((global::Gtk.IconSize)(6));
 			this.vbox2.Add (this.toolbar1);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.toolbar1]));
 			w2.Position = 0;
@@ -239,7 +240,7 @@ namespace earchive
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
-			this.DefaultWidth = 956;
+			this.DefaultWidth = 1010;
 			this.DefaultHeight = 478;
 			this.Show ();
 			this.openAction.Activated += new global::System.EventHandler (this.OnOpenActionActivated);

@@ -10,24 +10,24 @@
     <widget-library name="../bin/Debug/earchive.exe" internal="true" />
   </import>
   <icon-factory>
-    <icon-set id="scanner">
-      <source>
-        <property name="Image">resource:earchive.icons.scanner.svg</property>
-      </source>
-    </icon-set>
     <icon-set id="rotate-90">
       <source>
-        <property name="Image">resource:earchive.icons.stock-rotate-90.svg</property>
+        <property name="Image">resource:earchive.icons.stock-rotate-90.png</property>
       </source>
     </icon-set>
     <icon-set id="rotate-180">
       <source>
-        <property name="Image">resource:earchive.icons.stock-rotate-180.svg</property>
+        <property name="Image">resource:earchive.icons.stock-rotate-180.png</property>
       </source>
     </icon-set>
     <icon-set id="rotate-270">
       <source>
-        <property name="Image">resource:earchive.icons.stock-rotate-270.svg</property>
+        <property name="Image">resource:earchive.icons.stock-rotate-270.png</property>
+      </source>
+    </icon-set>
+    <icon-set id="scanner">
+      <source>
+        <property name="Image">resource:earchive.icons.scanner.png</property>
       </source>
     </icon-set>
   </icon-factory>
@@ -1563,7 +1563,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Window" id="earchive.InputDocs" design-size="956 478">
+  <widget class="Gtk.Window" id="earchive.InputDocs" design-size="1010 478">
     <action-group name="Default">
       <action id="openAction">
         <property name="Type">Action</property>
@@ -1643,7 +1643,7 @@
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">Ввод документов</property>
-    <property name="Icon">resource:earchive.icons.scanner.svg</property>
+    <property name="Icon">resource:earchive.icons.scanner.png</property>
     <property name="WindowPosition">CenterOnParent</property>
     <child>
       <widget class="Gtk.VBox" id="vbox2">
@@ -1654,6 +1654,7 @@
             <property name="MemberName" />
             <property name="ShowArrow">False</property>
             <property name="ButtonStyle">Both</property>
+            <property name="IconSize">Dialog</property>
             <node name="toolbar1" type="Toolbar">
               <node type="Toolitem" action="clearAction" />
               <node type="Toolitem" action="openAction" />

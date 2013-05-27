@@ -15,6 +15,9 @@ namespace earchive
 		public static void Main (string[] args)
 		{
 			Application.Init ();
+			AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs e) {
+				QSMain.ErrorMessage(MainWin, (Exception) e.ExceptionObject);
+		};
 			CreateProjectParam();
 			//Настраиваем общую билиотеку
 			QSMain.NewStatusText += delegate(object sender, QSProjectsLib.QSMain.NewStatusTextEventArgs e) {

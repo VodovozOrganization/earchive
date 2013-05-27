@@ -80,6 +80,7 @@ namespace earchive
 				progresswork.Adjustment.Upper = Chooser.Filenames.Length;
 				foreach(string File in Chooser.Filenames)
 				{
+					Console.WriteLine(File);
 					iter = ImageList.AppendValues (0,
 					                               String.Format ("Документ {0}", NextDocNumber),
 							                        "",
@@ -90,6 +91,7 @@ namespace earchive
 					                               String.Format ("Тип неопределён"),
 					                               Stock.New
 					                               );
+					//FIXME На винде не загружаются картинки
 					NextDocNumber++;
 					ImageList.AppendValues (iter,
 											0,

@@ -11,14 +11,14 @@ namespace Stetic
 			if ((Stetic.Gui.initialized == false)) {
 				Stetic.Gui.initialized = true;
 				global::Gtk.IconFactory w1 = new global::Gtk.IconFactory ();
-				global::Gtk.IconSet w2 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource("earchive.icons.scanner.svg"));
-				w1.Add ("scanner", w2);
-				global::Gtk.IconSet w3 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource("earchive.icons.stock-rotate-90.svg"));
-				w1.Add ("rotate-90", w3);
-				global::Gtk.IconSet w4 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource("earchive.icons.stock-rotate-180.svg"));
-				w1.Add ("rotate-180", w4);
-				global::Gtk.IconSet w5 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource("earchive.icons.stock-rotate-270.svg"));
-				w1.Add ("rotate-270", w5);
+				global::Gtk.IconSet w2 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource("earchive.icons.stock-rotate-90.png"));
+				w1.Add ("rotate-90", w2);
+				global::Gtk.IconSet w3 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource("earchive.icons.stock-rotate-180.png"));
+				w1.Add ("rotate-180", w3);
+				global::Gtk.IconSet w4 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource("earchive.icons.stock-rotate-270.png"));
+				w1.Add ("rotate-270", w4);
+				global::Gtk.IconSet w5 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource("earchive.icons.scanner.png"));
+				w1.Add ("scanner", w5);
 				w1.AddDefault ();
 			}
 		}

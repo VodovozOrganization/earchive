@@ -10,6 +10,9 @@
     <RootNamespace>earchive</RootNamespace>
     <AssemblyName>earchive</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ApplicationIcon>icons\logo.ico</ApplicationIcon>
+    <StartupObject>earchive.MainClass</StartupObject>
+    <CodePage>65001</CodePage>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,19 +51,20 @@
     <Reference Include="itextsharp">
       <HintPath>..\lib\itextsharp.dll</HintPath>
     </Reference>
+    <Reference Include="Tesseract">
+      <HintPath>..\lib\Tesseract.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
       <LogicalName>gui.stetic</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="icons\scanner.svg">
-      <DeployService-UseProjectRelativePath>True</DeployService-UseProjectRelativePath>
-    </EmbeddedResource>
     <EmbeddedResource Include="icons\logo.png" />
     <EmbeddedResource Include="icons\page_pdf.ico" />
-    <EmbeddedResource Include="icons\stock-rotate-90.svg" />
-    <EmbeddedResource Include="icons\stock-rotate-180.svg" />
-    <EmbeddedResource Include="icons\stock-rotate-270.svg" />
+    <EmbeddedResource Include="icons\scanner.png" />
+    <EmbeddedResource Include="icons\stock-rotate-90.png" />
+    <EmbeddedResource Include="icons\stock-rotate-180.png" />
+    <EmbeddedResource Include="icons\stock-rotate-270.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -78,6 +82,7 @@
     <Compile Include="widgets\ImageListCellRenderer.cs" />
     <Compile Include="CommonClasses.cs" />
     <Compile Include="gtk-gui\earchive.MainWindow.cs" />
+    <Compile Include="RecognizeDoc.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
