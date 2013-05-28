@@ -16,6 +16,7 @@ namespace earchive
 		private global::Gtk.Action Rotate90Action;
 		private global::Gtk.Action Rotate180Action;
 		private global::Gtk.Action Rotate270Action;
+		private global::Gtk.Action Action1;
 		private global::Gtk.VBox vbox2;
 		private global::Gtk.Toolbar toolbar1;
 		private global::Gtk.HBox hbox2;
@@ -61,14 +62,17 @@ namespace earchive
 			this.zoomOutAction = new global::Gtk.Action ("zoomOutAction", null, null, "gtk-zoom-out");
 			w1.Add (this.zoomOutAction, null);
 			this.Rotate90Action = new global::Gtk.Action ("Rotate90Action", global::Mono.Unix.Catalog.GetString ("90"), null, "rotate-90");
-			this.Rotate90Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("90");
+			this.Rotate90Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("90°");
 			w1.Add (this.Rotate90Action, null);
 			this.Rotate180Action = new global::Gtk.Action ("Rotate180Action", global::Mono.Unix.Catalog.GetString ("180"), null, "rotate-180");
-			this.Rotate180Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("180");
+			this.Rotate180Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("180°");
 			w1.Add (this.Rotate180Action, null);
 			this.Rotate270Action = new global::Gtk.Action ("Rotate270Action", global::Mono.Unix.Catalog.GetString ("270"), null, "rotate-270");
-			this.Rotate270Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("270");
+			this.Rotate270Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("270°");
 			w1.Add (this.Rotate270Action, null);
+			this.Action1 = new global::Gtk.Action ("Action1", global::Mono.Unix.Catalog.GetString ("Распознать"), null, "recognize");
+			this.Action1.ShortLabel = global::Mono.Unix.Catalog.GetString ("Распознать");
+			w1.Add (this.Action1, null);
 			this.UIManager.InsertActionGroup (w1, 0);
 			this.AddAccelGroup (this.UIManager.AccelGroup);
 			this.Name = "earchive.InputDocs";
@@ -80,7 +84,7 @@ namespace earchive
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.UIManager.AddUiFromString ("<ui><toolbar name='toolbar1'><toolitem name='clearAction' action='clearAction'/><toolitem name='openAction' action='openAction'/><toolitem name='Action' action='Action'/><toolitem name='saveAction' action='saveAction'/><separator/><toolitem name='zoom100Action' action='zoom100Action'/><toolitem name='zoomFitAction' action='zoomFitAction'/><toolitem name='zoomInAction' action='zoomInAction'/><toolitem name='zoomOutAction' action='zoomOutAction'/><separator/><toolitem name='Rotate90Action' action='Rotate90Action'/><toolitem name='Rotate180Action' action='Rotate180Action'/><toolitem name='Rotate270Action' action='Rotate270Action'/></toolbar></ui>");
+			this.UIManager.AddUiFromString ("<ui><toolbar name='toolbar1'><toolitem name='clearAction' action='clearAction'/><toolitem name='openAction' action='openAction'/><toolitem name='Action' action='Action'/><toolitem name='Action1' action='Action1'/><toolitem name='saveAction' action='saveAction'/><separator/><toolitem name='zoom100Action' action='zoom100Action'/><toolitem name='zoomFitAction' action='zoomFitAction'/><toolitem name='zoomInAction' action='zoomInAction'/><toolitem name='zoomOutAction' action='zoomOutAction'/><separator/><toolitem name='Rotate90Action' action='Rotate90Action'/><toolitem name='Rotate180Action' action='Rotate180Action'/><toolitem name='Rotate270Action' action='Rotate270Action'/></toolbar></ui>");
 			this.toolbar1 = ((global::Gtk.Toolbar)(this.UIManager.GetWidget ("/toolbar1")));
 			this.toolbar1.Name = "toolbar1";
 			this.toolbar1.ShowArrow = false;
@@ -240,7 +244,7 @@ namespace earchive
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
-			this.DefaultWidth = 1010;
+			this.DefaultWidth = 1053;
 			this.DefaultHeight = 478;
 			this.Show ();
 			this.openAction.Activated += new global::System.EventHandler (this.OnOpenActionActivated);
@@ -253,6 +257,7 @@ namespace earchive
 			this.Rotate90Action.Activated += new global::System.EventHandler (this.OnRotate90ActionActivated);
 			this.Rotate180Action.Activated += new global::System.EventHandler (this.OnRotate180ActionActivated);
 			this.Rotate270Action.Activated += new global::System.EventHandler (this.OnRotate270ActionActivated);
+			this.Action1.Activated += new global::System.EventHandler (this.OnAction1Activated);
 			this.treeviewImages.CursorChanged += new global::System.EventHandler (this.OnTreeviewImagesCursorChanged);
 			this.treeviewImages.ButtonReleaseEvent += new global::Gtk.ButtonReleaseEventHandler (this.OnTreeviewImagesButtonReleaseEvent);
 			this.imageDoc.DragMotion += new global::Gtk.DragMotionHandler (this.OnImageDocDragMotion);

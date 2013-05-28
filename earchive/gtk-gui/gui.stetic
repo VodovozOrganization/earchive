@@ -30,6 +30,11 @@
         <property name="Image">resource:earchive.icons.scanner.png</property>
       </source>
     </icon-set>
+    <icon-set id="recognize">
+      <source>
+        <property name="Image">resource:earchive.icons.emblem-documents.png</property>
+      </source>
+    </icon-set>
   </icon-factory>
   <widget class="Gtk.Window" id="earchive.MainWindow" design-size="771 457">
     <action-group name="Default">
@@ -1563,7 +1568,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Window" id="earchive.InputDocs" design-size="1010 478">
+  <widget class="Gtk.Window" id="earchive.InputDocs" design-size="1053 478">
     <action-group name="Default">
       <action id="openAction">
         <property name="Type">Action</property>
@@ -1622,23 +1627,30 @@
       <action id="Rotate90Action">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">90</property>
-        <property name="ShortLabel" translatable="yes">90</property>
+        <property name="ShortLabel" translatable="yes">90°</property>
         <property name="StockId">rotate-90</property>
         <signal name="Activated" handler="OnRotate90ActionActivated" />
       </action>
       <action id="Rotate180Action">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">180</property>
-        <property name="ShortLabel" translatable="yes">180</property>
+        <property name="ShortLabel" translatable="yes">180°</property>
         <property name="StockId">rotate-180</property>
         <signal name="Activated" handler="OnRotate180ActionActivated" />
       </action>
       <action id="Rotate270Action">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">270</property>
-        <property name="ShortLabel" translatable="yes">270</property>
+        <property name="ShortLabel" translatable="yes">270°</property>
         <property name="StockId">rotate-270</property>
         <signal name="Activated" handler="OnRotate270ActionActivated" />
+      </action>
+      <action id="Action1">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Распознать</property>
+        <property name="ShortLabel" translatable="yes">Распознать</property>
+        <property name="StockId">recognize</property>
+        <signal name="Activated" handler="OnAction1Activated" />
       </action>
     </action-group>
     <property name="MemberName" />
@@ -1659,6 +1671,7 @@
               <node type="Toolitem" action="clearAction" />
               <node type="Toolitem" action="openAction" />
               <node type="Toolitem" action="Action" />
+              <node type="Toolitem" action="Action1" />
               <node type="Toolitem" action="saveAction" />
               <node type="Separator" />
               <node type="Toolitem" action="zoom100Action" />

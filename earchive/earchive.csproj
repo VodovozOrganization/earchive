@@ -54,6 +54,7 @@
     <Reference Include="Tesseract">
       <HintPath>..\lib\Tesseract.dll</HintPath>
     </Reference>
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -65,6 +66,7 @@
     <EmbeddedResource Include="icons\stock-rotate-90.png" />
     <EmbeddedResource Include="icons\stock-rotate-180.png" />
     <EmbeddedResource Include="icons\stock-rotate-270.png" />
+    <EmbeddedResource Include="icons\emblem-documents.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />

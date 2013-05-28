@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using Gtk;
 using Gdk;
@@ -91,15 +92,21 @@ namespace earchive
 					                               String.Format ("Тип неопределён"),
 					                               Stock.New
 					                               );
-					//FIXME На винде не загружаются картинки
+
+					FileStream fs = new FileStream(File, FileMode.Open, FileAccess.Read);
+					Pixbuf image = new Pixbuf(fs);
+					double ratio = 150f / Math.Max(image.Height, image.Width);
+					Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio),(int)(image.Height * ratio), InterpType.Bilinear);
+					fs.Close();
+
 					NextDocNumber++;
 					ImageList.AppendValues (iter,
 											0,
 					                        System.IO.Path.GetFileName(File),
 					                        File,
 					                        null,
-					                        new Pixbuf(File, 150, 150),
-					                        new Pixbuf(File),
+					                        thumb,
+					                        image,
 					                        true,
 					                        "",
 					                        "");
@@ -595,6 +602,8 @@ namespace earchive
 
 		protected void OnRotate90ActionActivated (object sender, EventArgs e)
 		{
+			if(!ImageList.IterIsValid(CurrentImage))
+				return;
 			Pixbuf pix = (Pixbuf) ImageList.GetValue(CurrentImage, 5);
 			ImageList.SetValue(CurrentImage, 5, pix.RotateSimple(PixbufRotation.Clockwise));
 			pix = (Pixbuf) ImageList.GetValue(CurrentImage, 4);
@@ -604,6 +613,8 @@ namespace earchive
 
 		protected void OnRotate180ActionActivated (object sender, EventArgs e)
 		{
+			if(!ImageList.IterIsValid(CurrentImage))
+				return;
 			Pixbuf pix = (Pixbuf) ImageList.GetValue(CurrentImage, 5);
 			ImageList.SetValue(CurrentImage, 5, pix.RotateSimple(PixbufRotation.Upsidedown));
 			pix = (Pixbuf) ImageList.GetValue(CurrentImage, 4);
@@ -613,12 +624,79 @@ namespace earchive
 
 		protected void OnRotate270ActionActivated (object sender, EventArgs e)
 		{
+			if(!ImageList.IterIsValid(CurrentImage))
+				return;
 			Pixbuf pix = (Pixbuf) ImageList.GetValue(CurrentImage, 5);
 			ImageList.SetValue(CurrentImage, 5, pix.RotateSimple(PixbufRotation.Counterclockwise));
 			pix = (Pixbuf) ImageList.GetValue(CurrentImage, 4);
 			ImageList.SetValue(CurrentImage, 4, pix.RotateSimple(PixbufRotation.Counterclockwise));
 			OnZoomFitActionActivated(null, null);
 		}
+
+		protected void OnAction1Activated (object sender, EventArgs e)
+		{
+			TreeIter iter, imageiter;
+			if(!ImageList.GetIterFirst(out iter))
+				return;
+			do
+			{
+				if(ImageList.IterDepth(iter) == 0)
+				{
+					Document doc = (Document) ImageList.GetValue(iter, 3);
+					if(doc == null)
+						continue;
+					int ImagesCount = ImageList.IterNChildren(iter);
+					Pixbuf[] Images = new Pixbuf[ImagesCount];
+					int i = 0;
+					ImageList.IterChildren(out imageiter, iter);
+					do
+					{
+						Images[i] = (Pixbuf) ImageList.GetValue(imageiter, 5);
+						i++;
+					}while(ImageList.IterNext(ref imageiter));
+
+					RecognizeDoc tess = new RecognizeDoc(doc, Images);
+					try
+					{
+						tess.Recognize();
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine(ex.ToString());
+						MainClass.StatusMessage("Ошибка в модуле распознования!");
+						QSMain.ErrorMessage(this,ex);
+					}
+					finally
+					{
+						ShowLog(tess.log);
+					}
+				}
+			}while(ImageList.IterNext(ref iter));
+
+			//FIXME Обновить текущий документ в окне.
+		}
+
+		void ShowLog(string text)
+		{
+			Dialog HistoryDialog = new Dialog("Лог работы модуля распознования.", this, Gtk.DialogFlags.DestroyWithParent);
+			HistoryDialog.Modal = true;
+			HistoryDialog.AddButton ("Закрыть", ResponseType.Close);
+
+			TextView HistoryTextView = new TextView();
+			HistoryTextView.WidthRequest = 700;
+			HistoryTextView.WrapMode = WrapMode.Word;
+			HistoryTextView.Sensitive = false;
+			HistoryTextView.Buffer.Text = text;
+			Gtk.ScrolledWindow ScrollW = new ScrolledWindow();
+			ScrollW.HeightRequest = 500;
+			ScrollW.Add (HistoryTextView);
+			HistoryDialog.VBox.Add (ScrollW);
+
+			HistoryDialog.ShowAll ();
+			HistoryDialog.Run ();
+			HistoryDialog.Destroy ();
+		}
+
 	}
 
 	class ImageTreeStore : Gtk.TreeStore, TreeDragSourceImplementor, TreeDragDestImplementor

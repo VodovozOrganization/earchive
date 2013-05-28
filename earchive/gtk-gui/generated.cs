@@ -19,6 +19,8 @@ namespace Stetic
 				w1.Add ("rotate-270", w4);
 				global::Gtk.IconSet w5 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource("earchive.icons.scanner.png"));
 				w1.Add ("scanner", w5);
+				global::Gtk.IconSet w6 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource("earchive.icons.emblem-documents.png"));
+				w1.Add ("recognize", w6);
 				w1.AddDefault ();
 			}
 		}

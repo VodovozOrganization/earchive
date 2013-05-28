@@ -142,4 +142,19 @@ namespace earchive
 		public bool Changed;
 		public Gtk.Image Widget;
 	}
+
+	class RecognazeRule
+	{
+		public int FieldId;
+
+		public string TextMarker;
+		public bool BeginOfLine;
+		public double TextMarkerPosX;
+		public double TextMarkerPosY;
+		public bool NextAfterTextMarker;
+		public int ShiftWordsCount;
+
+		public double FieldPosX;
+		public double FieldPosY;
+	}
 }
