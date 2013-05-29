@@ -35,13 +35,17 @@ namespace earchive
 						int Word;
 						int Distance = LookingTextMarker(testrule, page, out iter, out Word);
 						AddToLog(String.Format("TextMarker <{0}> Distance: {1}", testrule.TextMarker, Distance));
+						bool result;
 						if(Distance < 5)
 						{
 							int TextMarkerWordsCount = (testrule.TextMarker.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries)).Length;
 							for(int num = 1; num < Word + TextMarkerWordsCount - 1 + testrule.ShiftWordsCount; num++)
 							{
-								iter.Next(PageIteratorLevel.Word);
+								result = iter.Next(PageIteratorLevel.Word);
+								AddToLog (result.ToString ());
+								AddToLog (iter.GetText(PageIteratorLevel.Word));
 							}
+
 							AddToLog(String.Format("Found Field Value: {0}", iter.GetText(PageIteratorLevel.Word)));
 							AddToLog(String.Format("Recognize confidence: {0}", iter.GetConfidence(PageIteratorLevel.Word)));
 						}
@@ -65,6 +69,8 @@ namespace earchive
 				int CurrentWordNumber = -1;
 				int CurrentBestDistance = 10000;
 				string Line = LineIter.GetText(PageIteratorLevel.TextLine);
+				if(Line == null)
+					continue;
 				string[] WordsOfLine = Line.Split(new char[] {' '}, StringSplitOptions.None);
 				if(WordsOfLine.Length < NumberOfWords)
 					continue;
@@ -86,10 +92,13 @@ namespace earchive
 				}
 				if(CurrentBestDistance < BestDistance)
 				{
+					AddToLog ("new best");
+					AddToLog (LineIter.GetText(PageIteratorLevel.Word));
 					word = CurrentWordNumber;
 					if(BestLineIter != null)
 						BestLineIter.Dispose();
 					BestLineIter = LineIter.Clone();
+					AddToLog (BestLineIter.GetText(PageIteratorLevel.TextLine));
 					BestDistance = CurrentBestDistance;
 				}
 			} while( LineIter.Next(PageIteratorLevel.TextLine));
@@ -100,6 +109,7 @@ namespace earchive
 		void AddToLog(string str)
 		{
 			log += str + "\n";
+			Console.WriteLine (str);
 		}
 
 		private Pix PixbufToPix(Pixbuf image)
