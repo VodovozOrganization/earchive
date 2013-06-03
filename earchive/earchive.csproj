@@ -67,6 +67,7 @@
     <EmbeddedResource Include="icons\stock-rotate-180.png" />
     <EmbeddedResource Include="icons\stock-rotate-270.png" />
     <EmbeddedResource Include="icons\emblem-documents.png" />
+    <EmbeddedResource Include="icons\emblem-documents.24.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -86,6 +87,9 @@
     <Compile Include="gtk-gui\earchive.MainWindow.cs" />
     <Compile Include="RecognizeDoc.cs" />
     <Compile Include="RecognizeClasses.cs" />
+    <Compile Include="RecognizeTemplate.cs" />
+    <Compile Include="TemplateProperty.cs" />
+    <Compile Include="gtk-gui\earchive.TemplateProperty.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

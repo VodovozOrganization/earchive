@@ -3,7 +3,7 @@ using Gdk;
 
 namespace earchive
 {
-	class RecognazeRule
+	public class RecognazeRule
 	{
 		public int FieldId;
 
@@ -13,7 +13,7 @@ namespace earchive
 		public RelationalRectangle Box;
 	}
 
-	class TextMarker
+	public class TextMarker
 	{
 		public string Text;
 		public bool BeginOfLine;
@@ -22,7 +22,7 @@ namespace earchive
 		public RelationalRectangle Zone;
 	}
 
-	class RelationalRectangle
+	public class RelationalRectangle
 	{
 		public double RelativePosX;
 		public double RelativePosY;
@@ -34,6 +34,20 @@ namespace earchive
 
 		public int ShiftX;
 		public int ShiftY;
+
+		public RelationalRectangle()
+		{
+			RelativePosX = 0;
+			RelativePosY = 0;
+			RelativeWidth = 0;
+			RelativeHeigth = 0;
+
+			ShiftX = 0;
+			ShiftY = 0;
+
+			TargetWidth = 0;
+			TargetHeigth = 0;
+		}
 
 		public RelationalRectangle(double RPosX, double RPosY, double RWidth, double RHeigth)
 		{

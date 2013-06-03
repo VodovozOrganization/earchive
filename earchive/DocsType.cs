@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using Gtk;
 using MySql.Data.MySqlClient;
@@ -12,6 +13,7 @@ namespace earchive
 		int TypeId;
 		bool ExtraTableCreated = false;
 		string OriginalTableName = "";
+		RecognizeTemplate DocTemplate;
 		
 		ListStore FieldsListStore;
 
@@ -77,6 +79,13 @@ namespace earchive
 				}
 				if(rdr["description"] != DBNull.Value)
 					textviewDescription.Buffer.Text = rdr.GetString ("description");
+
+				if(rdr["template"] != DBNull.Value)
+				{
+					string str = rdr.GetString("template");
+					DocTemplate = RecognizeTemplate.Load(str);
+					labelTemplateName.LabelProp = DocTemplate.Name;
+				}
 				
 				rdr.Close();
 				
@@ -186,10 +195,10 @@ namespace earchive
 				}
 				// Работаем с шаблоном
 				if(NewDocsType)
-					sql = "INSERT INTO doc_types(name, table_name, description)" +
-						"VALUES (@name, @table_name, @description)";
+					sql = "INSERT INTO doc_types(name, table_name, template, description)" +
+						"VALUES (@name, @table_name, @template, @description)";
 				else
-					sql = "UPDATE doc_types SET name = @name, table_name = @table_name, description = @description " +
+					sql = "UPDATE doc_types SET name = @name, table_name = @table_name, template = @template, description = @description " +
 						"WHERE id = @id";
 				cmd = new MySqlCommand(sql, QSMain.connectionDB, trans);
 				cmd.Parameters.AddWithValue ("@id", TypeId);
@@ -202,6 +211,12 @@ namespace earchive
 					cmd.Parameters.AddWithValue ("@description", textviewDescription.Buffer.Text);
 				else 
 					cmd.Parameters.AddWithValue ("@description", DBNull.Value);
+
+				if(DocTemplate != null)
+					cmd.Parameters.AddWithValue ("@template", DocTemplate.SaveToString());
+				else 
+					cmd.Parameters.AddWithValue ("@template", DBNull.Value);
+
 				cmd.ExecuteNonQuery ();
 				if(NewDocsType)
 					TypeId = Convert.ToInt32 (cmd.LastInsertedId);
@@ -376,5 +391,69 @@ namespace earchive
 		{
 			buttonEdit.Click ();
 		}
+
+		protected void OnRecognizeActionActivated (object sender, EventArgs e)
+		{
+			if(DocTemplate == null)
+			{
+				DocTemplate = new RecognizeTemplate();
+				labelTemplateName.LabelProp = "Новый";
+			}
+			//FIXME Открыть диалог настройки шаблона.
+		}
+
+		protected void OnOpenActionActivated (object sender, EventArgs e)
+		{
+			FileChooserDialog Chooser = new FileChooserDialog("Выберите файл шаблона распознования...", 
+			                                                  this,
+			                                                  FileChooserAction.Open,
+			                                                  "Отмена", ResponseType.Cancel,
+			                                                  "Открыть", ResponseType.Accept );
+
+			FileFilter Filter = new FileFilter();
+			Filter.AddMimeType("text/xml");
+			Filter.Name = "xml";
+			Chooser.AddFilter(Filter);
+
+			if((ResponseType) Chooser.Run () == ResponseType.Accept)
+			{
+				Chooser.Hide();
+				FileStream fs = new FileStream(Chooser.Filename, FileMode.Open, FileAccess.Read);
+				DocTemplate = RecognizeTemplate.Load(fs);
+				fs.Close();
+				labelTemplateName.LabelProp = DocTemplate.Name;
+			}
+			Chooser.Destroy();
+		}
+
+		protected void OnSaveAsActionActivated (object sender, EventArgs e)
+		{
+			if(DocTemplate == null)
+				return;
+			FileChooserDialog fc=
+				new FileChooserDialog("Укажите файл для сохранения шаблона...",
+				                      this,
+				                      FileChooserAction.Save,
+				                      "Отмена",ResponseType.Cancel,
+				                      "Сохранить",ResponseType.Accept);
+			//FileFilter filter = new FileFilter();
+			fc.CurrentName = DocTemplate.Name + ".xml";
+			fc.Show(); 
+			if(fc.Run() == (int) ResponseType.Accept)
+			{
+				fc.Hide();
+				FileStream fs = new FileStream(fc.Filename, FileMode.Create, FileAccess.Write);
+				DocTemplate.SaveToStream(fs);
+				fs.Close();
+			}
+			fc.Destroy();
+		}
+
+		protected void OnClearActionActivated (object sender, EventArgs e)
+		{
+			DocTemplate = null;
+			labelTemplateName.LabelProp = "Отсутствует";
+		}
+
 	}
 }
