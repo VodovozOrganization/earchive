@@ -12,6 +12,7 @@ namespace earchive
 		Document Doc;
 		Pixbuf[] Images;
 		public string log;
+		public Gtk.Window parent;
 
 		public RecognizeDoc (Document doc, Pixbuf[] images)
 		{
@@ -25,41 +26,64 @@ namespace earchive
 
 			using (var engine = new TesseractEngine(@"./tessdata", "rus", EngineMode.Default)) 
 			{
-				using (var img = PixbufToPix(Images[0])) {
-					using (var page = engine.Process(img)) {
-						RecognazeRule testrule = new RecognazeRule();
-						testrule.TextMarker = "ТОВАРНАЯ НАКЛАДНАЯ";
-						testrule.ShiftWordsCount = 1;
+				RecognazeRule testrule = new RecognazeRule();
+				testrule.Box = new RelationalRectangle(0.357468643, 0.321774194, 0.088939567, 0.026612903);
 
-						ResultIterator iter;
-						int Word;
-						int Distance = LookingTextMarker(testrule, page, out iter, out Word);
-						AddToLog(String.Format("TextMarker <{0}> Distance: {1}", testrule.TextMarker, Distance));
-						bool result;
+				TextMarker Marker = new TextMarker();
+				Marker.Text = "ТОВАРНАЯ НАКЛАДНАЯ";
+				Marker.PatternPosX = 0.206100342;
+				Marker.PatternPosY = 0.324193548;
+				Marker.Zone = new RelationalRectangle(0.181299886, 0.292741935, 0.196693273, 0.12);
+
+				int ShiftX = 0;
+				int ShiftY = 0;
+				//Вычисляем сдвиг
+				Pixbuf WorkImage = Images[0];
+				Marker.Zone.SetTarget(WorkImage.Width, WorkImage.Height);
+
+				Pixbuf PixBox = new Pixbuf(WorkImage, Marker.Zone.PosX, Marker.Zone.PosY, Marker.Zone.Width, Marker.Zone.Heigth);
+				using (var img = PixbufToPix(PixBox)) {
+					using (var page = engine.Process(img)) {
+
+						int MarkerPosX, MarkerPosY;
+						int Distance = GetTextPosition(Marker.Text, page, out MarkerPosX, out MarkerPosY);
+						AddToLog(String.Format("TextMarker <{0}> Distance: {1}", Marker.Text, Distance));
 						if(Distance < 5)
 						{
-							int TextMarkerWordsCount = (testrule.TextMarker.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries)).Length;
-							for(int num = 1; num < Word + TextMarkerWordsCount - 1 + testrule.ShiftWordsCount; num++)
-							{
-								result = iter.Next(PageIteratorLevel.Word);
-								AddToLog (result.ToString ());
-								AddToLog (iter.GetText(PageIteratorLevel.Word));
-							}
-
-							AddToLog(String.Format("Found Field Value: {0}", iter.GetText(PageIteratorLevel.Word)));
-							AddToLog(String.Format("Recognize confidence: {0}", iter.GetConfidence(PageIteratorLevel.Word)));
+							MarkerPosX = MarkerPosX + Marker.Zone.PosX;
+							MarkerPosY = MarkerPosY + Marker.Zone.PosY;
+							ShiftX = MarkerPosX - (int)(Marker.PatternPosX * WorkImage.Width);
+							ShiftY = MarkerPosY - (int)(Marker.PatternPosY * WorkImage.Height);
 						}
-						iter.Dispose();
+						else
+						{
+							ShowImage(PixBox, "Маркер не найден. Зона маркера.");
+						}
+					}
+				}
+				testrule.Box.SetTarget(WorkImage.Width, WorkImage.Height);
+				testrule.Box.SetShift(ShiftX, ShiftY);
+
+				PixBox = new Pixbuf(WorkImage, testrule.Box.PosX, testrule.Box.PosY, testrule.Box.Width, testrule.Box.Heigth);
+				using (var img = PixbufToPix(PixBox)) {
+					using (var page = engine.Process(img)) {
+
+						string FieldText = page.GetText();
+
+						AddToLog(String.Format("Found Field Value: {0}", FieldText));
+						AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
 					}
 				}
 			}
 		}
 
+		/*
 		int LookingTextMarker(RecognazeRule Rule, Page page, out ResultIterator BestLineIter, out int word)
 		{
 			word = -1;
 			BestLineIter = null;
 			int BestDistance = 10000;
+
 			ResultIterator LineIter = page.GetIterator();
 			string[] Words = Rule.TextMarker.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 			int NumberOfWords = Words.Length;
@@ -104,6 +128,71 @@ namespace earchive
 			} while( LineIter.Next(PageIteratorLevel.TextLine));
 			LineIter.Dispose();
 			return BestDistance;
+		} */
+
+		int GetTextPosition(string Text, Page page, out int PosX, out int PosY)
+		{
+			int BestDistance = 10000;
+			PosX = -1;
+			PosY = -1;
+			ResultIterator LineIter = page.GetIterator();
+			string[] Words = Text.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+			int NumberOfWords = Words.Length;
+			LineIter.Begin();
+			do
+			{
+				int CurrentWordNumber = -1;
+				int CurrentBestDistance = 10000;
+				string Line = LineIter.GetText(PageIteratorLevel.TextLine);
+				if(Line == null)
+					continue;
+				string[] WordsOfLine = Line.Split(new char[] {' '}, StringSplitOptions.None);
+				if(WordsOfLine.Length < NumberOfWords)
+					continue;
+
+				for(int shift = 0; shift <= WordsOfLine.Length - NumberOfWords; shift++)
+				{
+					int PassDistance = 0;
+					for(int i = 0; i < NumberOfWords; i++)
+					{
+						PassDistance += FuzzyStringComparer.GetDistanceLevenshtein(WordsOfLine[shift + i],
+						                                                           Words[i],
+						                                                           StringComparison.CurrentCultureIgnoreCase);
+					}
+					if(PassDistance < CurrentBestDistance)
+					{
+						CurrentBestDistance = PassDistance;
+						CurrentWordNumber = shift;
+					}
+				}
+				if(CurrentBestDistance < BestDistance)
+				{
+					AddToLog ("new best");
+					AddToLog (LineIter.GetText(PageIteratorLevel.TextLine));
+					BestDistance = CurrentBestDistance;
+					for(int i = 0; i < CurrentWordNumber; i++)
+					{
+						LineIter.Next(PageIteratorLevel.Word);
+					}
+					Rect Box;
+					LineIter.TryGetBoundingBox(PageIteratorLevel.Word, out Box);
+					PosX = Box.X1;
+					PosY = Box.Y1;
+				}
+			} while( LineIter.Next(PageIteratorLevel.TextLine));
+			LineIter.Dispose();
+			return BestDistance;
+		}
+
+		void ShowImage(Pixbuf img, string title)
+		{
+			Gtk.Dialog Win = new Gtk.Dialog(title, parent, Gtk.DialogFlags.Modal, Gtk.ButtonsType.Ok);
+			Gtk.Image Image = new Gtk.Image(img);
+			Win.VBox.Add(Image);
+			Win.ShowAll();
+			Win.Run();
+			Image.Pixbuf = null;
+			Win.Destroy();
 		}
 
 		void AddToLog(string str)

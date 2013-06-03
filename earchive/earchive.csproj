@@ -85,6 +85,7 @@
     <Compile Include="CommonClasses.cs" />
     <Compile Include="gtk-gui\earchive.MainWindow.cs" />
     <Compile Include="RecognizeDoc.cs" />
+    <Compile Include="RecognizeClasses.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

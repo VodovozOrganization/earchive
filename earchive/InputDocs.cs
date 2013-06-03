@@ -656,6 +656,8 @@ namespace earchive
 					}while(ImageList.IterNext(ref imageiter));
 
 					RecognizeDoc tess = new RecognizeDoc(doc, Images);
+					//FIXME Для теста
+					tess.parent = this;
 					try
 					{
 						tess.Recognize();
