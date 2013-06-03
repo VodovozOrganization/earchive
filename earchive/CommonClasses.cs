@@ -25,6 +25,7 @@ namespace earchive
 		public string Description{get; private set;}
 		public int CountExtraFields{get; private set;}
 		public List<DocFieldInfo> FieldsList{get; private set;}
+		public RecognizeTemplate Template{get; private set;}
 
 		public DocumentInformation(int Id)
 		{
@@ -59,6 +60,12 @@ namespace earchive
 
 				if(rdr["description"] != DBNull.Value)
 					Description = rdr.GetString ("description");
+
+				if(rdr["template"] != DBNull.Value)
+				{
+					string str = rdr.GetString("template");
+					Template = RecognizeTemplate.Load(str);
+				}
 				
 				rdr.Close();
 				MainClass.StatusMessage("Ok");

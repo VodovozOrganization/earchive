@@ -1,4 +1,5 @@
 using System;
+using System.Xml.Serialization;
 using Gdk;
 
 namespace earchive
@@ -29,10 +30,14 @@ namespace earchive
 		public double RelativeWidth;
 		public double RelativeHeigth;
 
+		[XmlIgnore]
 		public int TargetHeigth;
+		[XmlIgnore]
 		public int TargetWidth;
 
+		[XmlIgnore]
 		public int ShiftX;
+		[XmlIgnore]
 		public int ShiftY;
 
 		public RelationalRectangle()

@@ -9,6 +9,8 @@ namespace earchive
 		public int DocTypeId;
 		public string Name;
 		public TextMarker[] Markers;
+		public RecognazeRule NumberRule;
+		public RecognazeRule DateRule;
 		public RecognazeRule[] FieldRules;
 
 		public RecognizeTemplate ()
