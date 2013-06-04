@@ -305,6 +305,7 @@ namespace earchive
 			this.treeviewDocs.CursorChanged += new global::System.EventHandler (this.OnTreeviewDocsCursorChanged);
 			this.treeviewDocs.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTreeviewDocsRowActivated);
 			this.buttonOpen.Clicked += new global::System.EventHandler (this.OnButtonOpenClicked);
+			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
 		}
 	}
 }

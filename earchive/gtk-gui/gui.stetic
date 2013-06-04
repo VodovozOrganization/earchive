@@ -317,6 +317,7 @@
                 <property name="Icon">stock:gtk-delete Button</property>
                 <property name="Label" translatable="yes">Удалить</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonDeleteClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>

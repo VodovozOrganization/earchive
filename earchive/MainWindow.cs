@@ -286,5 +286,18 @@ namespace earchive
 		{
 			OnButtonOpenClicked(null, null);
 		}
+
+		protected void OnButtonDeleteClicked (object sender, EventArgs e)
+		{
+			TreeIter iter;
+			treeviewDocs.Selection.GetSelected(out iter);
+			int itemid = (int) DocsFilter.GetValue(iter, 0);
+
+			string sql = "DELETE FROM docs WHERE id = @id";
+			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
+			cmd.Parameters.AddWithValue ("@id", itemid);
+			cmd.ExecuteNonQuery ();
+			UpdateDocs();
+		}
 	}
 }
