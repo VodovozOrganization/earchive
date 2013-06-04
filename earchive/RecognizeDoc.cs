@@ -47,6 +47,8 @@ namespace earchive
 							MarkerPosY = MarkerPosY + Marker.Zone.PosY;
 							ShiftX = MarkerPosX - (int)(Marker.PatternPosX * WorkImage.Width);
 							ShiftY = MarkerPosY - (int)(Marker.PatternPosY * WorkImage.Height);
+							AddToLog(String.Format("Image Shift X: {0}", ShiftX));
+							AddToLog(String.Format("Image Shift Y: {0}", ShiftY));
 						}
 						else
 						{
@@ -73,6 +75,8 @@ namespace earchive
 							Doc.DocNumberConfidence = page.GetMeanConfidence();
 							AddToLog(String.Format("Found Field Value: {0}", FieldText));
 							AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
+							if(FieldText == "")
+								ShowImage(PixBox, "Номер пустой. Зона номера документа.");
 						}
 					}
 				}
@@ -111,6 +115,8 @@ namespace earchive
 							AddToLog(String.Format("Found Field Value: {0}", FieldText));
 							AddToLog(String.Format("Split date Value: {0}", Date));
 							AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
+							if(FieldText == "")
+								ShowImage(PixBox, "Дата пустая. Зона даты документа.");
 						}
 					}
 				}
@@ -185,9 +191,10 @@ namespace earchive
 			{
 				int CurrentWordNumber = -1;
 				int CurrentBestDistance = 10000;
-				string Line = LineIter.GetText(PageIteratorLevel.TextLine).Trim();
+				string Line = LineIter.GetText(PageIteratorLevel.TextLine);
 				if(Line == null)
 					continue;
+				Line = Line.Trim();
 				string[] WordsOfLine = Line.Split(new char[] {' '}, StringSplitOptions.None);
 				if(WordsOfLine.Length < NumberOfWords)
 					continue;
