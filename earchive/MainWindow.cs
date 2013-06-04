@@ -130,7 +130,7 @@ namespace earchive
 			treeviewDocs.AppendColumn ("Создан", new Gtk.CellRendererText (), "text", 3);
 
 			DocsFilter = new Gtk.TreeModelFilter (DocsListStore, null);
-			//DocsFilter.VisibleFunc = new Gtk.TreeModelFilterVisibleFunc (FilterTreeDocs);
+			DocsFilter.VisibleFunc = new Gtk.TreeModelFilterVisibleFunc (FilterTreeDocs);
 			treeviewDocs.Model = DocsFilter;
 			treeviewDocs.ShowAll();
 		}
@@ -238,6 +238,24 @@ namespace earchive
 			OnTreeviewDocsCursorChanged(null, null);
 		}
 
+		private bool FilterTreeDocs (Gtk.TreeModel model, Gtk.TreeIter iter)
+		{
+			if (entryDocNumber.Text == "")
+				return true;
+			bool filterNumber = true;
+			string cellvalue;
+
+			if(model.GetValue (iter, 1) == null)
+				return false;
+
+			if (entryDocNumber.Text != "" && model.GetValue (iter, 1) != null)
+			{
+				cellvalue  = model.GetValue (iter, 1).ToString();
+				filterNumber = cellvalue.IndexOf (entryDocNumber.Text, StringComparison.CurrentCultureIgnoreCase) > -1;
+			}
+			return filterNumber;
+		}
+
 		protected void OnSelectperiodDocsDatesChanged (object sender, EventArgs e)
 		{
 			if(comboDocType.Active < 0)
@@ -304,6 +322,11 @@ namespace earchive
 		protected void OnButtonRefreshClicked (object sender, EventArgs e)
 		{
 			UpdateDocs();
+		}
+
+		protected void OnEntryDocNumberChanged (object sender, EventArgs e)
+		{
+			DocsFilter.Refilter();
 		}
 	}
 }

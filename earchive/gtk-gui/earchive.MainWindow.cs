@@ -303,6 +303,7 @@ namespace earchive
 			w49.Position = 0;
 			w49.Expand = false;
 			w49.Fill = false;
+			w49.Padding = ((uint)(4));
 			// Container child statusbar1.Gtk.Box+BoxChild
 			this.labelStatus = new global::Gtk.Label ();
 			this.labelStatus.Name = "labelStatus";
@@ -328,6 +329,7 @@ namespace earchive
 			this.dialogAuthenticationAction.Activated += new global::System.EventHandler (this.OnDialogAuthenticationActionActivated);
 			this.UsersAction.Activated += new global::System.EventHandler (this.OnUsersActionActivated);
 			this.Action2.Activated += new global::System.EventHandler (this.OnAction2Activated);
+			this.entryDocNumber.Changed += new global::System.EventHandler (this.OnEntryDocNumberChanged);
 			this.comboDocType.Changed += new global::System.EventHandler (this.OnComboDocTypeChanged);
 			this.selectperiodDocs.DatesChanged += new global::System.EventHandler (this.OnSelectperiodDocsDatesChanged);
 			this.buttonInput.Clicked += new global::System.EventHandler (this.OnButtonInputClicked);
