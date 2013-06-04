@@ -26,14 +26,7 @@ namespace earchive
 
 			using (var engine = new TesseractEngine(@"./tessdata", "rus", EngineMode.Default)) 
 			{
-				RecognazeRule testrule = new RecognazeRule();
-				testrule.Box = new RelationalRectangle(0.357468643, 0.321774194, 0.088939567, 0.026612903);
-
-				TextMarker Marker = new TextMarker();
-				Marker.Text = "ТОВАРНАЯ НАКЛАДНАЯ";
-				Marker.PatternPosX = 0.206100342;
-				Marker.PatternPosY = 0.324193548;
-				Marker.Zone = new RelationalRectangle(0.181299886, 0.292741935, 0.196693273, 0.12);
+				TextMarker Marker = Doc.Template.Markers[0];
 
 				int ShiftX = 0;
 				int ShiftY = 0;
@@ -61,19 +54,59 @@ namespace earchive
 						}
 					}
 				}
-				testrule.Box.SetTarget(WorkImage.Width, WorkImage.Height);
-				testrule.Box.SetShift(ShiftX, ShiftY);
 
-				PixBox = new Pixbuf(WorkImage, testrule.Box.PosX, testrule.Box.PosY, testrule.Box.Width, testrule.Box.Heigth);
-				using (var img = PixbufToPix(PixBox)) {
-					using (var page = engine.Process(img)) {
+				RecognazeRule CurRule;
+				//Распознаем номер
+				if(Doc.Template.NumberRule != null)
+				{
+					CurRule = Doc.Template.NumberRule;
 
-						string FieldText = page.GetText();
+					CurRule.Box.SetTarget(WorkImage.Width, WorkImage.Height);
+					CurRule.Box.SetShift(ShiftX, ShiftY);
 
-						AddToLog(String.Format("Found Field Value: {0}", FieldText));
-						AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
+					PixBox = new Pixbuf(WorkImage, CurRule.Box.PosX, CurRule.Box.PosY, CurRule.Box.Width, CurRule.Box.Heigth);
+					using (var img = PixbufToPix(PixBox)) {
+						using (var page = engine.Process(img)) {
+
+							string FieldText = page.GetText();
+							Doc.DocNumber = FieldText;
+							Doc.DocNumberConfidence = page.GetMeanConfidence();
+							AddToLog(String.Format("Found Field Value: {0}", FieldText));
+							AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
+						}
 					}
 				}
+
+				//Распознаем Дату
+				if(Doc.Template.DateRule != null)
+				{
+					CurRule = Doc.Template.DateRule;
+
+					CurRule.Box.SetTarget(WorkImage.Width, WorkImage.Height);
+					CurRule.Box.SetShift(ShiftX, ShiftY);
+
+					PixBox = new Pixbuf(WorkImage, CurRule.Box.PosX, CurRule.Box.PosY, CurRule.Box.Width, CurRule.Box.Heigth);
+					using (var img = PixbufToPix(PixBox)) {
+						using (var page = engine.Process(img)) {
+
+							string FieldText = page.GetText();
+							DateTime TempDate;
+							if(DateTime.TryParse(FieldText, out TempDate))
+							{
+								Doc.DocDate = TempDate;
+								Doc.DocDateConfidence = page.GetMeanConfidence();
+							}
+							else
+							{
+								Doc.DocDateConfidence = -2;
+							}
+							AddToLog(String.Format("Found Field Value: {0}", FieldText));
+							AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
+						}
+					}
+				}
+
+				//FIXME Добавить распознование дополнительных полей.
 			}
 		}
 

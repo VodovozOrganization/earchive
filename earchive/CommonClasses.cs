@@ -116,16 +116,23 @@ namespace earchive
 	class Document : earchive.DocumentInformation
 	{
 		public Dictionary<int, object> FieldValues;
+		public Dictionary<int, float> FieldConfidence;
 		public string DocNumber;
+		public float DocNumberConfidence;
 		public DateTime DocDate;
+		public float DocDateConfidence;
 
 		public Document (int TypeId) : base(TypeId)
 		{
 			FieldValues = new Dictionary<int, object>();
+			FieldConfidence = new Dictionary<int, float>();
 			DocNumber = "";
+			DocNumberConfidence = -1;
+			DocDateConfidence = -1;
 			foreach (DocFieldInfo Field in FieldsList)
 			{
 				FieldValues.Add (Field.ID, null);
+				FieldConfidence.Add(Field.ID, -1);
 			}
 		}
 

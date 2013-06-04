@@ -19,6 +19,7 @@ namespace earchive
 		private int NextDocNumber;
 		private Dictionary<int, Gtk.Label> FieldLables;
 		private Dictionary<int, object> FieldWidgets;
+		private Dictionary<int, Gtk.Image> FieldIcons;
 
 		public InputDocs () : 
 				base(Gtk.WindowType.Toplevel)
@@ -27,6 +28,7 @@ namespace earchive
 
 			FieldLables = new Dictionary<int, Label>();
 			FieldWidgets = new Dictionary<int, object>();
+			FieldIcons = new Dictionary<int, Gtk.Image>();
 			ComboWorks.ComboFillReference (comboType, "doc_types", 0);
 			//FIXME разобраться с очищением памяти. Если закрыть окно или удалить картинки память не очищается.
 			ImageList = new ImageTreeStore(typeof(int), //0 - id
@@ -171,6 +173,12 @@ namespace earchive
 				((Widget)pair.Value).Destroy();
 			}
 			FieldWidgets.Clear();
+			foreach(KeyValuePair<int, Gtk.Image> pair in FieldIcons)
+			{
+				tableFieldWidgets.Remove(pair.Value);
+				pair.Value.Destroy();
+			}
+			FieldIcons.Clear();
 			Clearing = true;
 			if(ChangeTypeCombo)
 				comboType.Active = -1;
@@ -208,6 +216,11 @@ namespace earchive
 				                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
 				FieldWidgets.Add(field.ID, ValueWidget);
 
+				Gtk.Image ConfIcon = new Gtk.Image();
+				tableFieldWidgets.Attach(ConfIcon, 2, 3, Row, Row+1, 
+				                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+				FieldIcons.Add(field.ID, ConfIcon);
+
 				Row++;
 			}
 			tableFieldWidgets.ShowAll();
@@ -222,8 +235,10 @@ namespace earchive
 			}
 			entryNumber.Text = CurrentDoc.DocNumber;
 			entryNumber.Sensitive = true;
+			SetRecognizeIcon(IconNumber, CurrentDoc.DocNumberConfidence);
 			dateDoc.Date = CurrentDoc.DocDate;
 			dateDoc.Sensitive = true;
+			SetRecognizeIcon(IconDate, CurrentDoc.DocDateConfidence);
 			Clearing = false;
 
 			foreach(DocFieldInfo field in CurrentDoc.FieldsList)
@@ -239,6 +254,8 @@ namespace earchive
 					Console.WriteLine("Неизвестный тип поля");
 					break;
 				}
+
+				SetRecognizeIcon(FieldIcons[field.ID], CurrentDoc.FieldConfidence[field.ID]);
 			}
 		}
 
@@ -672,13 +689,37 @@ namespace earchive
 					}
 					finally
 					{
-						UpdateFieldsWidgets(false);
 						ShowLog(tess.log);
 					}
 				}
 			}while(ImageList.IterNext(ref iter));
 
 			//FIXME Обновить текущий документ в окне.
+			UpdateFieldsWidgets(false);
+		}
+
+		void SetRecognizeIcon(Gtk.Image img, float confidence)
+		{
+			if(confidence > 0.8)
+			{
+				img.Pixbuf = img.RenderIcon(Stock.Yes, IconSize.Button, "");
+				img.TooltipText =  String.Format("ОК. Доверие: {0}", confidence);
+			}
+			else if(confidence == -1) //Распознования не проводилось
+			{
+				img.Pixbuf = img.RenderIcon(Stock.DialogQuestion, IconSize.Button, "");
+				img.TooltipText =  String.Format("Распознование не проводилось.");
+			}
+			else if(confidence == -2) //Результат не прошел проверку.
+			{
+				img.Pixbuf = img.RenderIcon(Stock.No, IconSize.Button, "");
+				img.TooltipText =  String.Format("Результат не прошёл проверку.");
+			}
+			else
+			{
+				img.Pixbuf = img.RenderIcon(Stock.DialogWarning, IconSize.Button, "");
+				img.TooltipText =  String.Format("Не точно. Доверие: {0}", confidence);
+			}
 		}
 
 		void ShowLog(string text)

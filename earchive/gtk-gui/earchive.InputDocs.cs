@@ -29,6 +29,8 @@ namespace earchive
 		private global::Gtk.ComboBox comboType;
 		private global::QSWidgetLib.DatePicker dateDoc;
 		private global::Gtk.Entry entryNumber;
+		private global::Gtk.Image IconDate;
+		private global::Gtk.Image IconNumber;
 		private global::Gtk.Label label1;
 		private global::Gtk.Label label10;
 		private global::Gtk.Label label11;
@@ -135,7 +137,7 @@ namespace earchive
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.hpaned1]));
 			w9.Position = 0;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.tableFieldWidgets = new global::Gtk.Table (((uint)(5)), ((uint)(2)), false);
+			this.tableFieldWidgets = new global::Gtk.Table (((uint)(5)), ((uint)(3)), false);
 			this.tableFieldWidgets.Name = "tableFieldWidgets";
 			this.tableFieldWidgets.RowSpacing = ((uint)(6));
 			this.tableFieldWidgets.ColumnSpacing = ((uint)(6));
@@ -179,16 +181,40 @@ namespace earchive
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
+			this.IconDate = new global::Gtk.Image ();
+			this.IconDate.Name = "IconDate";
+			this.IconDate.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-dialog-info", global::Gtk.IconSize.Button);
+			this.tableFieldWidgets.Add (this.IconDate);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.IconDate]));
+			w13.TopAttach = ((uint)(3));
+			w13.BottomAttach = ((uint)(4));
+			w13.LeftAttach = ((uint)(2));
+			w13.RightAttach = ((uint)(3));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableFieldWidgets.Gtk.Table+TableChild
+			this.IconNumber = new global::Gtk.Image ();
+			this.IconNumber.Name = "IconNumber";
+			this.IconNumber.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-dialog-info", global::Gtk.IconSize.Button);
+			this.tableFieldWidgets.Add (this.IconNumber);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.IconNumber]));
+			w14.TopAttach = ((uint)(2));
+			w14.BottomAttach = ((uint)(3));
+			w14.LeftAttach = ((uint)(2));
+			w14.RightAttach = ((uint)(3));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableFieldWidgets.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Поля текущего документа</b>");
 			this.label1.UseMarkup = true;
 			this.label1.Justify = ((global::Gtk.Justification)(2));
 			this.tableFieldWidgets.Add (this.label1);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label1]));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label1]));
+			w15.RightAttach = ((uint)(3));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
 			this.label10 = new global::Gtk.Label ();
 			this.label10.Name = "label10";
@@ -196,11 +222,11 @@ namespace earchive
 			this.label10.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата<span foreground=\"red\">*</span>:");
 			this.label10.UseMarkup = true;
 			this.tableFieldWidgets.Add (this.label10);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label10]));
-			w14.TopAttach = ((uint)(3));
-			w14.BottomAttach = ((uint)(4));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label10]));
+			w16.TopAttach = ((uint)(3));
+			w16.BottomAttach = ((uint)(4));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
 			this.label11 = new global::Gtk.Label ();
 			this.label11.Name = "label11";
@@ -208,11 +234,11 @@ namespace earchive
 			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString ("Тип документа<span foreground=\"red\">*</span>:");
 			this.label11.UseMarkup = true;
 			this.tableFieldWidgets.Add (this.label11);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label11]));
-			w15.TopAttach = ((uint)(1));
-			w15.BottomAttach = ((uint)(2));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label11]));
+			w17.TopAttach = ((uint)(1));
+			w17.BottomAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
 			this.label9 = new global::Gtk.Label ();
 			this.label9.Name = "label9";
@@ -220,26 +246,26 @@ namespace earchive
 			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString ("Номер<span foreground=\"red\">*</span>:");
 			this.label9.UseMarkup = true;
 			this.tableFieldWidgets.Add (this.label9);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label9]));
-			w16.TopAttach = ((uint)(2));
-			w16.BottomAttach = ((uint)(3));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label9]));
+			w18.TopAttach = ((uint)(2));
+			w18.BottomAttach = ((uint)(3));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox2.Add (this.tableFieldWidgets);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.tableFieldWidgets]));
-			w17.Position = 1;
-			w17.Expand = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.tableFieldWidgets]));
+			w19.Position = 1;
+			w19.Expand = false;
 			this.vbox2.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
-			w18.Position = 1;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
+			w20.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.progresswork = new global::Gtk.ProgressBar ();
 			this.progresswork.Name = "progresswork";
 			this.vbox2.Add (this.progresswork);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.progresswork]));
-			w19.Position = 2;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.progresswork]));
+			w21.Position = 2;
+			w21.Expand = false;
+			w21.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

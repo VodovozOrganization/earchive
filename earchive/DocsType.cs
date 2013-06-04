@@ -398,6 +398,22 @@ namespace earchive
 			{
 				DocTemplate = new RecognizeTemplate();
 				labelTemplateName.LabelProp = "Новый";
+				//FIXME Убрать тестовый документ
+				DocTemplate.Name = "Торг12-тест";
+				RecognazeRule testrule = new RecognazeRule();
+				testrule.Box = new RelationalRectangle(0.357468643, 0.321774194, 0.088939567, 0.026612903);
+				DocTemplate.NumberRule = testrule;
+
+				testrule = new RecognazeRule();
+				testrule.Box = new RelationalRectangle(0.444412771, 0.323387097, 0.08608894, 0.021774194);
+				DocTemplate.DateRule = testrule;
+
+				TextMarker Marker = new TextMarker();
+				Marker.Text = "ТОВАРНАЯ НАКЛАДНАЯ";
+				Marker.PatternPosX = 0.206100342;
+				Marker.PatternPosY = 0.324193548;
+				Marker.Zone = new RelationalRectangle(0.181299886, 0.292741935, 0.196693273, 0.12);
+				DocTemplate.Markers = new TextMarker[]{Marker};
 			}
 			//FIXME Открыть диалог настройки шаблона.
 		}
@@ -422,6 +438,7 @@ namespace earchive
 				DocTemplate = RecognizeTemplate.Load(fs);
 				fs.Close();
 				labelTemplateName.LabelProp = DocTemplate.Name;
+				DocTemplate.DocTypeId = TypeId;
 			}
 			Chooser.Destroy();
 		}
