@@ -22,6 +22,12 @@ namespace earchive
 		private Dictionary<int, Gtk.Image> FieldIcons;
 		private string CurrentLog;
 
+		//Настройки значков
+		string DocIconNew = Stock.New;
+		string DocIconBad = Stock.No;
+		string DocIconAttention = Stock.DialogWarning;
+		string DocIconGood = Stock.Yes;
+
 		public InputDocs () : 
 				base(Gtk.WindowType.Toplevel)
 		{
@@ -93,7 +99,7 @@ namespace earchive
 							                        null,
 							                        false,
 					                               String.Format ("Тип неопределён"),
-					                               Stock.New
+					                               DocIconNew
 					                               );
 
 					FileStream fs = new FileStream(File, FileMode.Open, FileAccess.Read);
@@ -463,6 +469,11 @@ namespace earchive
 			if(CurrentDoc != null && !Clearing )
 			{
 				CurrentDoc.DocDate = dateDoc.Date;
+				if(!dateDoc.IsEmpty)
+					CurrentDoc.DocDateConfidence = 2;
+				else
+					CurrentDoc.DocDateConfidence = -2;
+				SetRecognizeIcon(IconDate, CurrentDoc.DocDateConfidence);
 				UpdateCurDocCanSave();
 			}
 		}
@@ -472,6 +483,11 @@ namespace earchive
 			if(CurrentDoc != null && !Clearing)
 			{
 				CurrentDoc.DocNumber = entryNumber.Text;
+				if(CurrentDoc.DocNumber != "")
+					CurrentDoc.DocNumberConfidence = 2;
+				else 
+					CurrentDoc.DocNumberConfidence = -2;
+				SetRecognizeIcon(IconNumber, CurrentDoc.DocNumberConfidence);
 				UpdateCurDocCanSave();
 			}
 		}
@@ -480,10 +496,24 @@ namespace earchive
 		{
 			if(CurrentDoc == null)
 				return;
-			if(CurrentDoc.CanSave)
-				ImageList.SetValue(CurrentDocIter, 8, Stock.File);
-			else
-				ImageList.SetValue(CurrentDocIter, 8, Stock.New);
+
+			ImageList.SetValue(CurrentDocIter, 8, GetDocIconByState(CurrentDoc.State));
+		}
+
+		private string GetDocIconByState(DocState state)
+		{
+			switch (state) {
+			case DocState.Good:
+				return DocIconGood;
+			case DocState.New:
+				return DocIconNew;
+			case DocState.Bad:
+				return DocIconBad;
+			case DocState.Attention:
+				return DocIconAttention;
+			default:
+				return "";
+			}
 		}
 
 		protected void OnComboTypeChanged (object sender, EventArgs e)
@@ -510,7 +540,7 @@ namespace earchive
 				return;
 			do
 			{
-				if((string) ImageList.GetValue(iter, 8) == Stock.New)
+				if((string) ImageList.GetValue(iter, 8) != DocIconGood)
 					HasIncomplete = true;
 				CountDoc++;
 			}
@@ -536,7 +566,7 @@ namespace earchive
 			ImageList.GetIterFirst(out iter);
 			do
 			{
-				if((string) ImageList.GetValue(iter, 8) == Stock.New)
+				if((string) ImageList.GetValue(iter, 8) != DocIconGood)
 					continue;
 
 				Document doc = (Document)ImageList.GetValue(iter, 3);
@@ -711,6 +741,7 @@ namespace earchive
 					{
 						CurrentLog += tess.log;
 					}
+					ImageList.SetValue(iter, 8, GetDocIconByState(doc.State));
 				}
 				progresswork.Adjustment.Value++;
 				MainClass.WaitRedraw();
@@ -724,7 +755,12 @@ namespace earchive
 
 		void SetRecognizeIcon(Gtk.Image img, float confidence)
 		{
-			if(confidence > 0.8)
+			if(confidence == 2) //Исправлено пользователем.
+			{
+				img.Pixbuf = img.RenderIcon(Stock.Apply, IconSize.Button, "");
+				img.TooltipText =  String.Format("Исправлено.");
+			}
+			else if(confidence > 0.8)
 			{
 				img.Pixbuf = img.RenderIcon(Stock.Yes, IconSize.Button, "");
 				img.TooltipText =  String.Format("ОК. Доверие: {0}", confidence);

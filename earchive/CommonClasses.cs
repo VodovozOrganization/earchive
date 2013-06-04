@@ -143,7 +143,38 @@ namespace earchive
 				return Numberok && Dateok;
 			}
 		}
+
+		public DocState State{
+			get{
+				DocState temp;
+				float[] Conf = new float[] {DocNumberConfidence, DocDateConfidence};
+				//FIXME Добавить в обработку значения дополнительных полей.
+				float Min = 5;
+
+				foreach(float val in Conf)
+				{
+					if(val < Min)
+						Min = val;
+				}
+
+				if(Min >= 0.8 && CanSave)
+					temp = DocState.Good;
+				else if(Min >= 0)
+					temp = DocState.Attention;
+				else if (Min >= -1)
+					temp = DocState.New;
+				else 
+					temp = DocState.Bad;
+				return temp;
+			}
+		}
 	}
+
+	public enum DocState {
+		New,
+		Good,
+		Bad,
+		Attention};
 
 	class DocumentImage
 	{
