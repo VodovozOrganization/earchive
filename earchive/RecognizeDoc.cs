@@ -91,7 +91,15 @@ namespace earchive
 
 							string FieldText = page.GetText();
 							DateTime TempDate;
-							if(DateTime.TryParse(FieldText, out TempDate))
+							string[] words = FieldText.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+							string Date = "";
+							foreach(string word in words)
+							{
+								if(DateTime.TryParse(word, out TempDate))
+								   Date = word;
+							}
+
+							if(DateTime.TryParse(Date, out TempDate))
 							{
 								Doc.DocDate = TempDate;
 								Doc.DocDateConfidence = page.GetMeanConfidence();
@@ -101,6 +109,7 @@ namespace earchive
 								Doc.DocDateConfidence = -2;
 							}
 							AddToLog(String.Format("Found Field Value: {0}", FieldText));
+							AddToLog(String.Format("Split date Value: {0}", Date));
 							AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
 						}
 					}

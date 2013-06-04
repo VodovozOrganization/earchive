@@ -94,7 +94,6 @@ namespace earchive
 			// Container child table1.Gtk.Table+TableChild
 			this.frame1 = new global::Gtk.Frame ();
 			this.frame1.Name = "frame1";
-			this.frame1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child frame1.Gtk.Container+ContainerChild
 			this.GtkAlignment6 = new global::Gtk.Alignment (0F, 0F, 1F, 1F);
 			this.GtkAlignment6.Name = "GtkAlignment6";
@@ -117,6 +116,8 @@ namespace earchive
 			this.toolbar1 = ((global::Gtk.Toolbar)(this.UIManager.GetWidget ("/toolbar1")));
 			this.toolbar1.Name = "toolbar1";
 			this.toolbar1.ShowArrow = false;
+			this.toolbar1.ToolbarStyle = ((global::Gtk.ToolbarStyle)(0));
+			this.toolbar1.IconSize = ((global::Gtk.IconSize)(4));
 			this.vbox2.Add (this.toolbar1);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.toolbar1]));
 			w6.Position = 1;
@@ -438,7 +439,7 @@ namespace earchive
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
-			this.DefaultWidth = 631;
+			this.DefaultWidth = 669;
 			this.DefaultHeight = 400;
 			this.Show ();
 			this.recognizeAction.Activated += new global::System.EventHandler (this.OnRecognizeActionActivated);
