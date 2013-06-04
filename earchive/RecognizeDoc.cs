@@ -68,7 +68,7 @@ namespace earchive
 					using (var img = PixbufToPix(PixBox)) {
 						using (var page = engine.Process(img)) {
 
-							string FieldText = page.GetText();
+							string FieldText = page.GetText().Trim();
 							Doc.DocNumber = FieldText;
 							Doc.DocNumberConfidence = page.GetMeanConfidence();
 							AddToLog(String.Format("Found Field Value: {0}", FieldText));
@@ -89,7 +89,7 @@ namespace earchive
 					using (var img = PixbufToPix(PixBox)) {
 						using (var page = engine.Process(img)) {
 
-							string FieldText = page.GetText();
+							string FieldText = page.GetText().Trim();
 							DateTime TempDate;
 							string[] words = FieldText.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 							string Date = "";
@@ -185,7 +185,7 @@ namespace earchive
 			{
 				int CurrentWordNumber = -1;
 				int CurrentBestDistance = 10000;
-				string Line = LineIter.GetText(PageIteratorLevel.TextLine);
+				string Line = LineIter.GetText(PageIteratorLevel.TextLine).Trim();
 				if(Line == null)
 					continue;
 				string[] WordsOfLine = Line.Split(new char[] {' '}, StringSplitOptions.None);
@@ -210,7 +210,7 @@ namespace earchive
 				if(CurrentBestDistance < BestDistance)
 				{
 					AddToLog ("new best");
-					AddToLog (LineIter.GetText(PageIteratorLevel.TextLine));
+					AddToLog (LineIter.GetText(PageIteratorLevel.TextLine).Trim());
 					BestDistance = CurrentBestDistance;
 					for(int i = 0; i < CurrentWordNumber; i++)
 					{
