@@ -645,6 +645,8 @@ namespace earchive
 					Document doc = (Document) ImageList.GetValue(iter, 3);
 					if(doc == null)
 						continue;
+					if(doc.Template == null)
+						continue;
 					int ImagesCount = ImageList.IterNChildren(iter);
 					Pixbuf[] Images = new Pixbuf[ImagesCount];
 					int i = 0;
@@ -670,6 +672,7 @@ namespace earchive
 					}
 					finally
 					{
+						UpdateFieldsWidgets(false);
 						ShowLog(tess.log);
 					}
 				}
