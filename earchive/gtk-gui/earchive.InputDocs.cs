@@ -25,6 +25,7 @@ namespace earchive
 		private global::Gtk.TreeView treeviewImages;
 		private global::Gtk.ScrolledWindow scrolledImage;
 		private global::Gtk.Image imageDoc;
+		private global::Gtk.VBox vbox3;
 		private global::Gtk.Table tableFieldWidgets;
 		private global::Gtk.ComboBox comboType;
 		private global::QSWidgetLib.DatePicker dateDoc;
@@ -35,6 +36,7 @@ namespace earchive
 		private global::Gtk.Label label10;
 		private global::Gtk.Label label11;
 		private global::Gtk.Label label9;
+		private global::Gtk.Button buttonLog;
 		private global::Gtk.ProgressBar progresswork;
 
 		protected virtual void Build ()
@@ -141,6 +143,10 @@ namespace earchive
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.hpaned1]));
 			w9.Position = 0;
 			// Container child hbox2.Gtk.Box+BoxChild
+			this.vbox3 = new global::Gtk.VBox ();
+			this.vbox3.Name = "vbox3";
+			this.vbox3.Spacing = 6;
+			// Container child vbox3.Gtk.Box+BoxChild
 			this.tableFieldWidgets = new global::Gtk.Table (((uint)(5)), ((uint)(3)), false);
 			this.tableFieldWidgets.Name = "tableFieldWidgets";
 			this.tableFieldWidgets.RowSpacing = ((uint)(6));
@@ -255,21 +261,51 @@ namespace earchive
 			w18.BottomAttach = ((uint)(3));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.hbox2.Add (this.tableFieldWidgets);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.tableFieldWidgets]));
-			w19.Position = 1;
-			w19.Expand = false;
+			this.vbox3.Add (this.tableFieldWidgets);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.tableFieldWidgets]));
+			w19.Position = 0;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.buttonLog = new global::Gtk.Button ();
+			this.buttonLog.CanFocus = true;
+			this.buttonLog.Name = "buttonLog";
+			this.buttonLog.UseUnderline = true;
+			// Container child buttonLog.Gtk.Container+ContainerChild
+			global::Gtk.Alignment w20 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
+			// Container child GtkAlignment.Gtk.Container+ContainerChild
+			global::Gtk.HBox w21 = new global::Gtk.HBox ();
+			w21.Spacing = 2;
+			// Container child GtkHBox.Gtk.Container+ContainerChild
+			global::Gtk.Image w22 = new global::Gtk.Image ();
+			w22.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-execute", global::Gtk.IconSize.Button);
+			w21.Add (w22);
+			// Container child GtkHBox.Gtk.Container+ContainerChild
+			global::Gtk.Label w24 = new global::Gtk.Label ();
+			w24.LabelProp = global::Mono.Unix.Catalog.GetString ("Показать журнал распознования.");
+			w24.UseUnderline = true;
+			w21.Add (w24);
+			w20.Add (w21);
+			this.buttonLog.Add (w20);
+			this.vbox3.Add (this.buttonLog);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.buttonLog]));
+			w28.Position = 2;
+			w28.Expand = false;
+			w28.Fill = false;
+			this.hbox2.Add (this.vbox3);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox3]));
+			w29.Position = 1;
+			w29.Expand = false;
+			w29.Fill = false;
 			this.vbox2.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
-			w20.Position = 1;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
+			w30.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.progresswork = new global::Gtk.ProgressBar ();
 			this.progresswork.Name = "progresswork";
 			this.vbox2.Add (this.progresswork);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.progresswork]));
-			w21.Position = 2;
-			w21.Expand = false;
-			w21.Fill = false;
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.progresswork]));
+			w31.Position = 2;
+			w31.Expand = false;
+			w31.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -294,6 +330,7 @@ namespace earchive
 			this.entryNumber.Changed += new global::System.EventHandler (this.OnEntryNumberChanged);
 			this.dateDoc.DateChanged += new global::System.EventHandler (this.OnDateDocDateChanged);
 			this.comboType.Changed += new global::System.EventHandler (this.OnComboTypeChanged);
+			this.buttonLog.Clicked += new global::System.EventHandler (this.OnButtonLogClicked);
 		}
 	}
 }

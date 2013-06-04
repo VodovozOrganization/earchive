@@ -20,6 +20,7 @@ namespace earchive
 		private Dictionary<int, Gtk.Label> FieldLables;
 		private Dictionary<int, object> FieldWidgets;
 		private Dictionary<int, Gtk.Image> FieldIcons;
+		private string CurrentLog;
 
 		public InputDocs () : 
 				base(Gtk.WindowType.Toplevel)
@@ -653,17 +654,32 @@ namespace earchive
 		protected void OnAction1Activated (object sender, EventArgs e)
 		{
 			TreeIter iter, imageiter;
+			CurrentLog = "Запущен новый процесс распознования...\n";
 			if(!ImageList.GetIterFirst(out iter))
+			{
+				CurrentLog += "Список изображений пуст. Остановка.";
 				return;
+			}
+			CurrentLog += String.Format("Всего документов: {0}\n", ImageList.IterNChildren());
+			progresswork.Text = "Распознование документов...";
+			progresswork.Adjustment.Upper = ImageList.IterNChildren();
+			MainClass.WaitRedraw();
 			do
 			{
 				if(ImageList.IterDepth(iter) == 0)
 				{
+					CurrentLog += (string) ImageList.GetValue(iter, 1) + Environment.NewLine;
 					Document doc = (Document) ImageList.GetValue(iter, 3);
 					if(doc == null)
+					{
+						CurrentLog += "Тип не определён. Переходим к следующему...\n";
 						continue;
+					}
 					if(doc.Template == null)
+					{
+						CurrentLog += "Шаблон распознования не указан. Переходим к следующему...\n";
 						continue;
+					}
 					int ImagesCount = ImageList.IterNChildren(iter);
 					Pixbuf[] Images = new Pixbuf[ImagesCount];
 					int i = 0;
@@ -673,7 +689,9 @@ namespace earchive
 						Images[i] = (Pixbuf) ImageList.GetValue(imageiter, 5);
 						i++;
 					}while(ImageList.IterNext(ref imageiter));
-
+					CurrentLog += String.Format("Тип: {0}\n", doc.TypeName);
+					CurrentLog += String.Format("Количество страниц: {0}\n", ImagesCount);
+					CurrentLog += String.Format("\nИнициализация давижка...\n");
 					RecognizeDoc tess = new RecognizeDoc(doc, Images);
 					//FIXME Для теста
 					tess.parent = this;
@@ -686,14 +704,20 @@ namespace earchive
 						Console.WriteLine(ex.ToString());
 						MainClass.StatusMessage("Ошибка в модуле распознования!");
 						QSMain.ErrorMessage(this,ex);
+						if(tess.log != "")
+							ShowLog(tess.log);
 					}
 					finally
 					{
-						ShowLog(tess.log);
+						CurrentLog += tess.log;
 					}
 				}
-			}while(ImageList.IterNext(ref iter));
+				progresswork.Adjustment.Value++;
+				MainClass.WaitRedraw();
 
+			}while(ImageList.IterNext(ref iter));
+			progresswork.Text = "Выполнено";
+			progresswork.Fraction = 0;
 			//FIXME Обновить текущий документ в окне.
 			UpdateFieldsWidgets(false);
 		}
@@ -743,6 +767,10 @@ namespace earchive
 			HistoryDialog.Destroy ();
 		}
 
+		protected void OnButtonLogClicked (object sender, EventArgs e)
+		{
+			ShowLog(CurrentLog);
+		}
 	}
 
 	class ImageTreeStore : Gtk.TreeStore, TreeDragSourceImplementor, TreeDragDestImplementor
