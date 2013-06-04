@@ -435,6 +435,7 @@ namespace earchive
 			{
 				Chooser.Hide();
 				FileStream fs = new FileStream(Chooser.Filename, FileMode.Open, FileAccess.Read);
+				//FIXME Обработать ошибки загрузки.
 				DocTemplate = RecognizeTemplate.Load(fs);
 				fs.Close();
 				labelTemplateName.LabelProp = DocTemplate.Name;

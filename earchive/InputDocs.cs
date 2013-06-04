@@ -691,7 +691,7 @@ namespace earchive
 					}while(ImageList.IterNext(ref imageiter));
 					CurrentLog += String.Format("Тип: {0}\n", doc.TypeName);
 					CurrentLog += String.Format("Количество страниц: {0}\n", ImagesCount);
-					CurrentLog += String.Format("\nИнициализация давижка...\n");
+					CurrentLog += String.Format("\nИнициализация движка...\n");
 					RecognizeDoc tess = new RecognizeDoc(doc, Images);
 					//FIXME Для теста
 					tess.parent = this;

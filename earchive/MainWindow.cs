@@ -235,6 +235,7 @@ namespace earchive
 				DocsListStore.AppendValues (Values);
 			}
 			rdr.Close ();
+			OnTreeviewDocsCursorChanged(null, null);
 		}
 
 		protected void OnSelectperiodDocsDatesChanged (object sender, EventArgs e)
@@ -297,6 +298,11 @@ namespace earchive
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			cmd.Parameters.AddWithValue ("@id", itemid);
 			cmd.ExecuteNonQuery ();
+			UpdateDocs();
+		}
+
+		protected void OnButtonRefreshClicked (object sender, EventArgs e)
+		{
 			UpdateDocs();
 		}
 	}
