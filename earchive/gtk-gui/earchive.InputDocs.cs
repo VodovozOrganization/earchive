@@ -50,8 +50,10 @@ namespace earchive
 			this.Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("Сканировать");
 			w1.Add (this.Action, null);
 			this.clearAction = new global::Gtk.Action ("clearAction", null, global::Mono.Unix.Catalog.GetString ("Очистить список изображений"), "gtk-clear");
+			this.clearAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Очистить");
 			w1.Add (this.clearAction, null);
 			this.saveAction = new global::Gtk.Action ("saveAction", null, global::Mono.Unix.Catalog.GetString ("Сохранить в базу"), "gtk-save");
+			this.saveAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Сохранить");
 			w1.Add (this.saveAction, null);
 			this.zoom100Action = new global::Gtk.Action ("zoom100Action", global::Mono.Unix.Catalog.GetString ("1:1"), null, "gtk-zoom-100");
 			this.zoom100Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("1:1");
@@ -60,8 +62,10 @@ namespace earchive
 			this.zoomFitAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Вписать");
 			w1.Add (this.zoomFitAction, null);
 			this.zoomInAction = new global::Gtk.Action ("zoomInAction", null, null, "gtk-zoom-in");
+			this.zoomInAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Увеличить");
 			w1.Add (this.zoomInAction, null);
 			this.zoomOutAction = new global::Gtk.Action ("zoomOutAction", null, null, "gtk-zoom-out");
+			this.zoomOutAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Уменьшить");
 			w1.Add (this.zoomOutAction, null);
 			this.Rotate90Action = new global::Gtk.Action ("Rotate90Action", global::Mono.Unix.Catalog.GetString ("90"), null, "rotate-90");
 			this.Rotate90Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("90°");

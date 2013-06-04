@@ -296,7 +296,7 @@
                 <property name="Sensitive">False</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-edit Menu</property>
+                <property name="Icon">stock:gtk-edit Button</property>
                 <property name="Label" translatable="yes">Открыть</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonOpenClicked" />
@@ -314,7 +314,7 @@
                 <property name="Sensitive">False</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-delete Menu</property>
+                <property name="Icon">stock:gtk-delete Button</property>
                 <property name="Label" translatable="yes">Удалить</property>
                 <property name="UseUnderline">True</property>
               </widget>
@@ -1687,6 +1687,7 @@
       <action id="clearAction">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes" />
+        <property name="ShortLabel" translatable="yes">Очистить</property>
         <property name="StockId">gtk-clear</property>
         <property name="Tooltip" translatable="yes">Очистить список изображений</property>
         <signal name="Activated" handler="OnClearActionActivated" />
@@ -1694,6 +1695,7 @@
       <action id="saveAction">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes" />
+        <property name="ShortLabel" translatable="yes">Сохранить</property>
         <property name="StockId">gtk-save</property>
         <property name="Tooltip" translatable="yes">Сохранить в базу</property>
         <signal name="Activated" handler="OnSaveActionActivated" />
@@ -1715,12 +1717,14 @@
       <action id="zoomInAction">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes" />
+        <property name="ShortLabel" translatable="yes">Увеличить</property>
         <property name="StockId">gtk-zoom-in</property>
         <signal name="Activated" handler="OnZoomInActionActivated" />
       </action>
       <action id="zoomOutAction">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes" />
+        <property name="ShortLabel" translatable="yes">Уменьшить</property>
         <property name="StockId">gtk-zoom-out</property>
         <signal name="Activated" handler="OnZoomOutActionActivated" />
       </action>

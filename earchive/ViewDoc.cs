@@ -161,7 +161,7 @@ namespace earchive
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
-				MainClass.StatusMessage("Ошибка получения информации о поле!");
+				MainClass.StatusMessage("Ошибка получения документа!");
 				QSMain.ErrorMessage(this,ex);
 			}
 		}
