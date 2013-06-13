@@ -55,6 +55,13 @@
       <HintPath>..\lib\Tesseract.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="CommonWin32">
+      <HintPath>..\packages\CommonWin32.1.1.3.2\lib\net40-client\CommonWin32.dll</HintPath>
+    </Reference>
+    <Reference Include="NTwain">
+      <HintPath>..\packages\NTwain.0.5.10.0\lib\net40-client\NTwain.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -90,6 +97,7 @@
     <Compile Include="RecognizeTemplate.cs" />
     <Compile Include="TemplateProperty.cs" />
     <Compile Include="gtk-gui\earchive.TemplateProperty.cs" />
+    <Compile Include="ScanWorks.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -105,5 +113,8 @@
   <ItemGroup>
     <Folder Include="icons\" />
     <Folder Include="widgets\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

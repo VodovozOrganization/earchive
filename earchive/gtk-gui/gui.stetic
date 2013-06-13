@@ -1702,6 +1702,7 @@
         <property name="ShortLabel" translatable="yes">Сканировать</property>
         <property name="StockId">scanner</property>
         <property name="Tooltip" translatable="yes">Добавить изображения со сканера</property>
+        <signal name="Activated" handler="OnActionActivated" />
       </action>
       <action id="clearAction">
         <property name="Type">Action</property>

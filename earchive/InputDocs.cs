@@ -807,6 +807,13 @@ namespace earchive
 		{
 			ShowLog(CurrentLog);
 		}
+
+		protected void OnActionActivated (object sender, EventArgs e)
+		{
+			ScanWorks scan = new ScanWorks(this);
+			scan.GetImages();
+		}
+
 	}
 
 	class ImageTreeStore : Gtk.TreeStore, TreeDragSourceImplementor, TreeDragDestImplementor

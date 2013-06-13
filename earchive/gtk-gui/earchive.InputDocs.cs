@@ -314,6 +314,7 @@ namespace earchive
 			this.DefaultHeight = 478;
 			this.Show ();
 			this.openAction.Activated += new global::System.EventHandler (this.OnOpenActionActivated);
+			this.Action.Activated += new global::System.EventHandler (this.OnActionActivated);
 			this.clearAction.Activated += new global::System.EventHandler (this.OnClearActionActivated);
 			this.saveAction.Activated += new global::System.EventHandler (this.OnSaveActionActivated);
 			this.zoom100Action.Activated += new global::System.EventHandler (this.OnZoom100ActionActivated);
