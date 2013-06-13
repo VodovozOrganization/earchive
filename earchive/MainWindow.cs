@@ -117,14 +117,17 @@ namespace earchive
 
 			treeviewDocs.AppendColumn ("Номер", new Gtk.CellRendererText (), "text", 1);
 			treeviewDocs.AppendColumn ("Дата", new Gtk.CellRendererText (), "text", 2);
-			foreach(DocFieldInfo item in CurDocType.FieldsList)
+			if(CurDocType.FieldsList != null)
 			{
-				if(!item.Display)
-					continue;
-				switch (item.Type) {
-				case "varchar":
-					treeviewDocs.AppendColumn (item.Name, new Gtk.CellRendererText (), "text", item.ListStoreColumn);
-					break;
+				foreach(DocFieldInfo item in CurDocType.FieldsList)
+				{
+					if(!item.Display)
+						continue;
+					switch (item.Type) {
+					case "varchar":
+						treeviewDocs.AppendColumn (item.Name, new Gtk.CellRendererText (), "text", item.ListStoreColumn);
+						break;
+					}
 				}
 			}
 			treeviewDocs.AppendColumn ("Создан", new Gtk.CellRendererText (), "text", 3);
@@ -189,7 +192,7 @@ namespace earchive
 
 			string sqlExtra = "";
 			TreeIter iter;
-			if(CurDocType.DBTableName != "")
+			if(CurDocType.DBTableExsist)
 				sqlExtra = "LEFT JOIN extra_" + CurDocType.DBTableName + " ON extra_" + CurDocType.DBTableName + 
 					".doc_id = docs.id ";
 			string sql = "SELECT * FROM docs " + sqlExtra +"WHERE docs.type_id = @type_id";

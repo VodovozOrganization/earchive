@@ -129,10 +129,14 @@ namespace earchive
 			DocNumber = "";
 			DocNumberConfidence = -1;
 			DocDateConfidence = -1;
-			foreach (DocFieldInfo Field in FieldsList)
+			if(DBTableExsist)
 			{
-				FieldValues.Add (Field.ID, null);
-				FieldConfidence.Add(Field.ID, -1);
+				//FIXME Возможно в этом случае объекты выше не надо создавать
+				foreach (DocFieldInfo Field in FieldsList)
+				{
+					FieldValues.Add (Field.ID, null);
+					FieldConfidence.Add(Field.ID, -1);
+				}
 			}
 		}
 
