@@ -93,7 +93,7 @@ namespace earchive
 
 		public void GetImages()
 		{
-			if(Environment.OSVersion.Platform == PlatformID.Win32NT)
+			if(WorkWithTwain)
 			{
 				RunTwain();
 
@@ -109,7 +109,9 @@ namespace earchive
 
 			string step = "Open DSM";
 
-			var hand = new HandleRef(_parent, _parent.Handle);
+			WindowsPlatform.GtkWin32Proxy WinProxy = new WindowsPlatform.GtkWin32Proxy(_parent);
+
+			var hand = new HandleRef(_parent, WinProxy.Handle);
 
 			var rc = twain.OpenManager(hand);
 			if (rc == ReturnCode.Success)

@@ -812,7 +812,10 @@ namespace earchive
 
 		protected void OnActionActivated (object sender, EventArgs e)
 		{
+			CurrentLog += Environment.OSVersion.Platform.ToString();
+			CurrentLog += "init\n";
 			ScanWorks scan = new ScanWorks(this);
+			CurrentLog += "run\n";
 			scan.GetImages();
 		}
 
