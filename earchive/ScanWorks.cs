@@ -60,17 +60,7 @@ namespace earchive
 				var rc2 = twain.CloseSource();
 				rc2 = twain.CloseManager();
 
-/*				if (InvokeRequired)
-				{
-					Invoke(new Action(delegate
-					                  {
-						MessageBox.Show("Success!");
-					}));
-				}
-				else
-				{
-					MessageBox.Show("Success!");
-				} */
+				MainClass.WaitRedraw ();
 			};
 			twain.TransferReady += (s, te) =>
 			{
@@ -109,9 +99,9 @@ namespace earchive
 
 			string step = "Open DSM";
 
-			WindowsPlatform.GtkWin32Proxy WinProxy = new WindowsPlatform.GtkWin32Proxy(_parent);
+			var WinHandle = WindowsPlatform.GdkWin32.HgdiobjGet (_parent.RootWindow);
 
-			var hand = new HandleRef(_parent, WinProxy.Handle);
+			var hand = new HandleRef(_parent, WinHandle);
 
 			var rc = twain.OpenManager(hand);
 			if (rc == ReturnCode.Success)
@@ -130,7 +120,7 @@ namespace earchive
 					if (rc == ReturnCode.Success)
 					{
 						step = "Enable DS";
-						rc = twain.EnableSource(SourceEnableMode.NoUI, false, hand);
+						rc = twain.EnableSource(SourceEnableMode.ShowUI, true, hand);
 						return;
 					}
 					else
@@ -149,7 +139,8 @@ namespace earchive
 				twain.DGControl.Status.GetManager(out status);
 			}
 
-			//MessageBox.Show(string.Format("Failed at {0}: RC={1}, CC={2}", step, rc, status.ConditionCode));
+			Console.WriteLine(string.Format("Failed at {0}: RC={1}, CC={2}", step, rc, status.ConditionCode));
+			MainClass.StatusMessage ("Ошибка сканирования");
 		}
 	}
 }
