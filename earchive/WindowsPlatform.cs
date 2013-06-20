@@ -36,15 +36,6 @@ namespace earchive
 			}
 		}
 
-		/*public class GtkWin32Proxy : IWin32Window
-		{
-			public GtkWin32Proxy (Gtk.Window gtkWindow)
-			{
-				Handle = GdkWin32.HgdiobjGet (gtkWindow.RootWindow);
-			}
-
-			public IntPtr Handle { get; private set; }
-		} */
 	}
 }
 
