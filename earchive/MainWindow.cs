@@ -221,17 +221,20 @@ namespace earchive
 					Values[2] = "";
 				Values[3] = String.Format("{0}", rdr.GetDateTime ("create_date"));
 
-				foreach(DocFieldInfo item in CurDocType.FieldsList)
+				if(CurDocType.FieldsList != null)
 				{
-					if(!item.Display && !item.Search)
-						continue;
-					switch (item.Type) {
-					case "varchar":
-						if(rdr[item.DBName] != DBNull.Value)
-							Values[item.ListStoreColumn] = rdr.GetString (item.DBName);
-						else
-							Values[item.ListStoreColumn] = "";
-						break;
+					foreach(DocFieldInfo item in CurDocType.FieldsList)
+					{
+						if(!item.Display && !item.Search)
+							continue;
+						switch (item.Type) {
+						case "varchar":
+							if(rdr[item.DBName] != DBNull.Value)
+								Values[item.ListStoreColumn] = rdr.GetString (item.DBName);
+							else
+								Values[item.ListStoreColumn] = "";
+							break;
+						}
 					}
 				}
 
