@@ -3,18 +3,21 @@ using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using Gdk;
-using NTwain;
-using NTwain.Data;
-using NTwain.Values;
+//using NTwain;
+//using NTwain.Data;
+//using NTwain.Values;
+using Saraff.Twain;
 
 namespace earchive
 {
 	public class ScanWorks
 	{
 		private bool WorkWithTwain;
-		TwainSession twain;
-		List<Pixbuf> Images;
+		//TwainSession twain;
+		Twain32 _twain32;
+		public List<Pixbuf> Images;
 		Gtk.Window _parent;
 
 		public ScanWorks (Gtk.Window parent)
@@ -36,7 +39,7 @@ namespace earchive
 
 		private void SetupTwain()
 		{
-			TWIdentity appId = TWIdentity.Create(DataGroups.Image, new Version(1, 0), "My Company", "Test Family", "Tester", null);
+		/*	TWIdentity appId = TWIdentity.Create(DataGroups.Image, new Version(1, 0), "Quality Solution", "Open Source", "EArchive", null);
 			twain = new TwainSession(appId);
 			twain.DataTransferred += (s, e) =>
 			{
@@ -52,6 +55,7 @@ namespace earchive
 					var img = new Pixbuf(e.File);
 					Images.Add(img);
 				}
+				Console.WriteLine("DataTransferred");
 			};
 
 			twain.SourceDisabled += delegate
@@ -61,15 +65,30 @@ namespace earchive
 				rc2 = twain.CloseManager();
 
 				MainClass.WaitRedraw ();
+				Console.WriteLine("SourceDisabled");
 			};
 			twain.TransferReady += (s, te) =>
 			{
 				//te.CancelAll = true;
+				Console.WriteLine("TransferReady");
 			};
-			//Application.AddMessageFilter(twain);
+			Application.AddMessageFilter(twain);
+*/
+
+			_twain32 = new Twain32 ();
+			_twain32.OpenDSM();
+
+			_twain32.AcquireCompleted+=(object sender,EventArgs e) => {
+				for(int i = 0; i < _twain32.ImageCount; i++)
+				{
+					Images.Add(WinImageToPixbuf(_twain32.GetImage(i)));
+				}
+				Console.WriteLine("DataTransferred");
+			};
+
 		}
 
-		private Pixbuf BitmapToPixbuf( Bitmap img)
+		private Pixbuf WinImageToPixbuf( System.Drawing.Image img)
 		{
 			MemoryStream  stream = new MemoryStream();
 			img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
@@ -94,7 +113,7 @@ namespace earchive
 
 		private void RunTwain()
 		{
-			TWIdentity dsId;
+		/*	TWIdentity dsId;
 			TWStatus status = null;
 
 			string step = "Open DSM";
@@ -140,7 +159,17 @@ namespace earchive
 			}
 
 			Console.WriteLine(string.Format("Failed at {0}: RC={1}, CC={2}", step, rc, status.ConditionCode));
-			MainClass.StatusMessage ("Ошибка сканирования");
+			MainClass.StatusMessage ("Ошибка запуска сканирования");
+			*/
+
+			_twain32.OpenDataSource();
+			_twain32.Acquire();
+		}
+
+		public void Close()
+		{
+			_twain32.CloseDataSource ();
+			_twain32.CloseDSM ();
 		}
 	}
 }

@@ -812,11 +812,51 @@ namespace earchive
 
 		protected void OnActionActivated (object sender, EventArgs e)
 		{
+			TreeIter iter;
 			CurrentLog += Environment.OSVersion.Platform.ToString();
 			CurrentLog += "init\n";
 			ScanWorks scan = new ScanWorks(this);
 			CurrentLog += "run\n";
 			scan.GetImages();
+
+			progresswork.Text = "Получение изображений со сканера...";
+			progresswork.Adjustment.Upper = scan.Images.Count;
+			foreach(Pixbuf pix in scan.Images)
+			{
+				iter = ImageList.AppendValues (0,
+				                               String.Format ("Документ {0}", NextDocNumber),
+				                               "",
+				                               null,
+				                               null ,
+				                               null,
+				                               false,
+				                               String.Format ("Тип неопределён"),
+				                               DocIconNew
+				                               );
+
+				Pixbuf image = pix;
+				double ratio = 150f / Math.Max(image.Height, image.Width);
+				Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio),(int)(image.Height * ratio), InterpType.Bilinear);
+
+				NextDocNumber++;
+				ImageList.AppendValues (iter,
+				                        0,
+				                        null,
+				                        null,
+				                        null,
+				                        thumb,
+				                        image,
+				                        true,
+				                        "",
+				                        "");
+				progresswork.Adjustment.Value++;
+				MainClass.WaitRedraw();
+			}
+			treeviewImages.ExpandAll ();
+			progresswork.Text = "Ок";
+			progresswork.Fraction = 0;
+
+			scan.Close ();
 		}
 
 	}
