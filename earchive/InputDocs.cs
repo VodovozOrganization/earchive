@@ -201,34 +201,37 @@ namespace earchive
 				return;
 			}
 			//Создаем новые
-			uint Row = 4;
-			foreach(DocFieldInfo field in CurrentDoc.FieldsList)
+			if(CurrentDoc.FieldsList != null)
 			{
-				Label NameLable = new Label(field.Name + ":");
-				NameLable.Xalign = 1;
-				tableFieldWidgets.Attach(NameLable, 0, 1, Row, Row+1, 
-				                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
-				FieldLables.Add(field.ID, NameLable);
-				object ValueWidget;
-				switch (field.Type) {
-				case "varchar" :
-					ValueWidget = new Entry();
-					((Entry)ValueWidget).Changed += OnExtraFieldEntryChanged;
-					break;
-				default :
-					ValueWidget = new Label();
-					break;
+				uint Row = 4;
+				foreach(DocFieldInfo field in CurrentDoc.FieldsList)
+				{
+					Label NameLable = new Label(field.Name + ":");
+					NameLable.Xalign = 1;
+					tableFieldWidgets.Attach(NameLable, 0, 1, Row, Row+1, 
+					                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+					FieldLables.Add(field.ID, NameLable);
+					object ValueWidget;
+					switch (field.Type) {
+					case "varchar" :
+						ValueWidget = new Entry();
+						((Entry)ValueWidget).Changed += OnExtraFieldEntryChanged;
+						break;
+					default :
+						ValueWidget = new Label();
+						break;
+					}
+					tableFieldWidgets.Attach((Widget)ValueWidget, 1, 2, Row, Row+1, 
+					                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+					FieldWidgets.Add(field.ID, ValueWidget);
+
+					Gtk.Image ConfIcon = new Gtk.Image();
+					tableFieldWidgets.Attach(ConfIcon, 2, 3, Row, Row+1, 
+					                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+					FieldIcons.Add(field.ID, ConfIcon);
+
+					Row++;
 				}
-				tableFieldWidgets.Attach((Widget)ValueWidget, 1, 2, Row, Row+1, 
-				                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
-				FieldWidgets.Add(field.ID, ValueWidget);
-
-				Gtk.Image ConfIcon = new Gtk.Image();
-				tableFieldWidgets.Attach(ConfIcon, 2, 3, Row, Row+1, 
-				                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
-				FieldIcons.Add(field.ID, ConfIcon);
-
-				Row++;
 			}
 			tableFieldWidgets.ShowAll();
 
@@ -248,21 +251,24 @@ namespace earchive
 			SetRecognizeIcon(IconDate, CurrentDoc.DocDateConfidence);
 			Clearing = false;
 
-			foreach(DocFieldInfo field in CurrentDoc.FieldsList)
+			if(CurrentDoc.FieldsList != null)
 			{
-				if(CurrentDoc.FieldValues[field.ID] == null)
-					continue;
+				foreach(DocFieldInfo field in CurrentDoc.FieldsList)
+				{
+					if(CurrentDoc.FieldValues[field.ID] == null)
+						continue;
 
-				switch (field.Type) {
-				case "varchar" :
-					((Entry)FieldWidgets[field.ID]).Text = (string) CurrentDoc.FieldValues[field.ID];
-					break;
-				default:
-					Console.WriteLine("Неизвестный тип поля");
-					break;
+					switch (field.Type) {
+					case "varchar" :
+						((Entry)FieldWidgets[field.ID]).Text = (string) CurrentDoc.FieldValues[field.ID];
+						break;
+					default:
+						Console.WriteLine("Неизвестный тип поля");
+						break;
+					}
+
+					SetRecognizeIcon(FieldIcons[field.ID], CurrentDoc.FieldConfidence[field.ID]);
 				}
-
-				SetRecognizeIcon(FieldIcons[field.ID], CurrentDoc.FieldConfidence[field.ID]);
 			}
 		}
 
