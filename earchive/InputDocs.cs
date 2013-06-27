@@ -731,6 +731,7 @@ namespace earchive
 					CurrentLog += String.Format("Количество страниц: {0}\n", ImagesCount);
 					CurrentLog += String.Format("\nИнициализация движка...\n");
 					RecognizeDoc tess = new RecognizeDoc(doc, Images);
+					tess.DiagnosticMode = checkDiagnostic.Active;
 					//FIXME Для теста
 					tess.parent = this;
 					try

@@ -12,6 +12,7 @@ namespace earchive
 		Document Doc;
 		Pixbuf[] Images;
 		public string log;
+		public bool DiagnosticMode = false;
 		public Gtk.Window parent;
 
 		public RecognizeDoc (Document doc, Pixbuf[] images)
@@ -235,13 +236,17 @@ namespace earchive
 
 		void ShowImage(Pixbuf img, string title)
 		{
-			Gtk.Dialog Win = new Gtk.Dialog(title, parent, Gtk.DialogFlags.Modal, Gtk.ButtonsType.Ok);
-			Gtk.Image Image = new Gtk.Image(img);
-			Win.VBox.Add(Image);
-			Win.ShowAll();
-			Win.Run();
-			Image.Pixbuf = null;
-			Win.Destroy();
+			if(DiagnosticMode)
+			{
+				Gtk.Dialog Win = new Gtk.Dialog(title, parent, Gtk.DialogFlags.Modal, Gtk.ButtonsType.Ok);
+				Gtk.Image Image = new Gtk.Image(img);
+				Win.VBox.Add(Image);
+				Win.ShowAll();
+				Win.Run();
+				Image.Pixbuf = null;
+				Win.Destroy();
+			}
+			AddToLog(title);
 		}
 
 		void AddToLog(string str)

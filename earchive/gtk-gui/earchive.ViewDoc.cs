@@ -263,7 +263,7 @@ namespace earchive
 			w26.Add (w29);
 			w25.Add (w26);
 			this.buttonPDF.Add (w25);
-			this.AddActionWidget (this.buttonPDF, 0);
+			w24.Add (this.buttonPDF);
 			global::Gtk.ButtonBox.ButtonBoxChild w33 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24 [this.buttonPDF]));
 			w33.Expand = false;
 			w33.Fill = false;

@@ -36,6 +36,7 @@ namespace earchive
 		private global::Gtk.Label label10;
 		private global::Gtk.Label label11;
 		private global::Gtk.Label label9;
+		private global::Gtk.CheckButton checkDiagnostic;
 		private global::Gtk.Button buttonLog;
 		private global::Gtk.ProgressBar progresswork;
 
@@ -265,47 +266,59 @@ namespace earchive
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.tableFieldWidgets]));
 			w19.Position = 0;
 			// Container child vbox3.Gtk.Box+BoxChild
+			this.checkDiagnostic = new global::Gtk.CheckButton ();
+			this.checkDiagnostic.CanFocus = true;
+			this.checkDiagnostic.Name = "checkDiagnostic";
+			this.checkDiagnostic.Label = global::Mono.Unix.Catalog.GetString ("Диагностика распознования");
+			this.checkDiagnostic.DrawIndicator = true;
+			this.checkDiagnostic.UseUnderline = true;
+			this.vbox3.Add (this.checkDiagnostic);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.checkDiagnostic]));
+			w20.Position = 1;
+			w20.Expand = false;
+			w20.Fill = false;
+			// Container child vbox3.Gtk.Box+BoxChild
 			this.buttonLog = new global::Gtk.Button ();
 			this.buttonLog.CanFocus = true;
 			this.buttonLog.Name = "buttonLog";
 			this.buttonLog.UseUnderline = true;
 			// Container child buttonLog.Gtk.Container+ContainerChild
-			global::Gtk.Alignment w20 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
+			global::Gtk.Alignment w21 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
 			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			global::Gtk.HBox w21 = new global::Gtk.HBox ();
-			w21.Spacing = 2;
+			global::Gtk.HBox w22 = new global::Gtk.HBox ();
+			w22.Spacing = 2;
 			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Image w22 = new global::Gtk.Image ();
-			w22.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-execute", global::Gtk.IconSize.Button);
+			global::Gtk.Image w23 = new global::Gtk.Image ();
+			w23.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-execute", global::Gtk.IconSize.Button);
+			w22.Add (w23);
+			// Container child GtkHBox.Gtk.Container+ContainerChild
+			global::Gtk.Label w25 = new global::Gtk.Label ();
+			w25.LabelProp = global::Mono.Unix.Catalog.GetString ("Показать журнал распознования.");
+			w25.UseUnderline = true;
+			w22.Add (w25);
 			w21.Add (w22);
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Label w24 = new global::Gtk.Label ();
-			w24.LabelProp = global::Mono.Unix.Catalog.GetString ("Показать журнал распознования.");
-			w24.UseUnderline = true;
-			w21.Add (w24);
-			w20.Add (w21);
-			this.buttonLog.Add (w20);
+			this.buttonLog.Add (w21);
 			this.vbox3.Add (this.buttonLog);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.buttonLog]));
-			w28.Position = 2;
-			w28.Expand = false;
-			w28.Fill = false;
-			this.hbox2.Add (this.vbox3);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox3]));
-			w29.Position = 1;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.buttonLog]));
+			w29.Position = 2;
 			w29.Expand = false;
 			w29.Fill = false;
-			this.vbox2.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
+			this.hbox2.Add (this.vbox3);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox3]));
 			w30.Position = 1;
+			w30.Expand = false;
+			w30.Fill = false;
+			this.vbox2.Add (this.hbox2);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
+			w31.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.progresswork = new global::Gtk.ProgressBar ();
 			this.progresswork.Name = "progresswork";
 			this.vbox2.Add (this.progresswork);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.progresswork]));
-			w31.Position = 2;
-			w31.Expand = false;
-			w31.Fill = false;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.progresswork]));
+			w32.Position = 2;
+			w32.Expand = false;
+			w32.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
