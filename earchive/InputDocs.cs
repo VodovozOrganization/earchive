@@ -405,6 +405,21 @@ namespace earchive
 					jBox2.Append(MenuItem2);       
 				}
 				jBox.Append(MenuItem1);
+
+				MenuItem1 = new MenuItem("Повернуть все");
+				jBox2 = new Gtk.Menu();
+				MenuItem1.Submenu = jBox2;
+				MenuItem2 = new MenuItem("на 90°");
+				MenuItem2.ButtonPressEvent += OnImageListPopupRotate90All;
+				jBox2.Append(MenuItem2);
+				MenuItem2 = new MenuItem("на 180°");
+				MenuItem2.ButtonPressEvent += OnImageListPopupRotate180All;
+				jBox2.Append(MenuItem2);
+				MenuItem2 = new MenuItem("на 270°");
+				MenuItem2.ButtonPressEvent += OnImageListPopupRotate270All;
+				jBox2.Append(MenuItem2);
+				jBox.Append(MenuItem1);
+
 				jBox.ShowAll();
 				jBox.Popup();
 			}
@@ -468,6 +483,57 @@ namespace earchive
 					}
 				}while(ImageList.IterNext(ref iter));
 			}
+		}
+
+		protected void OnImageListPopupRotate90All(object sender, ButtonPressEventArgs arg)
+		{
+			RotateAllImages(PixbufRotation.Clockwise);
+		}
+
+		protected void OnImageListPopupRotate180All(object sender, ButtonPressEventArgs arg)
+		{
+			RotateAllImages(PixbufRotation.Upsidedown);
+		}
+
+		protected void OnImageListPopupRotate270All(object sender, ButtonPressEventArgs arg)
+		{
+			RotateAllImages(PixbufRotation.Counterclockwise);
+		}
+
+		private void RotateAllImages(PixbufRotation Rotate)
+		{
+			TreeIter iterdoc, iterimg;
+			if(!ImageList.GetIterFirst(out iterdoc))
+				return;
+
+			progresswork.Text = "Обработка изображений...";
+			int CountDoc, CountImg;
+			CalculateImages(out CountDoc, out CountImg);
+			progresswork.Adjustment.Upper = (double) CountImg;
+			MainClass.WaitRedraw();
+			do
+			{
+				if(!ImageList.IterChildren(out iterimg, iterdoc))
+					continue;
+				do
+				{
+					Pixbuf pix = (Pixbuf) ImageList.GetValue(iterimg, 5);
+					ImageList.SetValue(iterimg, 5, pix.RotateSimple(Rotate));
+					pix.Dispose();
+					pix = (Pixbuf) ImageList.GetValue(iterimg, 4);
+					ImageList.SetValue(iterimg, 4, pix.RotateSimple(Rotate));
+					pix.Dispose();
+
+					progresswork.Adjustment.Value++;
+					MainClass.WaitRedraw();
+				}while(ImageList.IterNext(ref iterimg));
+
+			}while(ImageList.IterNext(ref iterdoc));
+
+			OnZoomFitActionActivated(null, null);
+
+			progresswork.Text = "Ok";
+			progresswork.Fraction = 0;
 		}
 
 		protected void OnDateDocDateChanged (object sender, EventArgs e)
@@ -536,6 +602,23 @@ namespace earchive
 				CurrentDoc = doc;
 				UpdateFieldsWidgets(false);
 			}
+		}
+
+		private void CalculateImages( out int DocCount, out int ImgCount)
+		{
+			TreeIter iter;
+			DocCount = 0;
+			ImgCount = 0;
+
+			if(!ImageList.GetIterFirst(out iter))
+				return;
+			do
+			{
+				ImgCount += ImageList.IterNChildren(iter);
+				DocCount++;
+			}
+			while(ImageList.IterNext(ref iter));
+
 		}
 
 		protected void OnSaveActionActivated (object sender, EventArgs e)
