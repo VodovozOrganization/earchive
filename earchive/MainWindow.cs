@@ -332,6 +332,9 @@ namespace earchive
 
 		protected void OnEntryDocNumberChanged (object sender, EventArgs e)
 		{
+			if(CurDocType == null)
+				return;
+
 			DocsFilter.Refilter();
 		}
 	}
