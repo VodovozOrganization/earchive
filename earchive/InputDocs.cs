@@ -816,54 +816,72 @@ namespace earchive
 			ShowLog(CurrentLog);
 		}
 
-		protected void OnActionActivated (object sender, EventArgs e)
+		protected void OnScanActionActivated (object sender, EventArgs e)
 		{
-			TreeIter iter;
-			CurrentLog += Environment.OSVersion.Platform.ToString();
-			CurrentLog += "init\n";
-			ScanWorks scan = new ScanWorks(this);
-			CurrentLog += "run\n";
-			scan.GetImages();
-
-			progresswork.Text = "Получение изображений со сканера...";
-			progresswork.Adjustment.Upper = scan.Images.Count;
-			foreach(Pixbuf pix in scan.Images)
+			ScanWorks scan = null;
+			try
 			{
-				iter = ImageList.AppendValues (0,
-				                               String.Format ("Документ {0}", NextDocNumber),
-				                               "",
-				                               null,
-				                               null ,
-				                               null,
-				                               false,
-				                               String.Format ("Тип неопределён"),
-				                               DocIconNew
-				                               );
-
-				Pixbuf image = pix;
-				double ratio = 150f / Math.Max(image.Height, image.Width);
-				Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio),(int)(image.Height * ratio), InterpType.Bilinear);
-
-				NextDocNumber++;
-				ImageList.AppendValues (iter,
-				                        0,
-				                        null,
-				                        null,
-				                        null,
-				                        thumb,
-				                        image,
-				                        true,
-				                        "",
-				                        "");
-				progresswork.Adjustment.Value++;
+				CurrentLog += Environment.OSVersion.Platform.ToString();
+				CurrentLog += "init scan\n";
+				scan = new ScanWorks(this);
+				progresswork.Text = "Получение изображений со сканера...";
 				MainClass.WaitRedraw();
-			}
-			treeviewImages.ExpandAll ();
-			progresswork.Text = "Ок";
-			progresswork.Fraction = 0;
+				CurrentLog += "run scanner\n";
 
-			scan.Close ();
+				scan.ImageTransfer += delegate(object s, ScanWorks.ImageTransferEventArgs arg) 
+				{
+					TreeIter iter;
+					progresswork.Adjustment.Upper = arg.AllImages;
+
+					iter = ImageList.AppendValues (0,
+					                               String.Format ("Документ {0}", NextDocNumber),
+					                               "",
+					                               null,
+					                               null ,
+					                               null,
+					                               false,
+					                               String.Format ("Тип неопределён"),
+					                               DocIconNew
+					                               );
+
+					Pixbuf image = arg.Image;
+					double ratio = 150f / Math.Max(image.Height, image.Width);
+					Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio),(int)(image.Height * ratio), InterpType.Bilinear);
+
+					NextDocNumber++;
+					ImageList.AppendValues (iter,
+					                        0,
+					                        null,
+					                        null,
+					                        null,
+					                        thumb,
+					                        image,
+					                        true,
+					                        "",
+					                        "");
+					progresswork.Adjustment.Value++;
+					MainClass.WaitRedraw();
+				};
+
+				scan.GetImages();
+
+				treeviewImages.ExpandAll ();
+				progresswork.Text = "Ок";
+				progresswork.Fraction = 0;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
+				MainClass.StatusMessage("Ошибка в работе со сканером!");
+				QSMain.ErrorMessage(this,ex);
+			}
+			finally
+			{
+				if(scan != null)
+					scan.Close ();
+			}
 		}
+
 
 	}
 

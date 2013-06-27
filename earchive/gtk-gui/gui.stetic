@@ -1696,13 +1696,13 @@
         <property name="StockId">gtk-open</property>
         <signal name="Activated" handler="OnOpenActionActivated" />
       </action>
-      <action id="Action">
+      <action id="ScanAction">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Сканировать</property>
         <property name="ShortLabel" translatable="yes">Сканировать</property>
         <property name="StockId">scanner</property>
         <property name="Tooltip" translatable="yes">Добавить изображения со сканера</property>
-        <signal name="Activated" handler="OnActionActivated" />
+        <signal name="Activated" handler="OnScanActionActivated" />
       </action>
       <action id="clearAction">
         <property name="Type">Action</property>
@@ -1794,7 +1794,7 @@
             <node name="toolbar1" type="Toolbar">
               <node type="Toolitem" action="clearAction" />
               <node type="Toolitem" action="openAction" />
-              <node type="Toolitem" action="Action" />
+              <node type="Toolitem" action="ScanAction" />
               <node type="Toolitem" action="Action1" />
               <node type="Toolitem" action="saveAction" />
               <node type="Separator" />

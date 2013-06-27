@@ -6,7 +6,7 @@ namespace earchive
 	{
 		private global::Gtk.UIManager UIManager;
 		private global::Gtk.Action openAction;
-		private global::Gtk.Action Action;
+		private global::Gtk.Action ScanAction;
 		private global::Gtk.Action clearAction;
 		private global::Gtk.Action saveAction;
 		private global::Gtk.Action zoom100Action;
@@ -48,9 +48,9 @@ namespace earchive
 			this.openAction = new global::Gtk.Action ("openAction", global::Mono.Unix.Catalog.GetString ("Из файла"), null, "gtk-open");
 			this.openAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Из файла");
 			w1.Add (this.openAction, null);
-			this.Action = new global::Gtk.Action ("Action", global::Mono.Unix.Catalog.GetString ("Сканировать"), global::Mono.Unix.Catalog.GetString ("Добавить изображения со сканера"), "scanner");
-			this.Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("Сканировать");
-			w1.Add (this.Action, null);
+			this.ScanAction = new global::Gtk.Action ("ScanAction", global::Mono.Unix.Catalog.GetString ("Сканировать"), global::Mono.Unix.Catalog.GetString ("Добавить изображения со сканера"), "scanner");
+			this.ScanAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Сканировать");
+			w1.Add (this.ScanAction, null);
 			this.clearAction = new global::Gtk.Action ("clearAction", null, global::Mono.Unix.Catalog.GetString ("Очистить список изображений"), "gtk-clear");
 			this.clearAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Очистить");
 			w1.Add (this.clearAction, null);
@@ -92,7 +92,7 @@ namespace earchive
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.UIManager.AddUiFromString ("<ui><toolbar name='toolbar1'><toolitem name='clearAction' action='clearAction'/><toolitem name='openAction' action='openAction'/><toolitem name='Action' action='Action'/><toolitem name='Action1' action='Action1'/><toolitem name='saveAction' action='saveAction'/><separator/><toolitem name='zoom100Action' action='zoom100Action'/><toolitem name='zoomFitAction' action='zoomFitAction'/><toolitem name='zoomInAction' action='zoomInAction'/><toolitem name='zoomOutAction' action='zoomOutAction'/><separator/><toolitem name='Rotate90Action' action='Rotate90Action'/><toolitem name='Rotate180Action' action='Rotate180Action'/><toolitem name='Rotate270Action' action='Rotate270Action'/></toolbar></ui>");
+			this.UIManager.AddUiFromString ("<ui><toolbar name='toolbar1'><toolitem name='clearAction' action='clearAction'/><toolitem name='openAction' action='openAction'/><toolitem name='ScanAction' action='ScanAction'/><toolitem name='Action1' action='Action1'/><toolitem name='saveAction' action='saveAction'/><separator/><toolitem name='zoom100Action' action='zoom100Action'/><toolitem name='zoomFitAction' action='zoomFitAction'/><toolitem name='zoomInAction' action='zoomInAction'/><toolitem name='zoomOutAction' action='zoomOutAction'/><separator/><toolitem name='Rotate90Action' action='Rotate90Action'/><toolitem name='Rotate180Action' action='Rotate180Action'/><toolitem name='Rotate270Action' action='Rotate270Action'/></toolbar></ui>");
 			this.toolbar1 = ((global::Gtk.Toolbar)(this.UIManager.GetWidget ("/toolbar1")));
 			this.toolbar1.Name = "toolbar1";
 			this.toolbar1.ShowArrow = false;
@@ -314,7 +314,7 @@ namespace earchive
 			this.DefaultHeight = 478;
 			this.Show ();
 			this.openAction.Activated += new global::System.EventHandler (this.OnOpenActionActivated);
-			this.Action.Activated += new global::System.EventHandler (this.OnActionActivated);
+			this.ScanAction.Activated += new global::System.EventHandler (this.OnScanActionActivated);
 			this.clearAction.Activated += new global::System.EventHandler (this.OnClearActionActivated);
 			this.saveAction.Activated += new global::System.EventHandler (this.OnSaveActionActivated);
 			this.zoom100Action.Activated += new global::System.EventHandler (this.OnZoom100ActionActivated);
