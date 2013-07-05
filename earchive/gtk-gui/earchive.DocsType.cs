@@ -16,7 +16,7 @@ namespace earchive
 		private global::Gtk.Alignment GtkAlignment6;
 		private global::Gtk.VBox vbox2;
 		private global::Gtk.Label labelTemplateName;
-		private global::Gtk.Toolbar toolbar1;
+		private global::Gtk.Toolbar toolbarTemplate;
 		private global::Gtk.Label GtkLabel6;
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		private global::Gtk.TextView textviewDescription;
@@ -112,14 +112,14 @@ namespace earchive
 			w5.Position = 0;
 			w5.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.UIManager.AddUiFromString ("<ui><toolbar name='toolbar1'><toolitem name='recognizeAction' action='recognizeAction'/><toolitem name='openAction' action='openAction'/><toolitem name='saveAsAction' action='saveAsAction'/><toolitem name='clearAction' action='clearAction'/></toolbar></ui>");
-			this.toolbar1 = ((global::Gtk.Toolbar)(this.UIManager.GetWidget ("/toolbar1")));
-			this.toolbar1.Name = "toolbar1";
-			this.toolbar1.ShowArrow = false;
-			this.toolbar1.ToolbarStyle = ((global::Gtk.ToolbarStyle)(0));
-			this.toolbar1.IconSize = ((global::Gtk.IconSize)(4));
-			this.vbox2.Add (this.toolbar1);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.toolbar1]));
+			this.UIManager.AddUiFromString ("<ui><toolbar name='toolbarTemplate'><toolitem name='recognizeAction' action='recognizeAction'/><toolitem name='openAction' action='openAction'/><toolitem name='saveAsAction' action='saveAsAction'/><toolitem name='clearAction' action='clearAction'/></toolbar></ui>");
+			this.toolbarTemplate = ((global::Gtk.Toolbar)(this.UIManager.GetWidget ("/toolbarTemplate")));
+			this.toolbarTemplate.Name = "toolbarTemplate";
+			this.toolbarTemplate.ShowArrow = false;
+			this.toolbarTemplate.ToolbarStyle = ((global::Gtk.ToolbarStyle)(0));
+			this.toolbarTemplate.IconSize = ((global::Gtk.IconSize)(4));
+			this.vbox2.Add (this.toolbarTemplate);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.toolbarTemplate]));
 			w6.Position = 1;
 			w6.Fill = false;
 			this.GtkAlignment6.Add (this.vbox2);

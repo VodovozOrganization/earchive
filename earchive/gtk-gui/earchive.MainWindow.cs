@@ -139,13 +139,14 @@ namespace earchive
 			this.selectperiodDocs.Name = "selectperiodDocs";
 			this.selectperiodDocs.DateBegin = new global::System.DateTime (0);
 			this.selectperiodDocs.DateEnd = new global::System.DateTime (0);
+			this.selectperiodDocs.AutoDateSeparation = true;
 			this.selectperiodDocs.ShowToday = true;
 			this.selectperiodDocs.ShowWeek = true;
 			this.selectperiodDocs.ShowMonth = true;
 			this.selectperiodDocs.Show3Month = true;
-			this.selectperiodDocs.Show6Month = false;
+			this.selectperiodDocs.Show6Month = true;
 			this.selectperiodDocs.ShowYear = false;
-			this.selectperiodDocs.ShowAllTime = false;
+			this.selectperiodDocs.ShowAllTime = true;
 			this.selectperiodDocs.ShowCurWeek = false;
 			this.selectperiodDocs.ShowCurMonth = false;
 			this.selectperiodDocs.ShowCurQuarter = false;

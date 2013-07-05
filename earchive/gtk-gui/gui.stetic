@@ -222,13 +222,14 @@
                 <property name="Events">ButtonPressMask</property>
                 <property name="DateBegin">0</property>
                 <property name="DateEnd">0</property>
+                <property name="AutoDateSeparation">True</property>
                 <property name="ShowToday">True</property>
                 <property name="ShowWeek">True</property>
                 <property name="ShowMonth">True</property>
                 <property name="Show3Month">True</property>
-                <property name="Show6Month">False</property>
+                <property name="Show6Month">True</property>
                 <property name="ShowYear">False</property>
-                <property name="ShowAllTime">False</property>
+                <property name="ShowAllTime">True</property>
                 <property name="ShowCurWeek">False</property>
                 <property name="ShowCurMonth">False</property>
                 <property name="ShowCurQuarter">False</property>
@@ -510,12 +511,12 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.Toolbar" id="toolbar1">
+                          <widget class="Gtk.Toolbar" id="toolbarTemplate">
                             <property name="MemberName" />
                             <property name="ShowArrow">False</property>
                             <property name="ButtonStyle">Icons</property>
                             <property name="IconSize">Button</property>
-                            <node name="toolbar1" type="Toolbar">
+                            <node name="toolbarTemplate" type="Toolbar">
                               <node type="Toolitem" action="recognizeAction" />
                               <node type="Toolitem" action="openAction" />
                               <node type="Toolitem" action="saveAsAction" />
@@ -1368,7 +1369,8 @@
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <property name="Date">0</property>
-                        <property name="IsEditable">False</property>
+                        <property name="IsEditable">True</property>
+                        <property name="AutoSeparation">True</property>
                         <signal name="DateChanged" handler="OnDateDocDateChanged" />
                       </widget>
                       <packing>
@@ -1921,6 +1923,7 @@
                         <property name="Events">ButtonPressMask</property>
                         <property name="Date">0</property>
                         <property name="IsEditable">True</property>
+                        <property name="AutoSeparation">True</property>
                         <signal name="DateChanged" handler="OnDateDocDateChanged" />
                       </widget>
                       <packing>

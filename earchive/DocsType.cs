@@ -37,6 +37,7 @@ namespace earchive
 			buttonAdd.Sensitive = UserRight;
 			buttonDelete.Sensitive = UserRight;
 			entryDBTable.Sensitive = UserRight;
+			toolbarTemplate.Sensitive = UserRight;
 
 			//FIXME Убрать только для теста
 			System.Data.DataTable schema = QSMain.connectionDB.GetSchema("Columns", new string[4] { null, QSMain.connectionDB.Database, "docs", "number"});

@@ -90,7 +90,8 @@ namespace earchive
 			this.dateDoc.Events = ((global::Gdk.EventMask)(256));
 			this.dateDoc.Name = "dateDoc";
 			this.dateDoc.Date = new global::System.DateTime (0);
-			this.dateDoc.IsEditable = false;
+			this.dateDoc.IsEditable = true;
+			this.dateDoc.AutoSeparation = true;
 			this.tableProperty.Add (this.dateDoc);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableProperty [this.dateDoc]));
 			w8.TopAttach = ((uint)(4));

@@ -169,6 +169,7 @@ namespace earchive
 			this.dateDoc.Name = "dateDoc";
 			this.dateDoc.Date = new global::System.DateTime (0);
 			this.dateDoc.IsEditable = true;
+			this.dateDoc.AutoSeparation = true;
 			this.tableFieldWidgets.Add (this.dateDoc);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.dateDoc]));
 			w11.TopAttach = ((uint)(3));
