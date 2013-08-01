@@ -26,7 +26,7 @@ namespace earchive
 			EventBoxes = new Dictionary<int, EventBox>();
 			this.Resize(Convert.ToInt32(Screen.Width * 0.95), Convert.ToInt32(Screen.Height * 0.9));
 			this.Move(Convert.ToInt32(Screen.Width * 0.05 / 2), Convert.ToInt32(Screen.Height * 0.1 / 2));
-			ImageResizeTimer = new System.Timers.Timer(1000);
+			ImageResizeTimer = new System.Timers.Timer(700);
 			ImageResizeTimer.Elapsed += OnImageResizeTimerElapsed;
 			entryNumber.IsEditable = QSMain.User.Permissions["can_edit"];
 			dateDoc.IsEditable = QSMain.User.Permissions["can_edit"];

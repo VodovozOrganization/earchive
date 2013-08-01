@@ -29,30 +29,31 @@ namespace earchive
 			{
 				TextMarker Marker = Doc.Template.Markers[0];
 
-				int ShiftX = 0;
-				int ShiftY = 0;
 				//Вычисляем сдвиг
 				Pixbuf WorkImage = Images[0];
-				Marker.Zone.SetTarget(WorkImage.Width, WorkImage.Height);
+				Marker.SetTarget(WorkImage.Width, WorkImage.Height);
 
 				Pixbuf PixBox = new Pixbuf(WorkImage, Marker.Zone.PosX, Marker.Zone.PosY, Marker.Zone.Width, Marker.Zone.Heigth);
 				using (var img = PixbufToPix(PixBox)) {
-					using (var page = engine.Process(img)) {
+					using (var page = engine.Process(img, PageSegMode.Count)) {
 
 						int MarkerPosX, MarkerPosY;
-						int Distance = GetTextPosition(Marker.Text, page, out MarkerPosX, out MarkerPosY);
+						double MarkerSkew;
+						int Distance = GetTextPosition(Marker.Text, page, out MarkerPosX, out MarkerPosY, out MarkerSkew);
 						AddToLog(String.Format("TextMarker <{0}> Distance: {1}", Marker.Text, Distance));
 						if(Distance < 5)
 						{
-							MarkerPosX = MarkerPosX + Marker.Zone.PosX;
-							MarkerPosY = MarkerPosY + Marker.Zone.PosY;
-							ShiftX = MarkerPosX - (int)(Marker.PatternPosX * WorkImage.Width);
-							ShiftY = MarkerPosY - (int)(Marker.PatternPosY * WorkImage.Height);
-							AddToLog(String.Format("Image Shift X: {0}", ShiftX));
-							AddToLog(String.Format("Image Shift Y: {0}", ShiftY));
+							Marker.ActualPosX = MarkerPosX + Marker.Zone.PosX;
+							Marker.ActualPosY = MarkerPosY + Marker.Zone.PosY;
+							Marker.ActualSkew = MarkerSkew;
+							AddToLog(String.Format("Image Shift X: {0}", Marker.ShiftX));
+							AddToLog(String.Format("Image Shift Y: {0}", Marker.ShiftY));
 						}
 						else
 						{
+							Marker.ActualPosX = (int)(Marker.PatternPosX * Marker.TargetWidth);
+							Marker.ActualPosY = (int)(Marker.PatternPosY * Marker.TargetHeigth);
+							Marker.ActualSkew = 0;
 							ShowImage(PixBox, "Маркер не найден. Зона маркера.");
 						}
 					}
@@ -64,12 +65,13 @@ namespace earchive
 				{
 					CurRule = Doc.Template.NumberRule;
 
-					CurRule.Box.SetTarget(WorkImage.Width, WorkImage.Height);
-					CurRule.Box.SetShift(ShiftX, ShiftY);
+					CurRule.Box.SetShiftByMarker(Marker);
+					AddToLog(String.Format("Number Shift X: {0}", CurRule.Box.ShiftX));
+					AddToLog(String.Format("Number Shift Y: {0}", CurRule.Box.ShiftY));
 
 					PixBox = new Pixbuf(WorkImage, CurRule.Box.PosX, CurRule.Box.PosY, CurRule.Box.Width, CurRule.Box.Heigth);
 					using (var img = PixbufToPix(PixBox)) {
-						using (var page = engine.Process(img)) {
+						using (var page = engine.Process(img, PageSegMode.SingleLine)) {
 
 							string FieldText = page.GetText().Trim();
 							Doc.DocNumber = FieldText;
@@ -78,6 +80,8 @@ namespace earchive
 							AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
 							if(FieldText == "")
 								ShowImage(PixBox, "Номер пустой. Зона номера документа.");
+							else
+								ShowImage(PixBox, "Зона номера документа.");
 						}
 					}
 				}
@@ -87,12 +91,11 @@ namespace earchive
 				{
 					CurRule = Doc.Template.DateRule;
 
-					CurRule.Box.SetTarget(WorkImage.Width, WorkImage.Height);
-					CurRule.Box.SetShift(ShiftX, ShiftY);
+					CurRule.Box.SetShiftByMarker(Marker);
 
 					PixBox = new Pixbuf(WorkImage, CurRule.Box.PosX, CurRule.Box.PosY, CurRule.Box.Width, CurRule.Box.Heigth);
 					using (var img = PixbufToPix(PixBox)) {
-						using (var page = engine.Process(img)) {
+						using (var page = engine.Process(img, PageSegMode.SingleLine)) {
 
 							string FieldText = page.GetText().Trim();
 							DateTime TempDate;
@@ -118,6 +121,8 @@ namespace earchive
 							AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
 							if(FieldText == "")
 								ShowImage(PixBox, "Дата пустая. Зона даты документа.");
+							else
+								ShowImage(PixBox, "Зона даты документа.");
 						}
 					}
 				}
@@ -179,11 +184,14 @@ namespace earchive
 			return BestDistance;
 		} */
 
-		int GetTextPosition(string Text, Page page, out int PosX, out int PosY)
+		int GetTextPosition(string Text, Page page, out int PosX, out int PosY, out double AngleRad)
 		{
 			int BestDistance = 10000;
 			PosX = -1;
 			PosY = -1;
+			AngleRad = 0;
+			AddToLog ("Marker zone text:");
+			AddToLog (page.GetText());
 			ResultIterator LineIter = page.GetIterator();
 			string[] Words = Text.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 			int NumberOfWords = Words.Length;
@@ -193,7 +201,8 @@ namespace earchive
 				int CurrentWordNumber = -1;
 				int CurrentBestDistance = 10000;
 				string Line = LineIter.GetText(PageIteratorLevel.TextLine);
-				if(Line == null)
+
+				if(Line == null || Line == "")
 					continue;
 				Line = Line.Trim();
 				string[] WordsOfLine = Line.Split(new char[] {' '}, StringSplitOptions.None);
@@ -228,7 +237,14 @@ namespace earchive
 					LineIter.TryGetBoundingBox(PageIteratorLevel.Word, out Box);
 					PosX = Box.X1;
 					PosY = Box.Y1;
+					AddToLog (String.Format("Position X1:{0} Y1:{1} X2:{2} Y2:{3}", Box.X1, Box.Y1, Box.X2, Box.Y2));
+					LineIter.TryGetBaseline(PageIteratorLevel.Word, out Box);
+					AddToLog (String.Format("BaseLine X1:{0} Y1:{1} X2:{2} Y2:{3}", Box.X1, Box.Y1, Box.X2, Box.Y2));
+					AngleRad = Math.Atan2(Box.Y2 - Box.Y1, Box.X2 - Box.X1); //угл наклона базовой линии.
+					double AngleGrad = AngleRad * (180/Math.PI);
+					AddToLog (String.Format("Angle rad:{0} grad:{1}", AngleRad, AngleGrad));
 				}
+
 			} while( LineIter.Next(PageIteratorLevel.TextLine));
 			LineIter.Dispose();
 			return BestDistance;

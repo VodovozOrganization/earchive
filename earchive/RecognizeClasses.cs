@@ -21,6 +21,35 @@ namespace earchive
 		public double PatternPosX;
 		public double PatternPosY;
 		public RelationalRectangle Zone;
+
+		[XmlIgnore]
+		public int TargetHeigth;
+		[XmlIgnore]
+		public int TargetWidth;
+
+		[XmlIgnore]
+		public int ActualPosX;
+		[XmlIgnore]
+		public int ActualPosY;
+		[XmlIgnore]
+		public double ActualSkew = 0;
+
+		public int ShiftX{
+			get{ return ActualPosX - (int)(PatternPosX * TargetWidth);}
+		}
+
+		public int ShiftY{
+			get{ return ActualPosY - (int)(PatternPosY * TargetHeigth);}
+		}
+
+		public void SetTarget(int width, int heigth)
+		{
+			TargetWidth = width;
+			TargetHeigth = heigth;
+
+			Zone.SetTarget(width, heigth);
+		}
+
 	}
 
 	public class RelationalRectangle
@@ -84,6 +113,24 @@ namespace earchive
 		{
 			ShiftX = X - (int)(RelativePosX * TargetWidth);
 			ShiftY = Y - (int)(RelativePosY * TargetHeigth);
+		}
+
+		public void SetShiftByMarker(TextMarker Marker)
+		{
+			SetTarget(Marker.TargetWidth, Marker.TargetHeigth);
+			ShiftX = 0;
+			ShiftY = 0;
+			int DirtyPosX = PosX;
+			int DirtyPosY = PosY;
+			int ShiftedPosX = DirtyPosX + Marker.ShiftX;
+			int ShiftedPosY = DirtyPosY + Marker.ShiftY;
+
+			int ResultPosX = (int)(Marker.ActualPosX + (ShiftedPosX - Marker.ActualPosX) * Math.Cos(Marker.ActualSkew) -
+								   (ShiftedPosY - Marker.ActualPosY) * Math.Sin(Marker.ActualSkew));
+			int ResultPosY = (int)(Marker.ActualPosY + (ShiftedPosY - Marker.ActualPosY) * Math.Cos(Marker.ActualSkew) +
+			                       (ShiftedPosX - Marker.ActualPosX) * Math.Sin(Marker.ActualSkew));
+			ShiftX = ResultPosX - DirtyPosX;
+			ShiftY = ResultPosY - DirtyPosY;
 		}
 
 		public int PosX{
