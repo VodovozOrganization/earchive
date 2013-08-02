@@ -11,6 +11,7 @@ namespace earchive
 		private global::Gtk.Action quitAction;
 		private global::Gtk.Action Action1;
 		private global::Gtk.Action Action2;
+		private global::Gtk.Action Action3;
 		private global::Gtk.VBox vbox2;
 		private global::Gtk.MenuBar menubar1;
 		private global::Gtk.HBox hbox2;
@@ -30,7 +31,7 @@ namespace earchive
 		private global::Gtk.Statusbar statusbar1;
 		private global::Gtk.Label labelUser;
 		private global::Gtk.Label labelStatus;
-
+		
 		protected virtual void Build ()
 		{
 			global::Stetic.Gui.Initialize (this);
@@ -55,6 +56,9 @@ namespace earchive
 			this.Action2 = new global::Gtk.Action ("Action2", global::Mono.Unix.Catalog.GetString ("Типы документов"), null, null);
 			this.Action2.ShortLabel = global::Mono.Unix.Catalog.GetString ("Типы документов");
 			w1.Add (this.Action2, null);
+			this.Action3 = new global::Gtk.Action ("Action3", global::Mono.Unix.Catalog.GetString ("Статистика"), null, null);
+			this.Action3.ShortLabel = global::Mono.Unix.Catalog.GetString ("Статистика");
+			w1.Add (this.Action3, null);
 			this.UIManager.InsertActionGroup (w1, 0);
 			this.AddAccelGroup (this.UIManager.AccelGroup);
 			this.Name = "earchive.MainWindow";
@@ -66,7 +70,7 @@ namespace earchive
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.UIManager.AddUiFromString ("<ui><menubar name='menubar1'><menu name='Action' action='Action'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='Action1' action='Action1'><menuitem name='Action2' action='Action2'/></menu></menubar></ui>");
+			this.UIManager.AddUiFromString ("<ui><menubar name='menubar1'><menu name='Action' action='Action'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='Action1' action='Action1'><menuitem name='Action2' action='Action2'/><menuitem name='Action3' action='Action3'/></menu></menubar></ui>");
 			this.menubar1 = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubar1")));
 			this.menubar1.Name = "menubar1";
 			this.vbox2.Add (this.menubar1);
@@ -330,6 +334,7 @@ namespace earchive
 			this.dialogAuthenticationAction.Activated += new global::System.EventHandler (this.OnDialogAuthenticationActionActivated);
 			this.UsersAction.Activated += new global::System.EventHandler (this.OnUsersActionActivated);
 			this.Action2.Activated += new global::System.EventHandler (this.OnAction2Activated);
+			this.Action3.Activated += new global::System.EventHandler (this.OnAction3Activated);
 			this.entryDocNumber.Changed += new global::System.EventHandler (this.OnEntryDocNumberChanged);
 			this.comboDocType.Changed += new global::System.EventHandler (this.OnComboDocTypeChanged);
 			this.selectperiodDocs.DatesChanged += new global::System.EventHandler (this.OnSelectperiodDocsDatesChanged);

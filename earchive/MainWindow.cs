@@ -337,5 +337,15 @@ namespace earchive
 
 			DocsFilter.Refilter();
 		}
+
+		protected void OnAction3Activated (object sender, EventArgs e)
+		{
+			//throw new System.NotImplementedException ();
+			Statistics stat = new Statistics();
+			stat.Show();
+			stat.Run();
+			stat.Destroy();
+		}
+
 	}
 }
