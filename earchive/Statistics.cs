@@ -33,7 +33,7 @@ namespace earchive
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			MySqlDataReader rdr = cmd.ExecuteReader();
 			rdr.Read();
-			label9.Text=String.Format ("{0} шт.", rdr.GetInt32("cnt"));
+			labelCountDoc.Text=String.Format ("{0} шт.", rdr.GetInt32("cnt"));
 			rdr.Close();
 
 			sql="SELECT * FROM (SELECT doc_types.name as name, YEAR(docs.create_date) as year, " +
@@ -46,9 +46,9 @@ namespace earchive
 			cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			rdr = cmd.ExecuteReader();
 			rdr.Read();
-			label4.Text= String.Format ("{0} шт.", rdr.GetInt64("col"));
-			label6.Text= String.Format ("{0:N0} Мб", rdr.GetDouble("sum"));
-			label8.Text= String.Format ("{0:N} Мб", rdr.GetDouble("avg"));
+			labelCountImag.Text= String.Format ("{0} шт.", rdr.GetInt64("col"));
+			labelCommonImag.Text= String.Format ("{0:N0} Мб", rdr.GetDouble("sum"));
+			labelAvgImag.Text= String.Format ("{0:N} Мб", rdr.GetDouble("avg"));
 
 
 			TreeIter MainIter, NowIter;
