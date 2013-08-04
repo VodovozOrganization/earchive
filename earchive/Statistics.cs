@@ -51,7 +51,7 @@ namespace earchive
 			labelAvgImag.Text= String.Format ("{0:N} Мб", rdr.GetDouble("avg"));
 
 
-			TreeIter MainIter, NowIter;
+			TreeIter MainIter = TreeIter.Zero, NowIter = TreeIter.Zero;
 			while(rdr.Read())
 			{
 				string col=String.Format("{0} шт.", rdr.GetInt32("col"));
