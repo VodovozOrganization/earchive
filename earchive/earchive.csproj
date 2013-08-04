@@ -95,6 +95,8 @@
     <Compile Include="gtk-gui\earchive.TemplateProperty.cs" />
     <Compile Include="ScanWorks.cs" />
     <Compile Include="WindowsPlatform.cs" />
+    <Compile Include="gtk-gui\earchive.Statistics.cs" />
+    <Compile Include="Statistics.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
