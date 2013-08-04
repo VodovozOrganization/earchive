@@ -5,8 +5,8 @@
     <target-gtk-version>2.12</target-gtk-version>
   </configuration>
   <import>
-    <widget-library name="../../../QSProjectsLib/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
-    <widget-library name="../../../QSProjectsLib/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
+    <widget-library name="../../../QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
+    <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../bin/Debug/earchive.exe" internal="true" />
   </import>
   <icon-factory>
