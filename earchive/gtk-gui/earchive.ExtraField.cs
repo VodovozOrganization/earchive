@@ -22,7 +22,7 @@ namespace earchive
 		private global::Gtk.CheckButton checkbuttonSearch;
 		private global::Gtk.Button buttonCancel;
 		private global::Gtk.Button buttonOk;
-
+		
 		protected virtual void Build ()
 		{
 			global::Stetic.Gui.Initialize (this);
@@ -41,7 +41,7 @@ namespace earchive
 			this.table1.BorderWidth = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
 			this.comboType = global::Gtk.ComboBox.NewText ();
-			this.comboType.AppendText (global::Mono.Unix.Catalog.GetString("Строка"));
+			this.comboType.AppendText (global::Mono.Unix.Catalog.GetString ("Строка"));
 			this.comboType.Name = "comboType";
 			this.comboType.Active = 0;
 			this.table1.Add (this.comboType);

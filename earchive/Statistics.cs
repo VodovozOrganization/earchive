@@ -76,6 +76,7 @@ namespace earchive
 					stattree.AppendValues(NowIter, month, col, sum, avg);
 				}
 			}
+			rdr.Close();
 		}
 	}
 }
