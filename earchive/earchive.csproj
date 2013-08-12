@@ -97,6 +97,7 @@
     <Compile Include="WindowsPlatform.cs" />
     <Compile Include="gtk-gui\earchive.Statistics.cs" />
     <Compile Include="Statistics.cs" />
+    <Compile Include="RecognizeHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
