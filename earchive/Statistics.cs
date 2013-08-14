@@ -1,8 +1,5 @@
 using System;
-using System.IO;
-using System.Collections.Generic;
 using Gtk;
-using Gdk;
 using MySql.Data.MySqlClient;
 using QSProjectsLib;
 
@@ -14,7 +11,7 @@ namespace earchive
 		{
 			this.Build ();
 
-			stattree=new Gtk.TreeStore(typeof (string), typeof (string), typeof (string), typeof (string));
+			stattree=new TreeStore(typeof (string), typeof (string), typeof (string), typeof (string));
 			treeview1.AppendColumn("Тип/дата", new Gtk.CellRendererText (), "text", 0);
 			treeview1.AppendColumn("Кол-во", new Gtk.CellRendererText (), "text", 1);
 			treeview1.AppendColumn("Общий объем", new Gtk.CellRendererText (), "text", 2);
@@ -80,4 +77,3 @@ namespace earchive
 		}
 	}
 }
-
