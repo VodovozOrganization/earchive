@@ -24,64 +24,112 @@ namespace earchive
 
 		public void Recognize()
 		{
-
-			using (var engine = new TesseractEngine(@"./tessdata", "rus", EngineMode.Default)) 
+			using (var engine = new TesseractEngine(@"./tessdata", "rus", EngineMode.Default))
 			{
 				TextMarker Marker = Doc.Template.Markers[0];
+				Pixbuf PixBox;
 
 				//Вычисляем сдвиг
 				Pixbuf WorkImage = Images[0];
 				Marker.SetTarget(WorkImage.Width, WorkImage.Height);
-
-				Pixbuf PixBox = new Pixbuf(WorkImage, Marker.Zone.PosX, Marker.Zone.PosY, Marker.Zone.Width, Marker.Zone.Heigth);
-				using (var img = RecognizeHelper.PixbufToPix(PixBox)) {
-					using (var page = engine.Process(img, PageSegMode.Count)) {
-
-						int MarkerPosX, MarkerPosY;
-						double MarkerSkew;
-						int Distance = GetTextPosition(Marker.Text, page, out MarkerPosX, out MarkerPosY, out MarkerSkew);
-						AddToLog(String.Format("TextMarker <{0}> Distance: {1}", Marker.Text, Distance));
-						if(Distance < 5)
+				
+				RelationalRectangle WorkZone = Marker.Zone.Clone();
+				for (int i = 1; i <= 10; i++)
+				{
+					PixBox = new Pixbuf(WorkImage, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
+					using (var img = RecognizeHelper.PixbufToPix(PixBox))
+					{
+						using (var page = engine.Process(img, PageSegMode.Auto))
 						{
-							Marker.ActualPosX = MarkerPosX + Marker.Zone.PosX;
-							Marker.ActualPosY = MarkerPosY + Marker.Zone.PosY;
-							Marker.ActualSkew = MarkerSkew;
-							AddToLog(String.Format("Image Shift X: {0}", Marker.ShiftX));
-							AddToLog(String.Format("Image Shift Y: {0}", Marker.ShiftY));
-						}
-						else
-						{
-							Marker.ActualPosX = (int)(Marker.PatternPosX * Marker.TargetWidth);
-							Marker.ActualPosY = (int)(Marker.PatternPosY * Marker.TargetHeigth);
-							Marker.ActualSkew = 0;
-							ShowImage(PixBox, "Маркер не найден. Зона маркера.");
+							int Distance, MarkerPosX, MarkerPosY;
+							double MarkerSkew;
+							Distance = GetTextPosition(Marker.Text, page, out MarkerPosX, out MarkerPosY, out MarkerSkew);
+							if (Distance < 5)
+							{
+								AddToLog(String.Format("TextMarker <{0}> Distance: {1} Try:{2}", Marker.Text, Distance, i));
+								Marker.ActualPosX = MarkerPosX + WorkZone.PosX;
+								Marker.ActualPosY = MarkerPosY + WorkZone.PosY;
+								Marker.ActualSkew = MarkerSkew;
+								AddToLog(String.Format("Image Shift X: {0}", Marker.ShiftX));
+								AddToLog(String.Format("Image Shift Y: {0}", Marker.ShiftY));
+								break;
+							}
+							else if (i == 10)
+							{
+								Marker.ActualPosX = (int)(Marker.PatternPosX * Marker.TargetWidth);
+								Marker.ActualPosY = (int)(Marker.PatternPosY * Marker.TargetHeigth);
+								Marker.ActualSkew = 0;
+								ShowImage(PixBox, "Маркер не найден. Зона маркера.");
+							}
+							else
+							{ //Увеличиваем размер зоны поиска.
+								WorkZone.RelativePosX -= WorkZone.RelativeWidth * 0.1;
+								if (WorkZone.RelativePosX < 0)
+									WorkZone.RelativePosX = 0;
+								WorkZone.RelativePosY -= WorkZone.RelativeHeigth * 0.1;
+								if (WorkZone.RelativePosY < 0)
+									WorkZone.RelativePosY = 0;
+								WorkZone.RelativeWidth *= 1.2;
+								WorkZone.RelativeHeigth *= 1.2;
+
+							}
 						}
 					}
 				}
-
 				RecognazeRule CurRule;
 				//Распознаем номер
-				if(Doc.Template.NumberRule != null)
+				if (Doc.Template.NumberRule != null)
 				{
 					CurRule = Doc.Template.NumberRule;
 
 					CurRule.Box.SetShiftByMarker(Marker);
 					AddToLog(String.Format("Number Shift X: {0}", CurRule.Box.ShiftX));
 					AddToLog(String.Format("Number Shift Y: {0}", CurRule.Box.ShiftY));
-
-					PixBox = new Pixbuf(WorkImage, CurRule.Box.PosX, CurRule.Box.PosY, CurRule.Box.Width, CurRule.Box.Heigth);
-					using (var img = RecognizeHelper.PixbufToPix(PixBox)) {
-						using (var page = engine.Process(img, PageSegMode.SingleLine)) {
-
-							string FieldText = page.GetText().Trim();
-							Doc.DocNumber = FieldText;
-							Doc.DocNumberConfidence = page.GetMeanConfidence();
-							AddToLog(String.Format("Found Field Value: {0}", FieldText));
-							AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
-							if(FieldText == "")
-								ShowImage(PixBox, "Номер пустой. Зона номера документа.");
-							else
-								ShowImage(PixBox, "Зона номера документа.");
+					WorkZone = CurRule.Box.Clone();
+					//FIXME Для теста
+					WorkZone.RelativePosX += WorkZone.RelativeWidth * 0.2;
+					WorkZone.RelativePosY += WorkZone.RelativeHeigth * 0.2;
+					WorkZone.RelativeWidth *= 0.6;
+					WorkZone.RelativeHeigth *= 0.6;
+					
+					Doc.DocNumberConfidence = 0;
+					for (int i = 1; i <= 5; i++)
+					{
+						PixBox = new Pixbuf(WorkImage, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
+						using (var img = RecognizeHelper.PixbufToPix(PixBox))
+						{
+							using (var page = engine.Process(img, PageSegMode.SingleLine))
+							{
+	
+								string FieldText = page.GetText().Trim();
+								if (page.GetMeanConfidence() > Doc.DocNumberConfidence)
+								{
+									Doc.DocNumber = FieldText;
+									Doc.DocNumberConfidence = page.GetMeanConfidence();
+									AddToLog(String.Format("Try: {0}", i));
+									AddToLog(String.Format("Found Field Value: {0}", FieldText));
+									AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
+									if (FieldText == "")
+										ShowImage(PixBox, "Номер пустой. Зона номера документа.");
+									else
+										ShowImage(PixBox, "Зона номера документа.");
+								}
+								if (Doc.DocNumberConfidence > 0.8)
+								{
+									break;
+								}
+								else
+								{//Увеличиваем размер зоны поиска.
+									WorkZone.RelativePosX -= WorkZone.RelativeWidth * 0.1;
+									if (WorkZone.RelativePosX < 0)
+										WorkZone.RelativePosX = 0;
+									WorkZone.RelativePosY -= WorkZone.RelativeHeigth * 0.1;
+									if (WorkZone.RelativePosY < 0)
+										WorkZone.RelativePosY = 0;
+									WorkZone.RelativeWidth *= 1.2;
+									WorkZone.RelativeHeigth *= 1.2;
+								}
+							}
 						}
 					}
 				}

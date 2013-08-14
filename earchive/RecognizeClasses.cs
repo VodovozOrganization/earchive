@@ -148,7 +148,14 @@ namespace earchive
 		public int Heigth{
 			get{ return (int)(RelativeHeigth * TargetHeigth);}
 		}
-
+		
+		public RelationalRectangle Clone()
+		{
+			RelationalRectangle copy = new RelationalRectangle(RelativePosX, RelativePosY, RelativeWidth, RelativeHeigth);
+			copy.SetTarget( TargetWidth, TargetHeigth);
+			copy.SetShift( ShiftX, ShiftY);
+			return copy;
+		}
 	}
 
 }
