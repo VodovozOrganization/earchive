@@ -60,6 +60,9 @@
     <Reference Include="Saraff.Twain">
       <HintPath>..\lib\Saraff.Twain.dll</HintPath>
     </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\..\QSProjects\lib\NLog.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -100,6 +103,7 @@
     <Compile Include="gtk-gui\earchive.Statistics.cs" />
     <Compile Include="Statistics.cs" />
     <Compile Include="RecognizeHelper.cs" />
+    <Compile Include="widgets\ImageViewer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -115,5 +119,10 @@
   <ItemGroup>
     <Folder Include="icons\" />
     <Folder Include="widgets\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
