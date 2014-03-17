@@ -36,7 +36,7 @@ namespace earchive
 			FieldLables = new Dictionary<int, Label>();
 			FieldWidgets = new Dictionary<int, object>();
 			FieldIcons = new Dictionary<int, Gtk.Image>();
-			ComboWorks.ComboFillReference (comboType, "doc_types", 0, false);
+			ComboWorks.ComboFillReference (comboType, "doc_types", ComboWorks.ListMode.OnlyItems, false);
 			//FIXME разобраться с очищением памяти. Если закрыть окно или удалить картинки память не очищается.
 			ImageList = new ImageTreeStore(typeof(int), //0 - id
 			                          typeof(string), //1 - Image Name

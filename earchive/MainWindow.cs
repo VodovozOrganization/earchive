@@ -47,7 +47,7 @@ namespace earchive
 			buttonInput.Sensitive = QSMain.User.Permissions["can_edit"];
 
 			// Создаем главное окно
-			ComboWorks.ComboFillReference (comboDocType, "doc_types", 0);
+			ComboWorks.ComboFillReference (comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
 		}
 		
 		protected void OnDeleteEvent (object sender, DeleteEventArgs a)
@@ -60,7 +60,7 @@ namespace earchive
 		{
 			switch (e.ReferenceTable) {
 			case "doc_types":
-				ComboWorks.ComboFillReference (comboDocType, "doc_types", 0);
+					ComboWorks.ComboFillReference (comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
 			break;
 			}
 		}
