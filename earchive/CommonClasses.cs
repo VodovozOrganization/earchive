@@ -189,7 +189,7 @@ namespace earchive
 		public long size;
 		public byte[] file;
 		public bool Changed;
-		public Gtk.Image Widget;
+		public ImageViewer Widget;
 	}
 	
 }

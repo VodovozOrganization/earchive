@@ -248,87 +248,50 @@ namespace earchive
 			this.buttonPDF.CanFocus = true;
 			this.buttonPDF.Name = "buttonPDF";
 			this.buttonPDF.UseUnderline = true;
-			// Container child buttonPDF.Gtk.Container+ContainerChild
-			global::Gtk.Alignment w25 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
-			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			global::Gtk.HBox w26 = new global::Gtk.HBox ();
-			w26.Spacing = 2;
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Image w27 = new global::Gtk.Image ();
-			w27.Pixbuf = global::Gdk.Pixbuf.LoadFromResource ("earchive.icons.page_pdf.ico");
-			w26.Add (w27);
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Label w29 = new global::Gtk.Label ();
-			w29.LabelProp = global::Mono.Unix.Catalog.GetString ("Сохранить в PDF");
-			w29.UseUnderline = true;
-			w26.Add (w29);
-			w25.Add (w26);
-			this.buttonPDF.Add (w25);
+			this.buttonPDF.Label = global::Mono.Unix.Catalog.GetString ("Сохранить в PDF");
+			global::Gtk.Image w25 = new global::Gtk.Image ();
+			w25.Pixbuf = global::Gdk.Pixbuf.LoadFromResource ("earchive.icons.page_pdf.ico");
+			this.buttonPDF.Image = w25;
 			w24.Add (this.buttonPDF);
-			global::Gtk.ButtonBox.ButtonBoxChild w33 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24 [this.buttonPDF]));
-			w33.Expand = false;
-			w33.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w26 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24 [this.buttonPDF]));
+			w26.Expand = false;
+			w26.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonCancel = new global::Gtk.Button ();
 			this.buttonCancel.CanDefault = true;
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
-			// Container child buttonCancel.Gtk.Container+ContainerChild
-			global::Gtk.Alignment w34 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
-			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			global::Gtk.HBox w35 = new global::Gtk.HBox ();
-			w35.Spacing = 2;
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Image w36 = new global::Gtk.Image ();
-			w36.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-cancel", global::Gtk.IconSize.Menu);
-			w35.Add (w36);
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Label w38 = new global::Gtk.Label ();
-			w38.LabelProp = global::Mono.Unix.Catalog.GetString ("О_тменить");
-			w38.UseUnderline = true;
-			w35.Add (w38);
-			w34.Add (w35);
-			this.buttonCancel.Add (w34);
+			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString ("О_тменить");
+			global::Gtk.Image w27 = new global::Gtk.Image ();
+			w27.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Image = w27;
 			this.AddActionWidget (this.buttonCancel, -6);
-			global::Gtk.ButtonBox.ButtonBoxChild w42 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24 [this.buttonCancel]));
-			w42.Position = 1;
-			w42.Expand = false;
-			w42.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w28 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24 [this.buttonCancel]));
+			w28.Position = 1;
+			w28.Expand = false;
+			w28.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonOk = new global::Gtk.Button ();
 			this.buttonOk.CanDefault = true;
 			this.buttonOk.CanFocus = true;
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.UseUnderline = true;
-			// Container child buttonOk.Gtk.Container+ContainerChild
-			global::Gtk.Alignment w43 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
-			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			global::Gtk.HBox w44 = new global::Gtk.HBox ();
-			w44.Spacing = 2;
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Image w45 = new global::Gtk.Image ();
-			w45.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-ok", global::Gtk.IconSize.Menu);
-			w44.Add (w45);
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Label w47 = new global::Gtk.Label ();
-			w47.LabelProp = global::Mono.Unix.Catalog.GetString ("_OK");
-			w47.UseUnderline = true;
-			w44.Add (w47);
-			w43.Add (w44);
-			this.buttonOk.Add (w43);
+			this.buttonOk.Label = global::Mono.Unix.Catalog.GetString ("_OK");
+			global::Gtk.Image w29 = new global::Gtk.Image ();
+			w29.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-ok", global::Gtk.IconSize.Menu);
+			this.buttonOk.Image = w29;
 			this.AddActionWidget (this.buttonOk, -5);
-			global::Gtk.ButtonBox.ButtonBoxChild w51 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24 [this.buttonOk]));
-			w51.Position = 2;
-			w51.Expand = false;
-			w51.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w30 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24 [this.buttonOk]));
+			w30.Position = 2;
+			w30.Expand = false;
+			w30.Fill = false;
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.DefaultWidth = 708;
 			this.DefaultHeight = 435;
 			this.Show ();
-			this.scrolledImages.SizeAllocated += new global::Gtk.SizeAllocatedHandler (this.OnScrolledImagesSizeAllocated);
 			this.entryNumber.Changed += new global::System.EventHandler (this.OnEntryNumberChanged);
 			this.dateDoc.DateChanged += new global::System.EventHandler (this.OnDateDocDateChanged);
 			this.buttonPDF.Clicked += new global::System.EventHandler (this.OnButtonPDFClicked);

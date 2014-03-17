@@ -13,21 +13,16 @@ namespace earchive
 		private DocumentInformation DocInfo;
 		private Dictionary<int, Gtk.Label> FieldLables;
 		private Dictionary<int, object> FieldWidgets;
-		private Dictionary<int, EventBox> EventBoxes;
 		private List<DocumentImage> Images;
 		private int DocId;
-		private System.Timers.Timer ImageResizeTimer;
 		private int PopupImageId;
 
 		public ViewDoc ()
 		{
 			this.Build ();
 			Images = new List<DocumentImage>();
-			EventBoxes = new Dictionary<int, EventBox>();
 			this.Resize(Convert.ToInt32(Screen.Width * 0.95), Convert.ToInt32(Screen.Height * 0.9));
 			this.Move(Convert.ToInt32(Screen.Width * 0.05 / 2), Convert.ToInt32(Screen.Height * 0.1 / 2));
-			ImageResizeTimer = new System.Timers.Timer(700);
-			ImageResizeTimer.Elapsed += OnImageResizeTimerElapsed;
 			entryNumber.IsEditable = QSMain.User.Permissions["can_edit"];
 			dateDoc.IsEditable = QSMain.User.Permissions["can_edit"];
 		}
@@ -138,20 +133,15 @@ namespace earchive
 					DocImage.file = new byte[DocImage.size];
 					rdr.GetBytes(rdr.GetOrdinal("image"), 0, DocImage.file, 0, (int) DocImage.size);
 					DocImage.Image = new Pixbuf(DocImage.file);
-					//Добавляем вижет
-					DocImage.Widget = new Gtk.Image();
 
-					double hratio = scrolledImages.Hadjustment.PageSize / DocImage.Image.Width;
-					int Heigth = Convert.ToInt32(DocImage.Image.Height * hratio);
-					int Width = (int)scrolledImages.Hadjustment.PageSize;
-					DocImage.Widget.Pixbuf = DocImage.Image.ScaleSimple (Width,
-					                                   Heigth,
-					                                   InterpType.Bilinear);
-					EventBox Ebox = new EventBox();
-					Ebox.Add(DocImage.Widget);
-					Ebox.ButtonPressEvent += OnImagesButtonPressEvent;
-					EventBoxes.Add(DocImage.id, Ebox);
-					vboxImages.Add(Ebox);
+					//Добавляем вижет
+					ImageViewer view = new ImageViewer();
+					view.VerticalFit = false;
+					view.HorizontalFit = true;
+					view.pixbuf = DocImage.Image;
+					view.ButtonPressEvent += OnImagesButtonPressEvent;
+					vboxImages.Add(view);
+					DocImage.Widget = view;
 					Images.Add(DocImage);
 				}
 				rdr.Close();
@@ -170,10 +160,10 @@ namespace earchive
 		{
 			if((int)args.Event.Button == 3)
 			{       
-				foreach(KeyValuePair<int, EventBox> pair in EventBoxes)
+				foreach(DocumentImage img in Images)
 				{
-					if(o == pair.Value)
-						PopupImageId = pair.Key;
+					if(o == img.Widget)
+						PopupImageId = img.id;
 				}
 				Gtk.Menu jBox = new Gtk.Menu();
 				Gtk.MenuItem MenuItem1 = new MenuItem("Сохранить");
@@ -209,27 +199,6 @@ namespace earchive
 				}
 			}
 			fc.Destroy();
-		}
-
-		private void OnImageResizeTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
-		{
-			Console.WriteLine("Image resizing");
-			ImageResizeTimer.Stop();
-			foreach(DocumentImage img in Images)
-			{
-				double hratio = scrolledImages.Hadjustment.PageSize / img.Image.Width;
-				int Heigth = Convert.ToInt32(img.Image.Height * hratio);
-				int Width = (int)scrolledImages.Hadjustment.PageSize;
-				img.Widget.Pixbuf = img.Image.ScaleSimple (Width,
-				                                           Heigth,
-				                                           InterpType.Bilinear);
-			}
-		}
-
-		protected void OnScrolledImagesSizeAllocated (object o, SizeAllocatedArgs args)
-		{
-			ImageResizeTimer.Stop();
-			ImageResizeTimer.Start();
 		}
 
 		protected void OnButtonOkClicked (object sender, EventArgs e)

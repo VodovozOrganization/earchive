@@ -1320,7 +1320,6 @@
                 <property name="CanFocus">True</property>
                 <property name="VscrollbarPolicy">Always</property>
                 <property name="ShadowType">In</property>
-                <signal name="SizeAllocated" handler="OnScrolledImagesSizeAllocated" />
                 <child>
                   <widget class="Gtk.Viewport" id="GtkViewport">
                     <property name="MemberName" />
