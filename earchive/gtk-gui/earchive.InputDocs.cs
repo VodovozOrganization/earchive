@@ -283,43 +283,31 @@ namespace earchive
 			this.buttonLog.CanFocus = true;
 			this.buttonLog.Name = "buttonLog";
 			this.buttonLog.UseUnderline = true;
-			// Container child buttonLog.Gtk.Container+ContainerChild
-			global::Gtk.Alignment w21 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
-			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			global::Gtk.HBox w22 = new global::Gtk.HBox ();
-			w22.Spacing = 2;
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Image w23 = new global::Gtk.Image ();
-			w23.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-execute", global::Gtk.IconSize.Button);
-			w22.Add (w23);
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Label w25 = new global::Gtk.Label ();
-			w25.LabelProp = global::Mono.Unix.Catalog.GetString ("Показать журнал распознования.");
-			w25.UseUnderline = true;
-			w22.Add (w25);
-			w21.Add (w22);
-			this.buttonLog.Add (w21);
+			this.buttonLog.Label = global::Mono.Unix.Catalog.GetString ("Показать журнал распознования.");
+			global::Gtk.Image w21 = new global::Gtk.Image ();
+			w21.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-execute", global::Gtk.IconSize.Button);
+			this.buttonLog.Image = w21;
 			this.vbox3.Add (this.buttonLog);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.buttonLog]));
-			w29.Position = 2;
-			w29.Expand = false;
-			w29.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.buttonLog]));
+			w22.Position = 2;
+			w22.Expand = false;
+			w22.Fill = false;
 			this.hbox2.Add (this.vbox3);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox3]));
-			w30.Position = 1;
-			w30.Expand = false;
-			w30.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox3]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.vbox2.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
-			w31.Position = 1;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
+			w24.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.progresswork = new global::Gtk.ProgressBar ();
 			this.progresswork.Name = "progresswork";
 			this.vbox2.Add (this.progresswork);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.progresswork]));
-			w32.Position = 2;
-			w32.Expand = false;
-			w32.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.progresswork]));
+			w25.Position = 2;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

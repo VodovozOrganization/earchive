@@ -31,7 +31,7 @@ namespace earchive
 		private global::Gtk.Statusbar statusbar1;
 		private global::Gtk.Label labelUser;
 		private global::Gtk.Label labelStatus;
-		
+
 		protected virtual void Build ()
 		{
 			global::Stetic.Gui.Initialize (this);
@@ -165,33 +165,21 @@ namespace earchive
 			this.buttonInput.CanFocus = true;
 			this.buttonInput.Name = "buttonInput";
 			this.buttonInput.UseUnderline = true;
-			// Container child buttonInput.Gtk.Container+ContainerChild
-			global::Gtk.Alignment w9 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
-			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			global::Gtk.HBox w10 = new global::Gtk.HBox ();
-			w10.Spacing = 2;
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Image w11 = new global::Gtk.Image ();
-			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-new", global::Gtk.IconSize.LargeToolbar);
-			w10.Add (w11);
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Label w13 = new global::Gtk.Label ();
-			w13.LabelProp = global::Mono.Unix.Catalog.GetString ("Ввод документов");
-			w13.UseUnderline = true;
-			w10.Add (w13);
-			w9.Add (w10);
-			this.buttonInput.Add (w9);
+			this.buttonInput.Label = global::Mono.Unix.Catalog.GetString ("Ввод документов");
+			global::Gtk.Image w9 = new global::Gtk.Image ();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-new", global::Gtk.IconSize.LargeToolbar);
+			this.buttonInput.Image = w9;
 			this.hbox2.Add (this.buttonInput);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.buttonInput]));
-			w17.PackType = ((global::Gtk.PackType)(1));
-			w17.Position = 2;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.buttonInput]));
+			w10.PackType = ((global::Gtk.PackType)(1));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.vbox2.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
-			w18.Position = 1;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -202,8 +190,8 @@ namespace earchive
 			this.treeviewDocs.Name = "treeviewDocs";
 			this.GtkScrolledWindow.Add (this.treeviewDocs);
 			this.vbox2.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.GtkScrolledWindow]));
-			w20.Position = 2;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.GtkScrolledWindow]));
+			w13.Position = 2;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox7 = new global::Gtk.HBox ();
 			this.hbox7.Name = "hbox7";
@@ -215,86 +203,51 @@ namespace earchive
 			this.buttonOpen.CanFocus = true;
 			this.buttonOpen.Name = "buttonOpen";
 			this.buttonOpen.UseUnderline = true;
-			// Container child buttonOpen.Gtk.Container+ContainerChild
-			global::Gtk.Alignment w21 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
-			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			global::Gtk.HBox w22 = new global::Gtk.HBox ();
-			w22.Spacing = 2;
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Image w23 = new global::Gtk.Image ();
-			w23.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-edit", global::Gtk.IconSize.SmallToolbar);
-			w22.Add (w23);
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Label w25 = new global::Gtk.Label ();
-			w25.LabelProp = global::Mono.Unix.Catalog.GetString ("Открыть");
-			w25.UseUnderline = true;
-			w22.Add (w25);
-			w21.Add (w22);
-			this.buttonOpen.Add (w21);
+			this.buttonOpen.Label = global::Mono.Unix.Catalog.GetString ("Открыть");
+			global::Gtk.Image w14 = new global::Gtk.Image ();
+			w14.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-edit", global::Gtk.IconSize.SmallToolbar);
+			this.buttonOpen.Image = w14;
 			this.hbox7.Add (this.buttonOpen);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox7 [this.buttonOpen]));
-			w29.Position = 0;
-			w29.Expand = false;
-			w29.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox7 [this.buttonOpen]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonDelete = new global::Gtk.Button ();
 			this.buttonDelete.Sensitive = false;
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.UseUnderline = true;
-			// Container child buttonDelete.Gtk.Container+ContainerChild
-			global::Gtk.Alignment w30 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
-			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			global::Gtk.HBox w31 = new global::Gtk.HBox ();
-			w31.Spacing = 2;
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Image w32 = new global::Gtk.Image ();
-			w32.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-delete", global::Gtk.IconSize.SmallToolbar);
-			w31.Add (w32);
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Label w34 = new global::Gtk.Label ();
-			w34.LabelProp = global::Mono.Unix.Catalog.GetString ("Удалить");
-			w34.UseUnderline = true;
-			w31.Add (w34);
-			w30.Add (w31);
-			this.buttonDelete.Add (w30);
+			this.buttonDelete.Label = global::Mono.Unix.Catalog.GetString ("Удалить");
+			global::Gtk.Image w16 = new global::Gtk.Image ();
+			w16.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-delete", global::Gtk.IconSize.SmallToolbar);
+			this.buttonDelete.Image = w16;
 			this.hbox7.Add (this.buttonDelete);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hbox7 [this.buttonDelete]));
-			w38.Position = 1;
-			w38.Expand = false;
-			w38.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox7 [this.buttonDelete]));
+			w17.Position = 1;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.buttonRefresh = new global::Gtk.Button ();
+			this.buttonRefresh.Sensitive = false;
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;
-			// Container child buttonRefresh.Gtk.Container+ContainerChild
-			global::Gtk.Alignment w39 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
-			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			global::Gtk.HBox w40 = new global::Gtk.HBox ();
-			w40.Spacing = 2;
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Image w41 = new global::Gtk.Image ();
-			w41.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-refresh", global::Gtk.IconSize.SmallToolbar);
-			w40.Add (w41);
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Label w43 = new global::Gtk.Label ();
-			w43.LabelProp = global::Mono.Unix.Catalog.GetString ("Обновить");
-			w43.UseUnderline = true;
-			w40.Add (w43);
-			w39.Add (w40);
-			this.buttonRefresh.Add (w39);
+			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString ("Обновить");
+			global::Gtk.Image w18 = new global::Gtk.Image ();
+			w18.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-refresh", global::Gtk.IconSize.SmallToolbar);
+			this.buttonRefresh.Image = w18;
 			this.hbox7.Add (this.buttonRefresh);
-			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.hbox7 [this.buttonRefresh]));
-			w47.PackType = ((global::Gtk.PackType)(1));
-			w47.Position = 2;
-			w47.Expand = false;
-			w47.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox7 [this.buttonRefresh]));
+			w19.PackType = ((global::Gtk.PackType)(1));
+			w19.Position = 2;
+			w19.Expand = false;
+			w19.Fill = false;
 			this.vbox2.Add (this.hbox7);
-			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox7]));
-			w48.Position = 3;
-			w48.Expand = false;
-			w48.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox7]));
+			w20.Position = 3;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.statusbar1 = new global::Gtk.Statusbar ();
 			this.statusbar1.Name = "statusbar1";
@@ -304,25 +257,25 @@ namespace earchive
 			this.labelUser.Name = "labelUser";
 			this.labelUser.LabelProp = global::Mono.Unix.Catalog.GetString ("Пользователь");
 			this.statusbar1.Add (this.labelUser);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.statusbar1 [this.labelUser]));
-			w49.Position = 0;
-			w49.Expand = false;
-			w49.Fill = false;
-			w49.Padding = ((uint)(4));
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.statusbar1 [this.labelUser]));
+			w21.Position = 0;
+			w21.Expand = false;
+			w21.Fill = false;
+			w21.Padding = ((uint)(4));
 			// Container child statusbar1.Gtk.Box+BoxChild
 			this.labelStatus = new global::Gtk.Label ();
 			this.labelStatus.Name = "labelStatus";
 			this.labelStatus.LabelProp = global::Mono.Unix.Catalog.GetString ("OK");
 			this.statusbar1.Add (this.labelStatus);
-			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.statusbar1 [this.labelStatus]));
-			w50.Position = 3;
-			w50.Expand = false;
-			w50.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.statusbar1 [this.labelStatus]));
+			w22.Position = 3;
+			w22.Expand = false;
+			w22.Fill = false;
 			this.vbox2.Add (this.statusbar1);
-			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.statusbar1]));
-			w51.Position = 4;
-			w51.Expand = false;
-			w51.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.statusbar1]));
+			w23.Position = 4;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
