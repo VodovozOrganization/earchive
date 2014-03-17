@@ -339,6 +339,7 @@
             <child>
               <widget class="Gtk.Button" id="buttonRefresh">
                 <property name="MemberName" />
+                <property name="Sensitive">False</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-refresh SmallToolbar</property>

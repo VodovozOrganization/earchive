@@ -136,6 +136,7 @@ namespace earchive
 			DocsFilter.VisibleFunc = new Gtk.TreeModelFilterVisibleFunc (FilterTreeDocs);
 			treeviewDocs.Model = DocsFilter;
 			treeviewDocs.ShowAll();
+			buttonRefresh.Sensitive = true;
 		}
 
 		protected void OnAction2Activated (object sender, EventArgs e)
