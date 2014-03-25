@@ -15,6 +15,7 @@
     <CodePage>65001</CodePage>
     <ReleaseVersion>0.8</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
+    <UseMSBuildEngine>False</UseMSBuildEngine>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
