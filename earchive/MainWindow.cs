@@ -43,11 +43,13 @@ namespace earchive
 				QSMain.User.UpdateUserInfoByLogin ();
 			UsersAction.Sensitive = QSMain.User.admin;
 			labelUser.LabelProp = QSMain.User.Name;
+			ActionDocTypes.Sensitive = QSMain.User.Permissions["edit_db"];
 			//buttonDelete.Sensitive = QSMain.User.Permissions["can_edit"];
 			buttonInput.Sensitive = QSMain.User.Permissions["can_edit"];
 
 			// Создаем главное окно
 			ComboWorks.ComboFillReference (comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
+			selectperiodDocs.ActiveRadio = SelectPeriod.Period.Week;
 		}
 		
 		protected void OnDeleteEvent (object sender, DeleteEventArgs a)

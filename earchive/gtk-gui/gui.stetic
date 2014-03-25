@@ -68,7 +68,7 @@
         <property name="Label" translatable="yes">Настройка</property>
         <property name="ShortLabel" translatable="yes">Настройка</property>
       </action>
-      <action id="Action2">
+      <action id="ActionDocTypes">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Типы документов</property>
         <property name="ShortLabel" translatable="yes">Типы документов</property>
@@ -101,7 +101,7 @@
                 <node type="Menuitem" action="quitAction" />
               </node>
               <node type="Menu" action="Action1">
-                <node type="Menuitem" action="Action2" />
+                <node type="Menuitem" action="ActionDocTypes" />
                 <node type="Menuitem" action="Action3" />
               </node>
             </node>
