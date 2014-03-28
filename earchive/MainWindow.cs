@@ -350,5 +350,29 @@ namespace earchive
 			stat.Destroy();
 		}
 
+		protected void OnAboutActionActivated(object sender, EventArgs e)
+		{
+			AboutDialog dialog = new AboutDialog ();
+			dialog.ProgramName = "QS: Электронный архив";
+
+			Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+			dialog.Version = version.ToString (version.Build == 0 ? 3 : 4);
+
+			dialog.Logo = Gdk.Pixbuf.LoadFromResource ("earchive.icons.logo.png");
+
+			dialog.Comments = "Программа позволяет создать и вести базу отсканированных документов." +
+				"\nРазработана на MonoDevelop с использованием открытых технологий Mono, GTK#, MySQL." +
+				"\nТелефон тех. поддержки +7(812)575-79-44";
+
+			dialog.Copyright = "Quality Solution 2014";
+
+			dialog.Authors = new string [] {"Ганьков Андрей <gav@qsolution.ru>"};
+
+			dialog.Website = "http://www.qsolution.ru/";
+
+			dialog.Run ();
+			dialog.Destroy();
+		}
+
 	}
 }

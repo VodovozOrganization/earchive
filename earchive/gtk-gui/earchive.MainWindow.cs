@@ -12,6 +12,8 @@ namespace earchive
 		private global::Gtk.Action Action1;
 		private global::Gtk.Action ActionDocTypes;
 		private global::Gtk.Action Action3;
+		private global::Gtk.Action Action4;
+		private global::Gtk.Action aboutAction;
 		private global::Gtk.VBox vbox2;
 		private global::Gtk.MenuBar menubar1;
 		private global::Gtk.HBox hbox2;
@@ -59,10 +61,16 @@ namespace earchive
 			this.Action3 = new global::Gtk.Action ("Action3", global::Mono.Unix.Catalog.GetString ("Статистика"), null, null);
 			this.Action3.ShortLabel = global::Mono.Unix.Catalog.GetString ("Статистика");
 			w1.Add (this.Action3, null);
+			this.Action4 = new global::Gtk.Action ("Action4", global::Mono.Unix.Catalog.GetString ("Справка"), null, null);
+			this.Action4.ShortLabel = global::Mono.Unix.Catalog.GetString ("Справка");
+			w1.Add (this.Action4, null);
+			this.aboutAction = new global::Gtk.Action ("aboutAction", global::Mono.Unix.Catalog.GetString ("_О программе"), null, "gtk-about");
+			this.aboutAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("_О программе");
+			w1.Add (this.aboutAction, null);
 			this.UIManager.InsertActionGroup (w1, 0);
 			this.AddAccelGroup (this.UIManager.AccelGroup);
 			this.Name = "earchive.MainWindow";
-			this.Title = global::Mono.Unix.Catalog.GetString ("Электронный архив документов");
+			this.Title = global::Mono.Unix.Catalog.GetString ("QS: Электронный архив");
 			this.Icon = global::Gdk.Pixbuf.LoadFromResource ("earchive.icons.logo.png");
 			this.WindowPosition = ((global::Gtk.WindowPosition)(1));
 			// Container child earchive.MainWindow.Gtk.Container+ContainerChild
@@ -70,7 +78,7 @@ namespace earchive
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.UIManager.AddUiFromString ("<ui><menubar name='menubar1'><menu name='Action' action='Action'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='Action1' action='Action1'><menuitem name='ActionDocTypes' action='ActionDocTypes'/><menuitem name='Action3' action='Action3'/></menu></menubar></ui>");
+			this.UIManager.AddUiFromString ("<ui><menubar name='menubar1'><menu name='Action' action='Action'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='Action1' action='Action1'><menuitem name='ActionDocTypes' action='ActionDocTypes'/><menuitem name='Action3' action='Action3'/></menu><menu name='Action4' action='Action4'><menuitem name='aboutAction' action='aboutAction'/></menu></menubar></ui>");
 			this.menubar1 = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubar1")));
 			this.menubar1.Name = "menubar1";
 			this.vbox2.Add (this.menubar1);
@@ -288,6 +296,7 @@ namespace earchive
 			this.UsersAction.Activated += new global::System.EventHandler (this.OnUsersActionActivated);
 			this.ActionDocTypes.Activated += new global::System.EventHandler (this.OnAction2Activated);
 			this.Action3.Activated += new global::System.EventHandler (this.OnAction3Activated);
+			this.aboutAction.Activated += new global::System.EventHandler (this.OnAboutActionActivated);
 			this.entryDocNumber.Changed += new global::System.EventHandler (this.OnEntryDocNumberChanged);
 			this.comboDocType.Changed += new global::System.EventHandler (this.OnComboDocTypeChanged);
 			this.selectperiodDocs.DatesChanged += new global::System.EventHandler (this.OnSelectperiodDocsDatesChanged);

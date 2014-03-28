@@ -80,9 +80,21 @@
         <property name="ShortLabel" translatable="yes">Статистика</property>
         <signal name="Activated" handler="OnAction3Activated" />
       </action>
+      <action id="Action4">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Справка</property>
+        <property name="ShortLabel" translatable="yes">Справка</property>
+      </action>
+      <action id="aboutAction">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">_О программе</property>
+        <property name="ShortLabel" translatable="yes">_О программе</property>
+        <property name="StockId">gtk-about</property>
+        <signal name="Activated" handler="OnAboutActionActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
-    <property name="Title" translatable="yes">Электронный архив документов</property>
+    <property name="Title" translatable="yes">QS: Электронный архив</property>
     <property name="Icon">resource:earchive.icons.logo.png</property>
     <property name="WindowPosition">Center</property>
     <signal name="DeleteEvent" handler="OnDeleteEvent" />
@@ -103,6 +115,9 @@
               <node type="Menu" action="Action1">
                 <node type="Menuitem" action="ActionDocTypes" />
                 <node type="Menuitem" action="Action3" />
+              </node>
+              <node type="Menu" action="Action4">
+                <node type="Menuitem" action="aboutAction" />
               </node>
             </node>
           </widget>
@@ -1843,7 +1858,6 @@
                         <property name="CanFocus">True</property>
                         <property name="ShowScrollbars">True</property>
                         <property name="HeadersVisible">False</property>
-                        <property name="Reorderable">True</property>
                         <signal name="CursorChanged" handler="OnTreeviewImagesCursorChanged" />
                         <signal name="ButtonReleaseEvent" handler="OnTreeviewImagesButtonReleaseEvent" />
                       </widget>
