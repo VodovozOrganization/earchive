@@ -20,7 +20,6 @@ namespace earchive
 
 		public new bool RowDropPossible(TreePath path, SelectionData sel)
 		{
-			//logger.Debug("RowDropPossible {1} path={0} ", path, path.Depth == 2);
 			return path.Depth == 2;
 		}
 
@@ -52,16 +51,21 @@ namespace earchive
 					newIter = this.InsertNodeAfter(ParentIter, dstIter);
 				else
 					newIter = this.InsertNodeBefore(ParentIter, dstIter);
-				for(int i = 0; i < this.NColumns; i++)
-				{
-					object value = this.GetValue(srcIter, i);
-					if (value == null)
-						continue;
-					this.SetValue(newIter, i, value);
-				}
+				CopyValues(srcIter, newIter);
 				return true;
 			}
 			return false;
+		}
+
+		public void CopyValues(TreeIter srcIter, TreeIter dstIter)
+		{
+			for(int i = 0; i < this.NColumns; i++)
+			{
+				object value = this.GetValue(srcIter, i);
+				if (value == null)
+					continue;
+				this.SetValue(dstIter, i, value);
+			}
 		}
 
 		public new bool DragDataDelete(TreePath path)

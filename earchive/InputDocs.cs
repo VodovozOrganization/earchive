@@ -89,17 +89,9 @@ namespace earchive
 				progresswork.Adjustment.Upper = Chooser.Filenames.Length;
 				foreach(string File in Chooser.Filenames)
 				{
-					Console.WriteLine(File);
-					iter = ImageList.AppendValues (0,
-					                               String.Format ("Документ {0}", NextDocNumber),
-							                        "",
-							                        null,
-					                               null ,
-							                        null,
-							                        false,
-					                               String.Format ("Тип неопределён"),
-					                               DocIconNew
-					                               );
+					logger.Debug(File);
+
+					iter = ImageListNewDoc();
 
 					FileStream fs = new FileStream(File, FileMode.Open, FileAccess.Read);
 					Pixbuf image = new Pixbuf(fs);
@@ -107,7 +99,6 @@ namespace earchive
 					Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio),(int)(image.Height * ratio), InterpType.Bilinear);
 					fs.Close();
 
-					NextDocNumber++;
 					ImageList.AppendValues (iter,
 											0,
 					                        System.IO.Path.GetFileName(File),
@@ -377,9 +368,19 @@ namespace earchive
 					}
 					MenuItem1 = new SeparatorMenuItem();
 					jBox.Add(MenuItem1);
+
+					TreeIter iter, parentIter;
+					if(treeviewImages.Selection.GetSelected(out iter) 
+						&& (ImageList.IterParent(out parentIter, iter)) 
+						&& (ImageList.IterNChildren(parentIter) > 1))
+					{
+						MenuItem1 = new MenuItem("Добавить в новый док.");
+						MenuItem1.Activated += OnImageListPopupNewDoc;
+						jBox.Add(MenuItem1);
+					}
 					MenuItem1 = new MenuItem("Удалить");
 					MenuItem1.Activated += OnImageListPopupDelete;
-					jBox.Add(MenuItem1);           
+					jBox.Add(MenuItem1);
 				}
 				MenuItem1 = new MenuItem("Выбрать для всех");
 				Gtk.Menu jBox2 = new Gtk.Menu();
@@ -418,6 +419,17 @@ namespace earchive
 			
 			treeviewImages.Selection.GetSelected(out iter);
 			ImageList.Remove (ref iter);
+		}
+
+		protected void OnImageListPopupNewDoc(object sender, EventArgs Arg)
+		{
+			TreeIter ImageIter, DocIter, NewIter;
+
+			treeviewImages.Selection.GetSelected(out ImageIter);
+			DocIter = ImageListNewDoc();
+			NewIter = ImageList.AppendNode(DocIter);
+			ImageList.CopyValues(ImageIter, NewIter);
+			ImageList.Remove(ref ImageIter);
 		}
 
 		protected void OnImageListPopupDocType(object sender, EventArgs Arg)
@@ -887,6 +899,23 @@ namespace earchive
 			ShowLog(CurrentLog);
 		}
 
+		private TreeIter ImageListNewDoc()
+		{
+			TreeIter result;
+			result = ImageList.AppendValues (0,
+				String.Format ("Документ {0}", NextDocNumber),
+				"",
+				null,
+				null ,
+				null,
+				false,
+				String.Format ("Тип неопределён"),
+				DocIconNew
+			);
+			NextDocNumber++;
+			return result;
+		}
+
 		protected void OnScanActionActivated (object sender, EventArgs e)
 		{
 			ScanWorks scan = null;
@@ -904,22 +933,12 @@ namespace earchive
 					TreeIter iter;
 					progresswork.Adjustment.Upper = arg.AllImages;
 
-					iter = ImageList.AppendValues (0,
-					                               String.Format ("Документ {0}", NextDocNumber),
-					                               "",
-					                               null,
-					                               null ,
-					                               null,
-					                               false,
-					                               String.Format ("Тип неопределён"),
-					                               DocIconNew
-					                               );
+					iter = ImageListNewDoc();
 
 					Pixbuf image = arg.Image;
 					double ratio = 150f / Math.Max(image.Height, image.Width);
 					Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio),(int)(image.Height * ratio), InterpType.Bilinear);
 
-					NextDocNumber++;
 					ImageList.AppendValues (iter,
 					                        0,
 					                        null,
