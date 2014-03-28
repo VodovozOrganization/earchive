@@ -105,6 +105,7 @@
     <Compile Include="Statistics.cs" />
     <Compile Include="RecognizeHelper.cs" />
     <Compile Include="widgets\ImageViewer.cs" />
+    <Compile Include="ImageTreeStore.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

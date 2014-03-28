@@ -5,12 +5,13 @@ using Gtk;
 using Gdk;
 using QSProjectsLib;
 using MySql.Data.MySqlClient;
-using MySql.Data;
+using NLog;
 
 namespace earchive
 {
 	public partial class InputDocs : Gtk.Window
 	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private bool Clearing = false;
 		private ImageTreeStore ImageList;
 		private TreeIter CurrentImage;
@@ -48,9 +49,7 @@ namespace earchive
 			                          typeof(string),//7 - Doc name
 			                          typeof(string) //8 - Doc Icon Name
 			                          );
-			ImageList.RowDeleted += OnImageListRowRemoved;
-			//ImageList.RowInserted += OnImageListRowInserted;
-			//ImageList.RowChanged += OnImageListRowChanged;
+		
 			TreeViewColumn ImageColumn = new TreeViewColumn();
 			var ImageCell = new ImageListCellRenderer(Pango.FontDescription.FromString ("Tahoma 10"), IconSize.Menu);
 			ImageCell.Xalign = 0;
@@ -356,19 +355,7 @@ namespace earchive
 			                                   Heigth,
 			                                   InterpType.Bilinear);
 		}
-
-		protected void OnImageListRowRemoved(object o, RowDeletedArgs arg)
-		{
-			TreeIter iter;
-			if(arg.Path.Depth == 2)
-			{
-				arg.Path.Up ();
-				ImageList.GetIter (out iter, arg.Path);
-				if(!ImageList.IterHasChild (iter))
-					ImageList.Remove (ref iter);
-			}
-		}
-
+			
 		protected void OnImageDocDragMotion (object o, DragMotionArgs args)
 		{
 			Console.WriteLine ("x={0} y={1}", args.X, args.Y);
@@ -965,39 +952,8 @@ namespace earchive
 					scan.Close ();
 			}
 		}
-
-
-	}
-
-	class ImageTreeStore : Gtk.TreeStore, TreeDragSourceImplementor, TreeDragDestImplementor
-	{
-		public ImageTreeStore(params Type[] types) : base (types)
-		{
 	
-		}
-
-		public new bool RowDraggable (TreePath path)
-		{
-			return path.Depth == 2;
-		}
-
-		public new bool RowDropPossible(TreePath path, SelectionData sel)
-		{
-			return path.Depth == 2;
-		}
-
-		public new bool DragDataGet(TreePath path, SelectionData sel)
-		{
-			Console.WriteLine (path);
-			Console.WriteLine (path.Depth);
-			return true;
-		}
-
-		public new bool DragDataReceived(TreePath path, SelectionData selectionData)
-		{
-			Console.WriteLine (path);
-			Console.WriteLine (path.Depth);
-			return true;
-		}
 	}
+
+
 }
