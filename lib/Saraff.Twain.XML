@@ -95,6 +95,19 @@
             <param name="index">Индекс.</param>
             <returns>Имя источника данных.</returns>
         </member>
+        <member name="M:Saraff.Twain.Twain32.GetIsSourceTwain2Compatible(System.Int32)">
+            <summary>
+            Возвращает истину, если указанный источник поддерживает TWAIN 2.0; иначе лож.
+            </summary>
+            <param name="index">Индекс.</param>
+            <returns>Истина, если указанный источник поддерживает TWAIN 2.0; иначе лож.</returns>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.SetDefaultSource(System.Int32)">
+            <summary>
+            Устанавливает указанный источник данных в качестве источника данных по умолчанию.
+            </summary>
+            <param name="index">Индекс.</param>
+        </member>
         <member name="M:Saraff.Twain.Twain32.GetResolutions">
             <summary>
             Возвращает разрешения, поддерживаемые источником данных.
@@ -145,12 +158,44 @@
             <returns>Набор флагов.</returns>
             <exception cref="T:Saraff.Twain.TwainException">Возбуждается в случае возникновения ошибки во время операции.</exception>
         </member>
+        <member name="M:Saraff.Twain.Twain32._GetCapCore(Saraff.Twain.TwCap,Saraff.Twain.TwMSG)">
+            <summary>
+            Возвращает значение для указанного capability (возможность).
+            </summary>
+            <param name="capability">Значение перечисления TwCap.</param>
+            <param name="msg">Значение перечисления TwMSG.</param>
+            <returns>В зависимости от значение capability, могут быть возвращены: тип-значение, массив, <see cref="T:Saraff.Twain.Twain32.Range">диапазон</see>, <see cref="T:Saraff.Twain.Twain32.Enumeration">перечисление</see>.</returns>
+            <exception cref="T:Saraff.Twain.TwainException">Возбуждается в случае возникновения ошибки во время операции.</exception>
+        </member>
         <member name="M:Saraff.Twain.Twain32.GetCap(Saraff.Twain.TwCap)">
             <summary>
             Возвращает значение для указанного capability (возможность).
             </summary>
             <param name="capability">Значение перечисления TwCap.</param>
             <returns>В зависимости от значение capability, могут быть возвращены: тип-значение, массив, <see cref="T:Saraff.Twain.Twain32.Range">диапазон</see>, <see cref="T:Saraff.Twain.Twain32.Enumeration">перечисление</see>.</returns>
+            <exception cref="T:Saraff.Twain.TwainException">Возбуждается в случае возникновения ошибки во время операции.</exception>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.GetCurrentCap(Saraff.Twain.TwCap)">
+            <summary>
+            Возвращает текущее значение для указанного capability (возможность).
+            </summary>
+            <param name="capability">Значение перечисления TwCap.</param>
+            <returns>В зависимости от значение capability, могут быть возвращены: тип-значение, массив, <see cref="T:Saraff.Twain.Twain32.Range">диапазон</see>, <see cref="T:Saraff.Twain.Twain32.Enumeration">перечисление</see>.</returns>
+            <exception cref="T:Saraff.Twain.TwainException">Возбуждается в случае возникновения ошибки во время операции.</exception>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.GetDefaultCap(Saraff.Twain.TwCap)">
+            <summary>
+            Возвращает значение по умолчанию для указанного capability (возможность).
+            </summary>
+            <param name="capability">Значение перечисления TwCap.</param>
+            <returns>В зависимости от значение capability, могут быть возвращены: тип-значение, массив, <see cref="T:Saraff.Twain.Twain32.Range">диапазон</see>, <see cref="T:Saraff.Twain.Twain32.Enumeration">перечисление</see>.</returns>
+            <exception cref="T:Saraff.Twain.TwainException">Возбуждается в случае возникновения ошибки во время операции.</exception>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.ResetCap(Saraff.Twain.TwCap)">
+            <summary>
+            Сбрасывает текущее значение для указанного <see cref="T:Saraff.Twain.TwCap">capability</see> в значение по умолчанию.
+            </summary>
+            <param name="capability">Значение перечисления <see cref="T:Saraff.Twain.TwCap"/>.</param>
             <exception cref="T:Saraff.Twain.TwainException">Возбуждается в случае возникновения ошибки во время операции.</exception>
         </member>
         <member name="M:Saraff.Twain.Twain32.SetCap(Saraff.Twain.TwCap,System.Object)">
@@ -193,19 +238,17 @@
             <param name="itemType">Тип конвертируемого значения.</param>
             <returns>Тип-значение.</returns>
         </member>
-        <member name="M:Saraff.Twain.Twain32._Convert(System.Type)">
-            <summary>
-            Конвертирует экземпляр <see cref="T:System.Type"/> в значение перечисления <see cref="T:Saraff.Twain.TwType"/>.
-            </summary>
-            <param name="type">Экземпляр <see cref="T:System.Type"/>.</param>
-            <returns>Значение перечисления <see cref="T:Saraff.Twain.TwType"/></returns>
-        </member>
         <member name="M:Saraff.Twain.Twain32._Convert(System.Object)">
             <summary>
             Конвертирует указанный экземпляр в экземпляр Int32.
             </summary>
             <param name="item">Конвертируемый экземпляр.</param>
             <returns>Экземпляр Int32.</returns>
+        </member>
+        <member name="M:Saraff.Twain.Twain32._TransferPictures">
+            <summary>
+            Выполняет передачу изображения.
+            </summary>
         </member>
         <member name="M:Saraff.Twain.Twain32._GetAllSorces">
             <summary>
@@ -218,6 +261,19 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:Saraff.Twain.Twain32._GetImageInfo">
+            <summary>
+            Возвращает описание полученного изображения.
+            </summary>
+            <returns>Описание изображения.</returns>
+        </member>
+        <member name="M:Saraff.Twain.Twain32._GetExtImageInfo(Saraff.Twain.TwEI[])">
+            <summary>
+            Возвращает расширенного описание полученного изображения.
+            </summary>
+            <param name="extInfo">Набор кодов расширенного описания изображения для которых требуется получить описание.</param>
+            <returns>Расширенное описание изображения.</returns>
+        </member>
         <member name="P:Saraff.Twain.Twain32.ImageCount">
             <summary>
             Возвращает количество отсканированных изображений.
@@ -226,6 +282,16 @@
         <member name="P:Saraff.Twain.Twain32.DisableAfterAcquire">
             <summary>
             Возвращает или устанавливает значение, указывающее на необходимость деактивации источника данных после получения изображения.
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.IsTwain2Enable">
+            <summary>
+            Возвращает или устанавливает значение, указывающее на необходимость использования TWAIN 2.0.
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.IsTwain2Supported">
+            <summary>
+            Возвращает истину, если DSM поддерживает TWAIN 2.0; иначе лож.
             </summary>
         </member>
         <member name="P:Saraff.Twain.Twain32.SourceIndex">
@@ -271,14 +337,123 @@
             Возникает в момент окончания сканирования.
             </summary>
         </member>
-        <member name="T:Saraff.Twain.Twain32._MessageFilter">
+        <member name="E:Saraff.Twain.Twain32.EndXfer">
             <summary>
-            Фильтр win32-сообщений.
+            Возникает в момент окончания получения изображения приложением.
+            </summary>
+        </member>
+        <member name="E:Saraff.Twain.Twain32.XferDone">
+            <summary>
+            Возникает в момент окончания получения изображения источником.
+            </summary>
+        </member>
+        <member name="E:Saraff.Twain.Twain32.TwainStateChanged">
+            <summary>
+            Возникает в момент изменения состояния twain-устройства.
             </summary>
         </member>
         <member name="T:Saraff.Twain.Twain32.TwainStateFlag">
             <summary>
             Флаги состояния.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.Twain32.EndXferEventArgs">
+            <summary>
+            Аргументы события EndXfer.
+            </summary>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.EndXferEventArgs.#ctor(System.Drawing.Image)">
+            <summary>
+            Инициализирует новый экземпляр класса.
+            </summary>
+            <param name="image">Изображение.</param>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.EndXferEventArgs.Image">
+            <summary>
+            Возвращает изображение.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.Twain32.XferDoneEventArgs">
+            <summary>
+            Аргументы события XferDone.
+            </summary>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.XferDoneEventArgs.#ctor(Saraff.Twain.Twain32.GetImageInfoCallback,Saraff.Twain.Twain32.GetExtImageInfoCallback)">
+            <summary>
+            Инициализирует новый экземпляр класса <see cref="T:Saraff.Twain.Twain32.XferDoneEventArgs"/>.
+            </summary>
+            <param name="method1">Метод обратного вызова для получения описания изображения.</param>
+            <param name="method2">Метод обратного вызова для получения расширенного описания изображения.</param>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.XferDoneEventArgs.GetImageInfo">
+            <summary>
+            Возвращает описание полученного изображения.
+            </summary>
+            <returns>Описание изображения.</returns>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.XferDoneEventArgs.GetExtImageInfo(Saraff.Twain.TwEI[])">
+            <summary>
+            Возвращает расширенного описание полученного изображения.
+            </summary>
+            <param name="extInfo">Набор кодов расширенного описания изображения для которых требуется получить описание.</param>
+            <returns>Расширенное описание изображения.</returns>
+        </member>
+        <member name="T:Saraff.Twain.Twain32.TwainStateEventArgs">
+            <summary>
+            Аргументы события TwainStateChanged.
+            </summary>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.TwainStateEventArgs.#ctor(Saraff.Twain.Twain32.TwainStateFlag)">
+            <summary>
+            Инициализирует новый экземпляр класса.
+            </summary>
+            <param name="flags">Флаги состояния.</param>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.TwainStateEventArgs.TwainState">
+            <summary>
+            Возвращает флаги состояния twain-устройства.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.Twain32._Memory">
+            <summary>
+            Точки входа для функций управления памятью.
+            </summary>
+        </member>
+        <member name="M:Saraff.Twain.Twain32._Memory.Alloc(System.Int32)">
+            <summary>
+            Выделяет блок памяти указанного размера.
+            </summary>
+            <param name="size">Размер блока памяти.</param>
+            <returns>Дескриптор памяти.</returns>
+        </member>
+        <member name="M:Saraff.Twain.Twain32._Memory.Free(System.IntPtr)">
+            <summary>
+            Освобождает память.
+            </summary>
+            <param name="handle">Дескриптор памяти.</param>
+        </member>
+        <member name="M:Saraff.Twain.Twain32._Memory.Lock(System.IntPtr)">
+            <summary>
+            Выполняет блокировку памяти.
+            </summary>
+            <param name="handle">Дескриптор памяти.</param>
+            <returns>Указатель на блок памяти.</returns>
+        </member>
+        <member name="M:Saraff.Twain.Twain32._Memory.Unlock(System.IntPtr)">
+            <summary>
+            Выполняет разблокировку памяти.
+            </summary>
+            <param name="handle">Дескриптор памяти.</param>
+        </member>
+        <member name="M:Saraff.Twain.Twain32._Memory._SetEntryPoints(Saraff.Twain._TwEntryPoint)">
+            <summary>
+            Устаначливает точки входа.
+            </summary>
+            <param name="entry">Точки входа.</param>
+        </member>
+        <member name="T:Saraff.Twain.Twain32._MessageFilter">
+            <summary>
+            Фильтр win32-сообщений.
             </summary>
         </member>
         <member name="T:Saraff.Twain.Twain32.Range">
@@ -411,6 +586,125 @@
             <param name="index">Индекс.</param>
             <returns>Элемент по указанному индексу.</returns>
         </member>
+        <member name="T:Saraff.Twain.Twain32.ImageInfo">
+            <summary>
+            Описание изображения.
+            </summary>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.ImageInfo.FromTwImageInfo(Saraff.Twain.TwImageInfo)">
+            <summary>
+            Создает и возвращает новый экземпляр класса ImageInfo на основе экземпляра класса TwImageInfo.
+            </summary>
+            <param name="info">Описание изображения.</param>
+            <returns>Экземпляр класса ImageInfo.</returns>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ImageInfo.XResolution">
+            <summary>
+            Resolution in the horizontal
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ImageInfo.YResolution">
+            <summary>
+            Resolution in the vertical
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ImageInfo.ImageWidth">
+            <summary>
+            Columns in the image, -1 if unknown by DS
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ImageInfo.ImageLength">
+            <summary>
+            Rows in the image, -1 if unknown by DS
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ImageInfo.SamplesPerPixel">
+            <summary>
+            Number of samples per pixel, 3 for RGB
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ImageInfo.BitsPerSample">
+            <summary>
+            Number of bits for each sample
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ImageInfo.BitsPerPixel">
+            <summary>
+            Number of bits for each padded pixel
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ImageInfo.Planar">
+            <summary>
+            True if Planar, False if chunky
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ImageInfo.PixelType">
+            <summary>
+            How to interp data; photo interp
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ImageInfo.Compression">
+            <summary>
+            How the data is compressed
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.Twain32.ExtImageInfo">
+            <summary>
+            Расширенное описание изображения.
+            </summary>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.ExtImageInfo.FromPtr(System.IntPtr)">
+            <summary>
+            Создает и возвращает экземпляр класса ExtImageInfo из блока неуправляемой памяти.
+            </summary>
+            <param name="ptr">Указатель на блок неуправляемой памяти.</param>
+            <returns>Экземпляр класса ExtImageInfo.</returns>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ExtImageInfo.Item(Saraff.Twain.TwEI)">
+            <summary>
+            Возвращает элемент описания расширенной информации о изображении по его коду.
+            </summary>
+            <param name="infoId">Код элемента описания расширенной информации о изображении.</param>
+            <returns>Элемент описания расширенной информации о изображении.</returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Для указанного кода отсутствует соответствующий элемент.</exception>
+        </member>
+        <member name="T:Saraff.Twain.Twain32.ExtImageInfo.InfoItem">
+            <summary>
+            Элемент описания расширенной информации о изображении.
+            </summary>
+        </member>
+        <member name="M:Saraff.Twain.Twain32.ExtImageInfo.InfoItem.FromTwInfo(Saraff.Twain.TwInfo)">
+            <summary>
+            Создает и возвращает экземпляр класса элемента описания расширенной информации о изображении из внутреннего экземпляра класса элемента описания расширенной информации о изображении.
+            </summary>
+            <param name="info">Внутрений экземпляр класса элемента описания расширенной информации о изображении.</param>
+            <returns>Экземпляр класса элемента описания расширенной информации о изображении.</returns>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ExtImageInfo.InfoItem.InfoId">
+            <summary>
+            Возвращает код расширенной информации о изображении.
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ExtImageInfo.InfoItem.IsNotSupported">
+            <summary>
+            Возвращает true, если запрошенная информация не поддерживается источником данных; иначе, false.
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ExtImageInfo.InfoItem.IsNotAvailable">
+            <summary>
+            Возвращает true, если запрошенная информация поддерживается источником данных, но в данный момент недоступна; иначе, false.
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ExtImageInfo.InfoItem.IsSuccess">
+            <summary>
+            Возвращает true, если запрошенная информация была успешно извлечена; иначе, false.
+            </summary>
+        </member>
+        <member name="P:Saraff.Twain.Twain32.ExtImageInfo.InfoItem.Value">
+            <summary>
+            Возвращает значение элемента.
+            </summary>
+        </member>
         <member name="T:Saraff.Twain.TwainException">
             <summary>
             Класс исключения <see cref="T:Saraff.Twain.TwainException"/>
@@ -440,25 +734,11 @@
             <param name="message">The message.</param>
             <param name="innerException">The inner exception.</param>
         </member>
-        <member name="M:Saraff.Twain.DibToImage.WithStream(System.IntPtr)">
-            <summary>
-            Get .NET 'Bitmap' object from memory DIB via stream constructor.
-            This should work for most DIBs.
-            </summary>
-            <param name="dibPtr">Pointer to memory DIB, starting with BITMAPINFOHEADER.</param>
-        </member>
         <member name="M:Saraff.Twain.DibToImage.WithScan0(System.IntPtr)">
             <summary>
             Get .NET 'Bitmap' object from memory DIB via 'scan0' constructor.
             </summary>
             <param name="dibPtr">Pointer to memory DIB, starting with BITMAPINFOHEADER.</param>
-        </member>
-        <member name="M:Saraff.Twain.DibToImage.RawSerializeInto(System.Object,System.Byte[])">
-            <summary>
-            Copy structure into Byte-Array.
-            </summary>
-            <param name="anything">Anything.</param>
-            <param name="datas">The datas.</param>
         </member>
         <member name="T:Saraff.Twain.Properties.Resources">
             <summary>
@@ -474,11 +754,6 @@
             <summary>
               Overrides the current thread's CurrentUICulture property for all
               resource lookups using this strongly typed resource class.
-            </summary>
-        </member>
-        <member name="T:Saraff.Twain.TwProtocol">
-            <summary>
-            TWAIN Version.
             </summary>
         </member>
         <member name="T:Saraff.Twain.TwDG">
@@ -499,6 +774,26 @@
         <member name="F:Saraff.Twain.TwDG.Audio">
             <summary>
             Data pertaining to audio.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.TwDF">
+            <summary>
+            These are for items that need to be determined before DS is opened.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain.TwDF.DSM2">
+            <summary>
+            added to the identity by the DSM.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain.TwDF.APP2">
+            <summary>
+            Set by the App to indicate it would prefer to use DSM2.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain.TwDF.DS2">
+            <summary>
+            Set by the DS to indicate it would prefer to use DSM2.
             </summary>
         </member>
         <member name="T:Saraff.Twain.TwDAT">
@@ -641,6 +936,32 @@
             Data Types
             </summary>
         </member>
+        <member name="T:Saraff.Twain.TwTypeHelper">
+            <summary>
+            Вспомогательный класс для типов twain.
+            </summary>
+        </member>
+        <member name="M:Saraff.Twain.TwTypeHelper.TypeOf(Saraff.Twain.TwType)">
+            <summary>
+            Возвращает соответствующий twain-типу управляемый тип.
+            </summary>
+            <param name="type">Код типа данный twain.</param>
+            <returns>Управляемый тип.</returns>
+        </member>
+        <member name="M:Saraff.Twain.TwTypeHelper.TypeOf(System.Type)">
+            <summary>
+            Возвращает управляемому типу соответствующий twain-тип.
+            </summary>
+            <param name="type">Управляемый тип.</param>
+            <returns>Код типа данный twain.</returns>
+        </member>
+        <member name="M:Saraff.Twain.TwTypeHelper.SizeOf(Saraff.Twain.TwType)">
+            <summary>
+            Возвращает размер twain-типа в неуправляемом блоке памяти.
+            </summary>
+            <param name="type">Код типа данный twain.</param>
+            <returns>Размер в байтах.</returns>
+        </member>
         <member name="T:Saraff.Twain.TwCap">
             <summary>
             Capability Constants
@@ -714,6 +1035,41 @@
         <member name="F:Saraff.Twain.TwCompression.Jbig">
             <summary>
             For Bitonal images  -- Added 1.7 KHL
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.TwEI">
+            <summary>
+            Extended Image Info Attributes.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.TwStr32">
+            <summary>
+            Строка фиксированной длинны 32 символа.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.TwStr64">
+            <summary>
+            Строка фиксированной длинны 64 символа.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.TwStr128">
+            <summary>
+            Строка фиксированной длинны 128 символов.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.TwStr255">
+            <summary>
+            Строка фиксированной длинны 255 символов.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.TwUni512">
+            <summary>
+            Строка юникода фиксированной длинны 512 символов.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.TwStr1024">
+            <summary>
+            Строка фиксированной длинны 1024 символов.
             </summary>
         </member>
         <member name="T:Saraff.Twain.TwIdentity">
@@ -790,14 +1146,6 @@
             <summary>
             e.g. "1.0b3 Beta release"
             </summary>
-        </member>
-        <member name="M:Saraff.Twain.TwVersion.ToString">
-            <summary>
-            Returns a <see cref="T:System.String"/> that represents this instance.
-            </summary>
-            <returns>
-            A <see cref="T:System.String"/> that represents this instance.
-            </returns>
         </member>
         <member name="T:Saraff.Twain.TwUserInterface">
             <summary>
@@ -903,6 +1251,64 @@
             <summary>
             How the data is compressed
             </summary>
+        </member>
+        <member name="T:Saraff.Twain.TwInfo">
+            <summary>
+            This structure is used to pass specific information between the data source and the application.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain.TwInfo.InfoId">
+            <summary>
+            Tag identifying an information.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain.TwInfo.ItemType">
+            <summary>
+            Item data type.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain.TwInfo.NumItems">
+            <summary>
+            Number of items for this field.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain.TwInfo.ReturnCode">
+            <summary>
+            This is the return code of availability of data for extended image attribute requested.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain.TwInfo.Item">
+            <summary>
+            Contains either data or a handle to data.
+            </summary>
+        </member>
+        <member name="M:Saraff.Twain.TwInfo.GetValue">
+            <summary>
+            Возвращает значение элемента.
+            </summary>
+            <returns>Значение элемента.</returns>
+        </member>
+        <member name="P:Saraff.Twain.TwInfo._IsValue">
+            <summary>
+            Возвращает true, если значение элемента является дескриптором неуправляемой памяти; иначе, false.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain.TwExtImageInfo">
+            <summary>
+            This structure is used to pass extended image information from the Data Source to the Application at the end of State 7.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain.TwExtImageInfo.NumInfos">
+            <summary>
+            Количество элементов расширенного описания изображения.
+            </summary>
+        </member>
+        <member name="M:Saraff.Twain.TwExtImageInfo.ToPtr(Saraff.Twain.TwInfo[])">
+            <summary>
+            Выполняет преображование в неуправляемый блок памяти.
+            </summary>
+            <param name="info">Набор элементов расширенного описания изображения.</param>
+            <returns>Указатель на блок неуправляемой памяти.</returns>
         </member>
         <member name="T:Saraff.Twain.TwImageLayout">
             <summary>
@@ -1098,6 +1504,44 @@
         <member name="T:Saraff.Twain._TwRange">
             <summary>
             Container for a range of values.
+            </summary>
+        </member>
+        <member name="T:Saraff.Twain._TwEntryPoint">
+            <summary>
+            DAT_ENTRYPOINT. returns essential entry points.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain._TwEntryPoint.Size">
+            <summary>
+            Size of the structure in bytes. 
+            The application must set this before calling MSG_GET. 
+            The Source should examine this when processing a MSG_SET.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain._TwEntryPoint.DSM_Entry">
+            <summary>
+            A pointer to the DSM_Entry function. 
+            TWAIN 2.0 Sources must use this value instead of getting it themselves.
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain._TwEntryPoint.MemoryAllocate">
+            <summary>
+            A pointer to the memory allocation function, taking the form TW_HANDLE PASCAL DSM_MemAllocate (TW_UINT32).
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain._TwEntryPoint.MemoryFree">
+            <summary>
+            A pointer to the memory free function, taking the form void PASCAL DSM_MemAllocate (TW_HANDLE).
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain._TwEntryPoint.MemoryLock">
+            <summary>
+            A pointer to the memory lock function, taking the form TW_MEMREF PASCAL DSM_MemAllocate (TW_HANDLE).
+            </summary>
+        </member>
+        <member name="F:Saraff.Twain._TwEntryPoint.MemoryUnlock">
+            <summary>
+            A pointer to the memory unlock function, taking the form void PASCAL DSM_MemUnlock (TW_HANDLE).
             </summary>
         </member>
     </members>
