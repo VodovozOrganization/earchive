@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using Gdk;
 using Saraff.Twain;
+using NLog;
 
 namespace earchive
 {
 	public class ScanWorks
 	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private bool WorkWithTwain;
 		Twain32 _twain32;
 
@@ -57,7 +59,7 @@ namespace earchive
 						ImageTransfer(this, arg);
 					}
 				}
-				Console.WriteLine("DataTransferred");
+				logger.Debug("DataTransferred");
 			};
 
 		}

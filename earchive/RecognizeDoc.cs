@@ -4,14 +4,15 @@ using System.Drawing;
 using System.IO;
 using Gdk;
 using Tesseract;
+using NLog;
 
 namespace earchive
 {
 	class RecognizeDoc
 	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 		Document Doc;
 		Pixbuf[] Images;
-		public string log;
 		public bool DiagnosticMode = false;
 		public Gtk.Window parent;
 
@@ -46,12 +47,12 @@ namespace earchive
 							Distance = GetTextPosition(Marker.Text, page, out MarkerPosX, out MarkerPosY, out MarkerSkew);
 							if (Distance < 5)
 							{
-								AddToLog(String.Format("TextMarker <{0}> Distance: {1} Try:{2}", Marker.Text, Distance, i));
+								logger.Debug("TextMarker <{0}> Distance: {1} Try:{2}", Marker.Text, Distance, i);
 								Marker.ActualPosX = MarkerPosX + WorkZone.PosX;
 								Marker.ActualPosY = MarkerPosY + WorkZone.PosY;
 								Marker.ActualSkew = MarkerSkew;
-								AddToLog(String.Format("Image Shift X: {0}", Marker.ShiftX));
-								AddToLog(String.Format("Image Shift Y: {0}", Marker.ShiftY));
+								logger.Debug("Image Shift X: {0}", Marker.ShiftX);
+								logger.Debug("Image Shift Y: {0}", Marker.ShiftY);
 								break;
 							}
 							else if (i == 10)
@@ -83,8 +84,8 @@ namespace earchive
 					CurRule = Doc.Template.NumberRule;
 
 					CurRule.Box.SetShiftByMarker(Marker);
-					AddToLog(String.Format("Number Shift X: {0}", CurRule.Box.ShiftX));
-					AddToLog(String.Format("Number Shift Y: {0}", CurRule.Box.ShiftY));
+					logger.Debug("Number Shift X: {0}", CurRule.Box.ShiftX);
+					logger.Debug("Number Shift Y: {0}", CurRule.Box.ShiftY);
 					WorkZone = CurRule.Box.Clone();
 					//FIXME Для теста
 					WorkZone.RelativePosX += WorkZone.RelativeWidth * 0.2;
@@ -106,9 +107,9 @@ namespace earchive
 								{
 									Doc.DocNumber = FieldText;
 									Doc.DocNumberConfidence = page.GetMeanConfidence();
-									AddToLog(String.Format("Try: {0}", i));
-									AddToLog(String.Format("Found Field Value: {0}", FieldText));
-									AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
+									logger.Debug("Try: {0}", i);
+									logger.Debug("Found Field Value: {0}", FieldText);
+									logger.Debug("Recognize confidence: {0}", page.GetMeanConfidence());
 									if (FieldText == "")
 										ShowImage(PixBox, "Номер пустой. Зона номера документа.");
 									else
@@ -164,9 +165,9 @@ namespace earchive
 							{
 								Doc.DocDateConfidence = -2;
 							}
-							AddToLog(String.Format("Found Field Value: {0}", FieldText));
-							AddToLog(String.Format("Split date Value: {0}", Date));
-							AddToLog(String.Format("Recognize confidence: {0}", page.GetMeanConfidence()));
+							logger.Debug("Found Field Value: {0}", FieldText);
+							logger.Debug("Split date Value: {0}", Date);
+							logger.Debug("Recognize confidence: {0}", page.GetMeanConfidence());
 							if(FieldText == "")
 								ShowImage(PixBox, "Дата пустая. Зона даты документа.");
 							else
@@ -238,8 +239,7 @@ namespace earchive
 			PosX = -1;
 			PosY = -1;
 			AngleRad = 0;
-			AddToLog ("Marker zone text:");
-			AddToLog (page.GetText());
+			logger.Debug("Marker zone text:{0}", page.GetText());
 			ResultIterator LineIter = page.GetIterator();
 			string[] Words = Text.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 			int NumberOfWords = Words.Length;
@@ -274,8 +274,8 @@ namespace earchive
 				}
 				if(CurrentBestDistance < BestDistance)
 				{
-					AddToLog ("new best");
-					AddToLog (LineIter.GetText(PageIteratorLevel.TextLine).Trim());
+					logger.Debug("new best");
+					logger.Debug(LineIter.GetText(PageIteratorLevel.TextLine).Trim());
 					BestDistance = CurrentBestDistance;
 					for(int i = 0; i < CurrentWordNumber; i++)
 					{
@@ -285,12 +285,12 @@ namespace earchive
 					LineIter.TryGetBoundingBox(PageIteratorLevel.Word, out Box);
 					PosX = Box.X1;
 					PosY = Box.Y1;
-					AddToLog (String.Format("Position X1:{0} Y1:{1} X2:{2} Y2:{3}", Box.X1, Box.Y1, Box.X2, Box.Y2));
+					logger.Debug("Position X1:{0} Y1:{1} X2:{2} Y2:{3}", Box.X1, Box.Y1, Box.X2, Box.Y2);
 					LineIter.TryGetBaseline(PageIteratorLevel.Word, out Box);
-					AddToLog (String.Format("BaseLine X1:{0} Y1:{1} X2:{2} Y2:{3}", Box.X1, Box.Y1, Box.X2, Box.Y2));
+					logger.Debug("BaseLine X1:{0} Y1:{1} X2:{2} Y2:{3}", Box.X1, Box.Y1, Box.X2, Box.Y2);
 					AngleRad = Math.Atan2(Box.Y2 - Box.Y1, Box.X2 - Box.X1); //угл наклона базовой линии.
 					double AngleGrad = AngleRad * (180/Math.PI);
-					AddToLog (String.Format("Angle rad:{0} grad:{1}", AngleRad, AngleGrad));
+					logger.Debug("Angle rad:{0} grad:{1}", AngleRad, AngleGrad);
 				}
 
 			} while( LineIter.Next(PageIteratorLevel.TextLine));
@@ -310,15 +310,8 @@ namespace earchive
 				Image.Pixbuf = null;
 				Win.Destroy();
 			}
-			AddToLog(title);
+			logger.Info(title);
 		}
-
-		void AddToLog(string str)
-		{
-			log += str + "\n";
-			Console.WriteLine (str);
-		}
-
 	}
 }
 

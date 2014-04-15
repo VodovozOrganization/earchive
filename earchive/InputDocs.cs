@@ -21,7 +21,7 @@ namespace earchive
 		private Dictionary<int, Gtk.Label> FieldLables;
 		private Dictionary<int, object> FieldWidgets;
 		private Dictionary<int, Gtk.Image> FieldIcons;
-		private string CurrentLog;
+		private NLog.Targets.MemoryTarget RecognizeLog;
 
 		//Настройки значков
 		string DocIconNew = Stock.New;
@@ -774,13 +774,20 @@ namespace earchive
 		protected void OnAction1Activated (object sender, EventArgs e)
 		{
 			TreeIter iter, imageiter;
-			CurrentLog = "Запущен новый процесс распознования...\n";
+			//Создаем новый лог
+			if (RecognizeLog != null)
+				RecognizeLog.Dispose();
+			RecognizeLog = new NLog.Targets.MemoryTarget();
+			RecognizeLog.Layout = "${level} ${message}";
+			NLog.Config.SimpleConfigurator.ConfigureForTargetLogging(RecognizeLog, LogLevel.Debug);
+
+			logger.Info("Запущен новый процесс распознования...");
 			if(!ImageList.GetIterFirst(out iter))
 			{
-				CurrentLog += "Список изображений пуст. Остановка.";
+				logger.Warn("Список изображений пуст. Остановка.");
 				return;
 			}
-			CurrentLog += String.Format("Всего документов: {0}\n", ImageList.IterNChildren());
+			logger.Info("Всего документов: {0}", ImageList.IterNChildren());
 			progresswork.Text = "Распознование документов...";
 			progresswork.Adjustment.Upper = ImageList.IterNChildren();
 			MainClass.WaitRedraw();
@@ -788,16 +795,16 @@ namespace earchive
 			{
 				if(ImageList.IterDepth(iter) == 0)
 				{
-					CurrentLog += (string) ImageList.GetValue(iter, 1) + Environment.NewLine;
+					logger.Info((string) ImageList.GetValue(iter, 1));
 					Document doc = (Document) ImageList.GetValue(iter, 3);
 					if(doc == null)
 					{
-						CurrentLog += "Тип не определён. Переходим к следующему...\n";
+						logger.Warn("Тип не определён. Переходим к следующему...");
 						continue;
 					}
 					if(doc.Template == null)
 					{
-						CurrentLog += "Шаблон распознования не указан. Переходим к следующему...\n";
+						logger.Warn("Шаблон распознования не указан. Переходим к следующему...");
 						continue;
 					}
 					int ImagesCount = ImageList.IterNChildren(iter);
@@ -809,9 +816,9 @@ namespace earchive
 						Images[i] = (Pixbuf) ImageList.GetValue(imageiter, 5);
 						i++;
 					}while(ImageList.IterNext(ref imageiter));
-					CurrentLog += String.Format("Тип: {0}\n", doc.TypeName);
-					CurrentLog += String.Format("Количество страниц: {0}\n", ImagesCount);
-					CurrentLog += String.Format("\nИнициализация движка...\n");
+					logger.Info("Тип: {0}", doc.TypeName);
+					logger.Info("Количество страниц: {0}", ImagesCount);
+					logger.Info("Инициализация движка...");
 					RecognizeDoc tess = new RecognizeDoc(doc, Images);
 					tess.DiagnosticMode = checkDiagnostic.Active;
 					//FIXME Для теста
@@ -822,15 +829,10 @@ namespace earchive
 					}
 					catch (Exception ex)
 					{
-						Console.WriteLine(ex.ToString());
+						logger.Error(ex.ToString());
 						MainClass.StatusMessage("Ошибка в модуле распознования!");
 						QSMain.ErrorMessage(this,ex);
-						if(tess.log != "")
-							ShowLog(tess.log);
-					}
-					finally
-					{
-						CurrentLog += tess.log;
+						ShowLog();
 					}
 					ImageList.SetValue(iter, 8, GetDocIconByState(doc.State));
 				}
@@ -838,6 +840,7 @@ namespace earchive
 				MainClass.WaitRedraw();
 
 			}while(ImageList.IterNext(ref iter));
+			logger.Info("Выполнено");
 			progresswork.Text = "Выполнено";
 			progresswork.Fraction = 0;
 			//FIXME Обновить текущий документ в окне.
@@ -873,8 +876,16 @@ namespace earchive
 			}
 		}
 
-		void ShowLog(string text)
+		void ShowLog()
 		{
+			if (RecognizeLog == null)
+				return;
+			string text = "";
+			foreach(string str in RecognizeLog.Logs)
+			{
+				text += str + Environment.NewLine;
+			}
+
 			Dialog HistoryDialog = new Dialog("Лог работы модуля распознования.", this, Gtk.DialogFlags.DestroyWithParent);
 			HistoryDialog.Modal = true;
 			HistoryDialog.AddButton ("Закрыть", ResponseType.Close);
@@ -896,7 +907,7 @@ namespace earchive
 
 		protected void OnButtonLogClicked (object sender, EventArgs e)
 		{
-			ShowLog(CurrentLog);
+			ShowLog();
 		}
 
 		private TreeIter ImageListNewDoc()
@@ -921,12 +932,12 @@ namespace earchive
 			ScanWorks scan = null;
 			try
 			{
-				CurrentLog += Environment.OSVersion.Platform.ToString();
-				CurrentLog += "init scan\n";
+				logger.Info(Environment.OSVersion.Platform.ToString());
+				logger.Debug("init scan");
 				scan = new ScanWorks(this);
 				progresswork.Text = "Получение изображений со сканера...";
 				MainClass.WaitRedraw();
-				CurrentLog += "run scanner\n";
+				logger.Debug("run scanner");
 
 				scan.ImageTransfer += delegate(object s, ScanWorks.ImageTransferEventArgs arg) 
 				{
@@ -961,7 +972,7 @@ namespace earchive
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.ToString());
+				logger.Error(ex.ToString());
 				MainClass.StatusMessage("Ошибка в работе со сканером!");
 				QSMain.ErrorMessage(this,ex);
 			}
