@@ -30,13 +30,14 @@ namespace earchive
 				TextMarker Marker = Doc.Template.Markers[0];
 				Pixbuf PixBox;
 
-				//Вычисляем сдвиг
+				logger.Info("Вычисляем сдвиг");
 				Pixbuf WorkImage = Images[0];
 				Marker.SetTarget(WorkImage.Width, WorkImage.Height);
 				
 				RelationalRectangle WorkZone = Marker.Zone.Clone();
 				for (int i = 1; i <= 10; i++)
 				{
+					logger.Debug("Попытка {0}, box: x={1},y={2},w={3},h={4}", i, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
 					PixBox = new Pixbuf(WorkImage, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
 					using (var img = RecognizeHelper.PixbufToPix(PixBox))
 					{
@@ -55,7 +56,8 @@ namespace earchive
 								logger.Debug("Image Shift Y: {0}", Marker.ShiftY);
 								break;
 							}
-							else if (i == 10)
+							else if (i == 10 || 
+								(WorkZone.RelativePosX == 0 && WorkZone.RelativePosY == 0 && WorkZone.RelativeHeigth == 1 && WorkZone.RelativeWidth == 1) )
 							{
 								Marker.ActualPosX = (int)(Marker.PatternPosX * Marker.TargetWidth);
 								Marker.ActualPosY = (int)(Marker.PatternPosY * Marker.TargetHeigth);
@@ -64,21 +66,14 @@ namespace earchive
 							}
 							else
 							{ //Увеличиваем размер зоны поиска.
-								WorkZone.RelativePosX -= WorkZone.RelativeWidth * 0.1;
-								if (WorkZone.RelativePosX < 0)
-									WorkZone.RelativePosX = 0;
-								WorkZone.RelativePosY -= WorkZone.RelativeHeigth * 0.1;
-								if (WorkZone.RelativePosY < 0)
-									WorkZone.RelativePosY = 0;
-								WorkZone.RelativeWidth *= 1.2;
-								WorkZone.RelativeHeigth *= 1.2;
-
+								ExpandRelativeZone(WorkZone);
 							}
 						}
 					}
 				}
 				RecognazeRule CurRule;
-				//Распознаем номер
+
+				logger.Info("Распознаем номер");
 				if (Doc.Template.NumberRule != null)
 				{
 					CurRule = Doc.Template.NumberRule;
@@ -121,21 +116,14 @@ namespace earchive
 								}
 								else
 								{//Увеличиваем размер зоны поиска.
-									WorkZone.RelativePosX -= WorkZone.RelativeWidth * 0.1;
-									if (WorkZone.RelativePosX < 0)
-										WorkZone.RelativePosX = 0;
-									WorkZone.RelativePosY -= WorkZone.RelativeHeigth * 0.1;
-									if (WorkZone.RelativePosY < 0)
-										WorkZone.RelativePosY = 0;
-									WorkZone.RelativeWidth *= 1.2;
-									WorkZone.RelativeHeigth *= 1.2;
+									ExpandRelativeZone(WorkZone);
 								}
 							}
 						}
 					}
 				}
 
-				//Распознаем Дату
+				logger.Info("Распознаем Дату");
 				if(Doc.Template.DateRule != null)
 				{
 					CurRule = Doc.Template.DateRule;
@@ -178,6 +166,22 @@ namespace earchive
 
 				//FIXME Добавить распознование дополнительных полей.
 			}
+		}
+
+		internal void ExpandRelativeZone(RelationalRectangle zone)
+		{
+			zone.RelativePosX -= zone.RelativeWidth * 0.1;
+			if (zone.RelativePosX < 0)
+				zone.RelativePosX = 0;
+			zone.RelativePosY -= zone.RelativeHeigth * 0.1;
+			if (zone.RelativePosY < 0)
+				zone.RelativePosY = 0;
+			zone.RelativeWidth *= 1.2;
+			if (zone.RelativeWidth > 1)
+				zone.RelativeWidth = 1;
+			zone.RelativeHeigth *= 1.2;
+			if (zone.RelativeHeigth > 1)
+				zone.RelativeHeigth = 1;
 		}
 
 		/*
