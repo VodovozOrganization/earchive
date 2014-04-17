@@ -35,7 +35,7 @@ namespace earchive
 				Marker.SetTarget(WorkImage.Width, WorkImage.Height);
 				
 				RelationalRectangle WorkZone = Marker.Zone.Clone();
-				for (int i = 1; i <= 10; i++)
+				for (int i = 1; i <= 7; i++)
 				{
 					logger.Debug("Попытка {0}, box: x={1},y={2},w={3},h={4}", i, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
 					PixBox = new Pixbuf(WorkImage, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
@@ -56,7 +56,7 @@ namespace earchive
 								logger.Debug("Image Shift Y: {0}", Marker.ShiftY);
 								break;
 							}
-							else if (i == 10 || 
+							else if (i == 7 || 
 								(WorkZone.RelativePosX == 0 && WorkZone.RelativePosY == 0 && WorkZone.RelativeHeigth == 1 && WorkZone.RelativeWidth == 1) )
 							{
 								Marker.ActualPosX = (int)(Marker.PatternPosX * Marker.TargetWidth);
