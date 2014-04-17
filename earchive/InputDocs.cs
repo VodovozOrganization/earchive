@@ -942,8 +942,9 @@ namespace earchive
 				scan.ImageTransfer += delegate(object s, ScanWorks.ImageTransferEventArgs arg) 
 				{
 					TreeIter iter;
-					progresswork.Adjustment.Upper = arg.AllImages;
-
+					if(arg.AllImages > 0)
+						progresswork.Adjustment.Upper = arg.AllImages;
+					logger.Debug("ImageTransfer event");
 					iter = ImageListNewDoc();
 
 					Pixbuf image = arg.Image;
@@ -960,11 +961,14 @@ namespace earchive
 					                        true,
 					                        "",
 					                        "");
-					progresswork.Adjustment.Value++;
+					if(arg.AllImages > 0)
+						progresswork.Adjustment.Value++;
+					else
+						progresswork.Pulse();
 					MainClass.WaitRedraw();
 				};
 
-				scan.GetImages();
+				scan.GetImages(false);
 
 				treeviewImages.ExpandAll ();
 				progresswork.Text = "Ок";
