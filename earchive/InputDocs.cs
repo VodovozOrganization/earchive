@@ -64,6 +64,7 @@ namespace earchive
 			treeviewImages.Reorderable = true;
 			treeviewImages.TooltipColumn = 1;
 			treeviewImages.ShowAll ();
+			treeviewImages.Selection.Changed += OnTreeviewImagesSelectionChanged;
 			NextDocNumber = 1;
 		}
 
@@ -119,7 +120,7 @@ namespace earchive
 			Chooser.Destroy ();
 		}
 
-		protected void OnTreeviewImagesCursorChanged (object sender, EventArgs e)
+		protected void OnTreeviewImagesSelectionChanged (object sender, EventArgs e)
 		{
 			TreeIter iter, iterimage, iterdoc;
 			if(treeviewImages.Selection.GetSelected(out iter))
@@ -134,29 +135,31 @@ namespace earchive
 					iterimage = iter;
 					ImageList.IterParent (out iterdoc, iter);
 				}
-				CurrentDocIter = iterdoc;
+				if(ImageList.GetPath(CurrentDocIter) == null || ImageList.GetPath(iterdoc).Compare(ImageList.GetPath(CurrentDocIter)) != 0 )
+				{
+					CurrentDocIter = iterdoc;
+					CurrentDoc = (Document)ImageList.GetValue (iterdoc, 3);
+					UpdateFieldsWidgets(true);
+				}
 				if(ImageList.GetValue (iterimage, 5) != null)
 				{
 					CurrentImage = iterimage;
 					zoomFitAction.Activate ();
 				}
-				if((Document)ImageList.GetValue (iterdoc, 3) != CurrentDoc)
-				{
-					CurrentDoc = (Document)ImageList.GetValue (iterdoc, 3);
-					UpdateFieldsWidgets(true);
-				}
 			}
 			else 
 			{
-				comboType.Sensitive = false;
-				entryNumber.Sensitive = false;
-				dateDoc.Sensitive = false;
+				CurrentDoc = null;
+				CurrentDocIter = TreeIter.Zero;
+				UpdateFieldsWidgets(true);
+				CurrentImage = TreeIter.Zero;
+				zoomFitAction.Activate ();
 			}
 		}
 
 		void UpdateFieldsWidgets(bool ChangeTypeCombo)
 		{
-			Console.WriteLine("Update widgets");
+			logger.Debug("Update widgets");
 			//Удаляем старые виджеты
 			foreach(KeyValuePair<int, Label> pair in FieldLables)
 			{
@@ -179,6 +182,7 @@ namespace earchive
 			Clearing = true;
 			if(ChangeTypeCombo)
 				comboType.Active = -1;
+			comboType.Sensitive = ImageList.IterIsValid(CurrentDocIter);
 			entryNumber.Text = "";
 			dateDoc.Clear();
 			Clearing = false;

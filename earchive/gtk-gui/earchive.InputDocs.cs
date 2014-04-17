@@ -327,7 +327,6 @@ namespace earchive
 			this.Rotate180Action.Activated += new global::System.EventHandler (this.OnRotate180ActionActivated);
 			this.Rotate270Action.Activated += new global::System.EventHandler (this.OnRotate270ActionActivated);
 			this.Action1.Activated += new global::System.EventHandler (this.OnAction1Activated);
-			this.treeviewImages.CursorChanged += new global::System.EventHandler (this.OnTreeviewImagesCursorChanged);
 			this.treeviewImages.ButtonReleaseEvent += new global::Gtk.ButtonReleaseEventHandler (this.OnTreeviewImagesButtonReleaseEvent);
 			this.imageDoc.DragMotion += new global::Gtk.DragMotionHandler (this.OnImageDocDragMotion);
 			this.entryNumber.Changed += new global::System.EventHandler (this.OnEntryNumberChanged);

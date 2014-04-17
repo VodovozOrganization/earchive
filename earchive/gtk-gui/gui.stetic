@@ -1859,7 +1859,6 @@
                         <property name="ShowScrollbars">True</property>
                         <property name="HeadersVisible">False</property>
                         <property name="Reorderable">True</property>
-                        <signal name="CursorChanged" handler="OnTreeviewImagesCursorChanged" />
                         <signal name="ButtonReleaseEvent" handler="OnTreeviewImagesButtonReleaseEvent" />
                       </widget>
                     </child>
