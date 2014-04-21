@@ -294,6 +294,7 @@ namespace earchive
 			this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
 			this.dialogAuthenticationAction.Activated += new global::System.EventHandler (this.OnDialogAuthenticationActionActivated);
 			this.UsersAction.Activated += new global::System.EventHandler (this.OnUsersActionActivated);
+			this.quitAction.Activated += new global::System.EventHandler (this.OnQuitActionActivated);
 			this.ActionDocTypes.Activated += new global::System.EventHandler (this.OnAction2Activated);
 			this.Action3.Activated += new global::System.EventHandler (this.OnAction3Activated);
 			this.aboutAction.Activated += new global::System.EventHandler (this.OnAboutActionActivated);

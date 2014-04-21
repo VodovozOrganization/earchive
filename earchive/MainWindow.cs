@@ -374,5 +374,9 @@ namespace earchive
 			dialog.Destroy();
 		}
 
+		protected void OnQuitActionActivated(object sender, EventArgs e)
+		{
+			Application.Quit();
+		}
 	}
 }

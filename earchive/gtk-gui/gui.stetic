@@ -62,6 +62,7 @@
         <property name="Label" translatable="yes">В_ыход</property>
         <property name="ShortLabel" translatable="yes">В_ыход</property>
         <property name="StockId">gtk-quit</property>
+        <signal name="Activated" handler="OnQuitActionActivated" />
       </action>
       <action id="Action1">
         <property name="Type">Action</property>
