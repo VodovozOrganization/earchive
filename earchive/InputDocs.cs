@@ -652,6 +652,52 @@ namespace earchive
 				if(result == ResponseType.Cancel)
 					return;
 			}
+			//Проверяем на уникальность номера
+			DBWorks.SQLHelper sqlhelp = 
+				new DBWorks.SQLHelper("SELECT number, date, create_date, type_id FROM docs WHERE YEAR(date) = YEAR(CURDATE()) AND number IN (");
+			sqlhelp.QuoteMode = DBWorks.QuoteType.SingleQuotes;
+			ImageList.Foreach( delegate(TreeModel model, TreePath path, TreeIter iter2) 
+			{
+				Document TempDoc = (Document)model.GetValue(iter2, 3);
+				if(TempDoc != null)
+					sqlhelp.Add(TempDoc.DocNumber);
+				return false;
+			});
+			sqlhelp.Add(")");
+			MySqlCommand cmd = new MySqlCommand(sqlhelp.Text, QSMain.connectionDB);
+			using (MySqlDataReader rdr = cmd.ExecuteReader())
+			{
+				string conflicts = "";
+				while(rdr.Read())
+				{
+					string number = rdr["number"].ToString();
+					int type_id = rdr.GetInt32("type_id");
+
+					ImageList.Foreach( delegate(TreeModel model, TreePath path, TreeIter iter2) 
+					{
+						Document TempDoc = (Document)model.GetValue(iter2, 3);
+						if(TempDoc != null && TempDoc.DocNumber == number && TempDoc.TypeId == type_id)
+						{
+							conflicts += String.Format("{0} {1} от {2:d} загружен {3}\n", TempDoc.TypeName, number, rdr["date"], rdr["create_date"]);
+							return true;
+						}
+						return false;
+					});
+				}
+				if(conflicts != "")
+				{
+					string Message = String.Format("Документы со следующими номерами уже существуют в базе:\n{0}" +
+						"Все равно записать документы?", conflicts);
+					MessageDialog md = new MessageDialog ( this, DialogFlags.DestroyWithParent,
+						MessageType.Warning, 
+						ButtonsType.YesNo,
+						Message);
+					ResponseType result = (ResponseType)md.Run ();
+					md.Destroy();
+					if(result == ResponseType.No)
+						return;
+				}
+			}
 
 			//Записываем
 			List<TreeIter> ForRemove = new List<TreeIter>();
@@ -669,7 +715,7 @@ namespace earchive
 				{
 					string sql = "INSERT INTO docs(number, date, create_date, user_id, type_id) " +
 						"VALUES(@number, @date, @create_date, @user_id, @type_id)";
-					MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB, trans);
+					cmd = new MySqlCommand(sql, QSMain.connectionDB, trans);
 					cmd.Parameters.AddWithValue("@number", doc.DocNumber);
 					cmd.Parameters.AddWithValue("@date", doc.DocDate);
 					cmd.Parameters.AddWithValue("@create_date", DateTime.Now);
@@ -725,8 +771,7 @@ namespace earchive
 				catch (Exception ex)
 				{
 					trans.Rollback ();
-					Console.WriteLine(ex.ToString());
-					MainClass.StatusMessage("Ошибка сохранения документов!");
+					logger.ErrorException("Ошибка сохранения документов!", ex);
 					QSMain.ErrorMessage(this,ex);
 					return;
 				}

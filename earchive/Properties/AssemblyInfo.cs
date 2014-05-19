@@ -4,12 +4,12 @@ using System.Runtime.CompilerServices;
 // Information about this assembly is defined by the following attributes. 
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle("earchive")]
+[assembly: AssemblyTitle("QS: Электронный архив")]
 [assembly: AssemblyDescription("Программа для ведения электронного архива документов.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Quality Solution")]
-[assembly: AssemblyProduct("Архив документов")]
-[assembly: AssemblyCopyright("Quality Solution 2013")]
+[assembly: AssemblyProduct("QS: Электронный архив")]
+[assembly: AssemblyCopyright("Quality Solution 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
