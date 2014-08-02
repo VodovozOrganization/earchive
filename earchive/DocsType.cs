@@ -350,7 +350,7 @@ namespace earchive
 			MessageDialog md = new MessageDialog ( this, DialogFlags.Modal,
 			                                      MessageType.Question, 
 			                                      ButtonsType.YesNo,
-			                                      String.Format ("Удалить поле extra_{0} из БД? Будут потеряны все внесенные в эту колонку данные.", entryDBTable.Text));
+				String.Format ("Удалить поле из таблицы extra_{0}? Будут потеряны все внесенные в эту колонку данные.", entryDBTable.Text));
 			if((ResponseType)md.Run () == ResponseType.No)
 				return;
 
