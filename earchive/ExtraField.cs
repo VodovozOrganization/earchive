@@ -35,21 +35,19 @@ namespace earchive
 			{
 				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 				cmd.Parameters.AddWithValue("@id", id);
-				MySqlDataReader rdr = cmd.ExecuteReader();
-				
-				if(!rdr.Read())
-					return;
+				using(MySqlDataReader rdr = cmd.ExecuteReader())
+				{
+					if(!rdr.Read())
+						return;
 
-				entryID.Text = rdr.GetString ("id");
-				entryName.Text = rdr.GetString ("name");
-				checkbuttonDisplay.Active = rdr.GetBoolean ("display");
-				checkbuttonSearch.Active = rdr.GetBoolean ("search");
-				entryDBName.Text = rdr.GetString ("db_name");
-				OriginalFieldName = rdr.GetString ("db_name");
-				TableName = rdr.GetString ("table_name");
-
-				rdr.Close();
-				
+					entryID.Text = rdr.GetString ("id");
+					entryName.Text = rdr.GetString ("name");
+					checkbuttonDisplay.Active = rdr.GetBoolean ("display");
+					checkbuttonSearch.Active = rdr.GetBoolean ("search");
+					entryDBName.Text = rdr.GetString ("db_name");
+					OriginalFieldName = rdr.GetString ("db_name");
+					TableName = rdr.GetString ("table_name");
+				}
 				this.Title = entryName.Text;
 
 				System.Data.DataTable schema = QSMain.connectionDB.GetSchema("Columns", new string[4] { null, 
