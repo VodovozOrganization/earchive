@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{916BB841-B4DF-451F-81B5-BF6E07E307E2}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -121,11 +121,49 @@
   <ItemGroup>
     <Folder Include="icons\" />
     <Folder Include="widgets\" />
+    <Folder Include="x86\" />
+    <Folder Include="tessdata\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="icons\logo.ico" />
+    <None Include="..\lib\x86\liblept170.dll">
+      <Link>x86\liblept170.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\x86\libtesseract303.dll">
+      <Link>x86\libtesseract303.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\tessdata\rus.cube.fold">
+      <Link>tessdata\rus.cube.fold</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\tessdata\rus.cube.lm">
+      <Link>tessdata\rus.cube.lm</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\tessdata\rus.cube.nn">
+      <Link>tessdata\rus.cube.nn</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\tessdata\rus.cube.params">
+      <Link>tessdata\rus.cube.params</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\tessdata\rus.cube.size">
+      <Link>tessdata\rus.cube.size</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\tessdata\rus.cube.word-freq">
+      <Link>tessdata\rus.cube.word-freq</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\tessdata\rus.traineddata">
+      <Link>tessdata\rus.traineddata</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
