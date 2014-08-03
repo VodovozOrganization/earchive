@@ -832,7 +832,7 @@ namespace earchive
 				RecognizeLog.Name = "recognizelog";
 				RecognizeLog.Layout = "${level} ${message}";
 				config.AddTarget("recognizelog", RecognizeLog);
-				NLog.Config.LoggingRule rule = new NLog.Config.LoggingRule("*", LogLevel.Info, RecognizeLog);
+				NLog.Config.LoggingRule rule = new NLog.Config.LoggingRule("*", LogLevel.Debug, RecognizeLog);
 				config.LoggingRules.Add(rule);
 
 				LogManager.Configuration = config;
@@ -888,8 +888,7 @@ namespace earchive
 					}
 					catch (Exception ex)
 					{
-						logger.Error(ex.ToString());
-						MainClass.StatusMessage("Ошибка в модуле распознования!");
+						logger.ErrorException("Ошибка в модуле распознования!", ex);
 						QSMain.ErrorMessage(this,ex);
 						ShowLog();
 					}
