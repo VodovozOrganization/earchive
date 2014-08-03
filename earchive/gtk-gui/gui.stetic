@@ -915,7 +915,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Dialog" id="earchive.ExtraField" design-size="343 314">
+  <widget class="Gtk.Dialog" id="earchive.ExtraField" design-size="343 338">
     <property name="MemberName" />
     <property name="WindowPosition">CenterOnParent</property>
     <property name="Buttons">2</property>

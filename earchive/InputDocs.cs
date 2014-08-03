@@ -823,12 +823,22 @@ namespace earchive
 		protected void OnAction1Activated (object sender, EventArgs e)
 		{
 			TreeIter iter, imageiter;
+
 			//Создаем новый лог
-			if (RecognizeLog != null)
-				RecognizeLog.Dispose();
-			RecognizeLog = new NLog.Targets.MemoryTarget();
-			RecognizeLog.Layout = "${level} ${message}";
-			NLog.Config.SimpleConfigurator.ConfigureForTargetLogging(RecognizeLog, LogLevel.Debug);
+			if (RecognizeLog == null)
+			{
+				NLog.Config.LoggingConfiguration config = LogManager.Configuration;
+				RecognizeLog = new NLog.Targets.MemoryTarget();
+				RecognizeLog.Name = "recognizelog";
+				RecognizeLog.Layout = "${level} ${message}";
+				config.AddTarget("recognizelog", RecognizeLog);
+				NLog.Config.LoggingRule rule = new NLog.Config.LoggingRule("*", LogLevel.Info, RecognizeLog);
+				config.LoggingRules.Add(rule);
+
+				LogManager.Configuration = config;
+			}
+			else
+				RecognizeLog.Logs.Clear();
 
 			logger.Info("Запущен новый процесс распознования...");
 			if(!ImageList.GetIterFirst(out iter))
