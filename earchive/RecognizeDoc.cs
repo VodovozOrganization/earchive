@@ -257,23 +257,24 @@ namespace earchive
 				if(Line == null || Line == "")
 					continue;
 				Line = Line.Trim();
-				string[] WordsOfLine = Line.Split(new char[] {' '}, StringSplitOptions.None);
-				if(WordsOfLine.Length < NumberOfWords)
-					continue;
+				string[] WordsOfLine = Line.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 
-				for(int shift = 0; shift <= WordsOfLine.Length - NumberOfWords; shift++)
+				if(WordsOfLine.Length == 0)
+					continue;
+				for(int shift = 0; shift < WordsOfLine.Length; shift++)
 				{
-					int PassDistance = 0;
-					for(int i = 0; i < NumberOfWords; i++)
+					for(int i = 1; i <= NumberOfWords && i <= WordsOfLine.Length - shift; i++)
 					{
-						PassDistance += FuzzyStringComparer.GetDistanceLevenshtein(WordsOfLine[shift + i],
-						                                                           Words[i],
-						                                                           StringComparison.CurrentCultureIgnoreCase);
-					}
-					if(PassDistance < CurrentBestDistance)
-					{
-						CurrentBestDistance = PassDistance;
-						CurrentWordNumber = shift;
+						string passString = String.Join(" ", WordsOfLine, shift, i);
+
+						int PassDistance = FuzzyStringComparer.GetDistanceLevenshtein(passString,
+							Text,
+						    StringComparison.CurrentCultureIgnoreCase);
+						if(PassDistance < CurrentBestDistance)
+						{
+							CurrentBestDistance = PassDistance;
+							CurrentWordNumber = shift;
+						}
 					}
 				}
 				if(CurrentBestDistance < BestDistance)
