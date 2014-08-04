@@ -129,14 +129,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="icons\logo.ico" />
-    <None Include="..\lib\x86\liblept170.dll">
-      <Link>x86\liblept170.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\lib\x86\libtesseract303.dll">
-      <Link>x86\libtesseract303.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="..\lib\tessdata\rus.cube.fold">
       <Link>tessdata\rus.cube.fold</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -163,6 +155,14 @@
     </None>
     <None Include="..\lib\tessdata\rus.traineddata">
       <Link>tessdata\rus.traineddata</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\x86\liblept168.dll">
+      <Link>x86\liblept168.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\x86\libtesseract302.dll">
+      <Link>x86\libtesseract302.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
