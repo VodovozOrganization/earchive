@@ -351,7 +351,9 @@ namespace earchive
 			                                      MessageType.Question, 
 			                                      ButtonsType.YesNo,
 				String.Format ("Удалить поле из таблицы extra_{0}? Будут потеряны все внесенные в эту колонку данные.", entryDBTable.Text));
-			if((ResponseType)md.Run () == ResponseType.No)
+			ResponseType result = (ResponseType)md.Run ();
+			md.Destroy ();
+			if(result == ResponseType.No)
 				return;
 
 			TreeIter iter;
