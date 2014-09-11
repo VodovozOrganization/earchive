@@ -5,6 +5,7 @@ using Gtk;
 using Gdk;
 using MySql.Data.MySqlClient;
 using QSProjectsLib;
+using QSWidgetLib;
 
 namespace earchive
 {

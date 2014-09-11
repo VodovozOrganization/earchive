@@ -54,15 +54,15 @@
     <Reference Include="itextsharp">
       <HintPath>..\lib\itextsharp.dll</HintPath>
     </Reference>
-    <Reference Include="Tesseract">
-      <HintPath>..\lib\Tesseract.dll</HintPath>
-    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="Saraff.Twain">
       <HintPath>..\lib\Saraff.Twain.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
       <HintPath>..\..\QSProjects\lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Tesseract">
+      <HintPath>..\packages\Tesseract.1.0.12\lib\net40\Tesseract.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -104,7 +104,6 @@
     <Compile Include="gtk-gui\earchive.Statistics.cs" />
     <Compile Include="Statistics.cs" />
     <Compile Include="RecognizeHelper.cs" />
-    <Compile Include="widgets\ImageViewer.cs" />
     <Compile Include="ImageTreeStore.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -157,13 +156,10 @@
       <Link>tessdata\rus.traineddata</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\x86\liblept168.dll">
-      <Link>x86\liblept168.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\lib\x86\libtesseract302.dll">
-      <Link>x86\libtesseract302.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="x86\libtesseract302.dll" />
+    <None Include="x86\liblept168.dll" />
+    <None Include="x64\libtesseract302.dll" />
+    <None Include="x64\liblept168.dll" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
