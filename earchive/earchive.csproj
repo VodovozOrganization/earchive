@@ -55,9 +55,6 @@
       <HintPath>..\lib\itextsharp.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
-    <Reference Include="Saraff.Twain">
-      <HintPath>..\lib\Saraff.Twain.dll</HintPath>
-    </Reference>
     <Reference Include="NLog">
       <HintPath>..\..\QSProjects\lib\NLog.dll</HintPath>
     </Reference>
@@ -99,7 +96,6 @@
     <Compile Include="RecognizeTemplate.cs" />
     <Compile Include="TemplateProperty.cs" />
     <Compile Include="gtk-gui\earchive.TemplateProperty.cs" />
-    <Compile Include="ScanWorks.cs" />
     <Compile Include="WindowsPlatform.cs" />
     <Compile Include="gtk-gui\earchive.Statistics.cs" />
     <Compile Include="Statistics.cs" />
@@ -115,6 +111,10 @@
     <ProjectReference Include="..\..\QSProjects\QSWidgetLib\QSWidgetLib.csproj">
       <Project>{5A2BB01E-E124-432E-8099-D1343D3897B9}</Project>
       <Name>QSWidgetLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSScan\QSScan.csproj">
+      <Project>{DB2EEB00-FF15-4AF8-887D-E3261C31B173}</Project>
+      <Name>QSScan</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

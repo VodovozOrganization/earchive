@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSWidgetLib", "..\QSProject
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSSupportLib", "..\QSProjects\QSSupportLib\QSSupportLib.csproj", "{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSScan", "..\QSProjects\QSScan\QSScan.csproj", "{DB2EEB00-FF15-4AF8-887D-E3261C31B173}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -31,6 +33,10 @@ Global
 		{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}.Debug|x86.Build.0 = Debug|Any CPU
 		{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}.Release|x86.ActiveCfg = Release|Any CPU
 		{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}.Release|x86.Build.0 = Release|Any CPU
+		{DB2EEB00-FF15-4AF8-887D-E3261C31B173}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DB2EEB00-FF15-4AF8-887D-E3261C31B173}.Debug|x86.Build.0 = Debug|Any CPU
+		{DB2EEB00-FF15-4AF8-887D-E3261C31B173}.Release|x86.ActiveCfg = Release|Any CPU
+		{DB2EEB00-FF15-4AF8-887D-E3261C31B173}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = earchive\earchive.csproj

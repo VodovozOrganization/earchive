@@ -6,6 +6,7 @@ using Gdk;
 using QSProjectsLib;
 using MySql.Data.MySqlClient;
 using NLog;
+using QSScan;
 
 namespace earchive
 {
@@ -992,7 +993,7 @@ namespace earchive
 			{
 				logger.Info(Environment.OSVersion.Platform.ToString());
 				logger.Debug("init scan");
-				scan = new ScanWorks(this);
+				scan = new ScanWorks();
 				progresswork.Text = "Получение изображений со сканера...";
 				MainClass.WaitRedraw();
 				logger.Debug("run scanner");
