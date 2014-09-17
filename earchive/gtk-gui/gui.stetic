@@ -7,6 +7,7 @@
   <import>
     <widget-library name="../../../QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
     <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
+    <widget-library name="../../../QSProjects/QSScan/bin/Debug/QSScan.dll" />
     <widget-library name="../bin/Debug/earchive.exe" internal="true" />
   </import>
   <icon-factory>
@@ -169,13 +170,40 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.Entry" id="entryDocNumber">
+                  <widget class="Gtk.HBox" id="hbox5">
                     <property name="MemberName" />
-                    <property name="WidthRequest">80</property>
-                    <property name="CanFocus">True</property>
-                    <property name="IsEditable">True</property>
-                    <property name="InvisibleChar">●</property>
-                    <signal name="Changed" handler="OnEntryDocNumberChanged" />
+                    <property name="Spacing">6</property>
+                    <child>
+                      <widget class="Gtk.Entry" id="entryDocNumber">
+                        <property name="MemberName" />
+                        <property name="WidthRequest">80</property>
+                        <property name="CanFocus">True</property>
+                        <property name="IsEditable">True</property>
+                        <property name="InvisibleChar">●</property>
+                        <signal name="Activated" handler="OnEntryDocNumberActivated" />
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Button" id="buttonSearch">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextAndIcon</property>
+                        <property name="Icon">stock:gtk-find Menu</property>
+                        <property name="Label" translatable="yes" />
+                        <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnButtonSearchClicked" />
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
                   </widget>
                   <packing>
                     <property name="TopAttach">1</property>
@@ -267,6 +295,25 @@
               </packing>
             </child>
             <child>
+              <widget class="Gtk.VBox" id="vbox3">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.Button" id="buttonInput">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
@@ -278,7 +325,7 @@
               </widget>
               <packing>
                 <property name="PackType">End</property>
-                <property name="Position">2</property>
+                <property name="Position">3</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>

@@ -5,14 +5,15 @@ using QSWidgetLib;
 using earchive;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
+using NLog;
 
 namespace earchive
 {
 
 	public partial class MainWindow: Gtk.Window
 	{	
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 		Gtk.ListStore DocsListStore;
-		Gtk.TreeModelFilter DocsFilter;
 		DocumentInformation CurDocType;
 		int UsedExtraFields;
 		InputDocs InputDocsWin;
@@ -134,9 +135,7 @@ namespace earchive
 			}
 			treeviewDocs.AppendColumn ("Создан", new Gtk.CellRendererText (), "text", 3);
 
-			DocsFilter = new Gtk.TreeModelFilter (DocsListStore, null);
-			DocsFilter.VisibleFunc = new Gtk.TreeModelFilterVisibleFunc (FilterTreeDocs);
-			treeviewDocs.Model = DocsFilter;
+			treeviewDocs.Model = DocsListStore;
 			treeviewDocs.ShowAll();
 			buttonRefresh.Sensitive = true;
 		}
@@ -189,9 +188,10 @@ namespace earchive
 
 		void UpdateDocs()
 		{
-			DocsListStore.Clear ();
 			if(CurDocType == null)
 				return;
+			logger.Info ("Запрос документов в базе...");
+			DocsListStore.Clear ();
 
 			string sqlExtra = "";
 			TreeIter iter;
@@ -201,6 +201,8 @@ namespace earchive
 			string sql = "SELECT * FROM docs " + sqlExtra +"WHERE docs.type_id = @type_id";
 			if(!selectperiodDocs.IsAllTime)
 				sql += " AND date BETWEEN @startdate AND @enddate";
+			if(entryDocNumber.Text.Length > 0)
+				sql += String.Format (" AND number LIKE '%{0}%' ", entryDocNumber.Text);
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			if(comboDocType.GetActiveIter(out iter))
 			{
@@ -245,31 +247,15 @@ namespace earchive
 			}
 			rdr.Close ();
 			OnTreeviewDocsCursorChanged(null, null);
-		}
-
-		private bool FilterTreeDocs (Gtk.TreeModel model, Gtk.TreeIter iter)
-		{
-			if (entryDocNumber.Text == "")
-				return true;
-			bool filterNumber = true;
-			string cellvalue;
-
-			if(model.GetValue (iter, 1) == null)
-				return false;
-
-			if (entryDocNumber.Text != "" && model.GetValue (iter, 1) != null)
-			{
-				cellvalue  = model.GetValue (iter, 1).ToString();
-				filterNumber = cellvalue.IndexOf (entryDocNumber.Text, StringComparison.CurrentCultureIgnoreCase) > -1;
-			}
-			return filterNumber;
+			logger.Info ("Получено {0} документов.", DocsListStore.IterNChildren ());
 		}
 
 		protected void OnSelectperiodDocsDatesChanged (object sender, EventArgs e)
 		{
-			if(comboDocType.Active < 0)
-				return;
-			UpdateDocs ();
+			if (selectperiodDocs.IsAllTime && entryDocNumber.Text.Length < 2)
+				entryDocNumber.GrabFocus ();
+			else
+				UpdateDocs ();
 		}
 
 		protected void OnButtonInputClicked (object sender, EventArgs e)
@@ -294,7 +280,7 @@ namespace earchive
 		{
 			TreeIter iter;
 			treeviewDocs.Selection.GetSelected(out iter);
-			int ItemId = (int)DocsFilter.GetValue(iter, 0);
+			int ItemId = (int)DocsListStore.GetValue(iter, 0);
 			ViewDoc win = new ViewDoc();
 			win.Fill(ItemId);
 			win.Show();
@@ -319,7 +305,7 @@ namespace earchive
 		{
 			TreeIter iter;
 			treeviewDocs.Selection.GetSelected(out iter);
-			int itemid = (int) DocsFilter.GetValue(iter, 0);
+			int itemid = (int) DocsListStore.GetValue(iter, 0);
 
 			string sql = "DELETE FROM docs WHERE id = @id";
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
@@ -331,14 +317,6 @@ namespace earchive
 		protected void OnButtonRefreshClicked (object sender, EventArgs e)
 		{
 			UpdateDocs();
-		}
-
-		protected void OnEntryDocNumberChanged (object sender, EventArgs e)
-		{
-			if(CurDocType == null)
-				return;
-
-			DocsFilter.Refilter();
 		}
 
 		protected void OnAction3Activated (object sender, EventArgs e)
@@ -377,6 +355,16 @@ namespace earchive
 		protected void OnQuitActionActivated(object sender, EventArgs e)
 		{
 			Application.Quit();
+		}
+
+		protected void OnButtonSearchClicked(object sender, EventArgs e)
+		{
+			UpdateDocs ();
+		}
+
+		protected void OnEntryDocNumberActivated(object sender, EventArgs e)
+		{
+			buttonSearch.Click ();
 		}
 	}
 }
