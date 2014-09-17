@@ -250,7 +250,11 @@ namespace earchive
 			}
 			rdr.Close ();
 			OnTreeviewDocsCursorChanged(null, null);
-			logger.Info ("Получено {0} документов.", DocsListStore.IterNChildren ());
+			int totaldoc = DocsListStore.IterNChildren ();
+			logger.Info (RusNumber.FormatCase (totaldoc, 
+				"Получен {0} документ.",
+				"Получено {0} документа.",
+				"Получено {0} документов."));
 		}
 
 		protected void OnSelectperiodDocsDatesChanged (object sender, EventArgs e)
