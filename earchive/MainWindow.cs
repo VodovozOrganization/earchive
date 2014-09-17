@@ -22,7 +22,10 @@ namespace earchive
 		{
 			Build ();
 
-			earchive.MainClass.StatusBarLabel = labelStatus;
+			MainClass.StatusBarLabel = labelStatus;
+			this.Title = QSSupportLib.MainSupport.GetTitle();
+			QSMain.MakeNewStatusTargetForNlog("StatusMessage", "earchive.MainClass, earchive");
+
 			Reference.RunReferenceItemDlg += OnRunReferenceItemDialog;
 			QSMain.ReferenceUpdated += OnReferenceUpdate;
 

@@ -17,12 +17,9 @@ namespace earchive
 			Application.Init ();
 			AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs e) {
 				QSMain.ErrorMessage(MainWin, (Exception) e.ExceptionObject);
-		};
-			CreateProjectParam();
-			//Настраиваем общую билиотеку
-			QSMain.NewStatusText += delegate(object sender, QSProjectsLib.QSMain.NewStatusTextEventArgs e) {
-				StatusMessage (e.NewText);
 			};
+			CreateProjectParam();
+
 			// Создаем окно входа
 			Login LoginDialog = new QSProjectsLib.Login ();
 			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource ("earchive.icons.logo.png");
@@ -60,7 +57,6 @@ namespace earchive
 
 		public static void StatusMessage(string message)
 		{
-			Console.WriteLine (message);
 			if(StatusBarLabel != null)
 			{
 				StatusBarLabel.Text = message;

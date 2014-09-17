@@ -9,6 +9,7 @@
     <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../../../QSProjects/QSScan/bin/Debug/QSScan.dll" />
     <widget-library name="../bin/Debug/earchive.exe" internal="true" />
+    <widget-library name="../../../QSProjects/QSSupportLib/bin/Debug/QSSupportLib.dll" />
   </import>
   <icon-factory>
     <icon-set id="rotate-90">
