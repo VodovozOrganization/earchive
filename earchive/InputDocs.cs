@@ -994,15 +994,17 @@ namespace earchive
 				logger.Info(Environment.OSVersion.Platform.ToString());
 				logger.Debug("init scan");
 				scan = new ScanWorks();
-				progresswork.Text = "Получение изображений со сканера...";
+				progresswork.Text = "Открытие сканера...";
 				MainClass.WaitRedraw();
 				logger.Debug("run scanner");
 
-				scan.ImageTransfer += delegate(object s, ScanWorks.ImageTransferEventArgs arg) 
+				scan.Pulse += OnScanWorksPulse;
+
+				scan.ImageTransfer += delegate(object s, ImageTransferEventArgs arg) 
 				{
 					TreeIter iter;
-					if(arg.AllImages > 0)
-						progresswork.Adjustment.Upper = arg.AllImages;
+					progresswork.Text = "Завершаем загрузку...";
+					MainClass.WaitRedraw();
 					logger.Debug("ImageTransfer event");
 					iter = ImageListNewDoc();
 
@@ -1020,10 +1022,8 @@ namespace earchive
 					                        true,
 					                        "",
 					                        "");
-					if(arg.AllImages > 0)
-						progresswork.Adjustment.Value++;
-					else
-						progresswork.Pulse();
+					progresswork.Text = "Ок";
+					progresswork.Adjustment.Value = progresswork.Adjustment.Upper;
 					MainClass.WaitRedraw();
 				};
 
@@ -1044,6 +1044,14 @@ namespace earchive
 				if(scan != null)
 					scan.Close ();
 			}
+		}
+
+		void OnScanWorksPulse (object sender, ScanWorksPulseEventArgs e)
+		{
+			progresswork.Text = e.ProgressText;
+			progresswork.Adjustment.Upper = e.ImageByteSize;
+			progresswork.Adjustment.Value = e.LoadedByteSize;
+			MainClass.WaitRedraw();
 		}
 	
 	}
