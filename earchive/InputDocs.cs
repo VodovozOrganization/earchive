@@ -1054,6 +1054,15 @@ namespace earchive
 			MainClass.WaitRedraw();
 		}
 	
+		protected void OnEventboxNumberIconButtonPressEvent(object o, ButtonPressEventArgs args)
+		{
+			OnEntryNumberChanged (eventboxNumberIcon, EventArgs.Empty);
+		}
+
+		protected void OnEventboxDateIconButtonPressEvent(object o, ButtonPressEventArgs args)
+		{
+			OnDateDocDateChanged (eventboxDateIcon, EventArgs.Empty);
+		}
 	}
 
 

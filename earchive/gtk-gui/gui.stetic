@@ -6,10 +6,9 @@
   </configuration>
   <import>
     <widget-library name="../../../QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
-    <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../../../QSProjects/QSScan/bin/Debug/QSScan.dll" />
-    <widget-library name="../bin/Debug/earchive.exe" internal="true" />
     <widget-library name="../../../QSProjects/QSSupportLib/bin/Debug/QSSupportLib.dll" />
+    <widget-library name="../bin/Debug/earchive.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="rotate-90">
@@ -2037,9 +2036,15 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Image" id="IconDate">
+                      <widget class="Gtk.EventBox" id="eventboxDateIcon">
                         <property name="MemberName" />
-                        <property name="Pixbuf">stock:gtk-dialog-info Button</property>
+                        <signal name="ButtonPressEvent" handler="OnEventboxDateIconButtonPressEvent" />
+                        <child>
+                          <widget class="Gtk.Image" id="IconDate">
+                            <property name="MemberName" />
+                            <property name="Pixbuf">stock:gtk-dialog-info Button</property>
+                          </widget>
+                        </child>
                       </widget>
                       <packing>
                         <property name="TopAttach">3</property>
@@ -2058,9 +2063,15 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Image" id="IconNumber">
+                      <widget class="Gtk.EventBox" id="eventboxNumberIcon">
                         <property name="MemberName" />
-                        <property name="Pixbuf">stock:gtk-dialog-info Button</property>
+                        <signal name="ButtonPressEvent" handler="OnEventboxNumberIconButtonPressEvent" />
+                        <child>
+                          <widget class="Gtk.Image" id="IconNumber">
+                            <property name="MemberName" />
+                            <property name="Pixbuf">stock:gtk-dialog-info Button</property>
+                          </widget>
+                        </child>
                       </widget>
                       <packing>
                         <property name="TopAttach">2</property>

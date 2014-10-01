@@ -5,39 +5,77 @@ namespace earchive
 	public partial class InputDocs
 	{
 		private global::Gtk.UIManager UIManager;
+		
 		private global::Gtk.Action openAction;
+		
 		private global::Gtk.Action ScanAction;
+		
 		private global::Gtk.Action clearAction;
+		
 		private global::Gtk.Action saveAction;
+		
 		private global::Gtk.Action zoom100Action;
+		
 		private global::Gtk.Action zoomFitAction;
+		
 		private global::Gtk.Action zoomInAction;
+		
 		private global::Gtk.Action zoomOutAction;
+		
 		private global::Gtk.Action Rotate90Action;
+		
 		private global::Gtk.Action Rotate180Action;
+		
 		private global::Gtk.Action Rotate270Action;
+		
 		private global::Gtk.Action Action1;
+		
 		private global::Gtk.VBox vbox2;
+		
 		private global::Gtk.Toolbar toolbar1;
+		
 		private global::Gtk.HBox hbox2;
+		
 		private global::Gtk.HPaned hpaned1;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		
 		private global::Gtk.TreeView treeviewImages;
+		
 		private global::Gtk.ScrolledWindow scrolledImage;
+		
 		private global::Gtk.Image imageDoc;
+		
 		private global::Gtk.VBox vbox3;
+		
 		private global::Gtk.Table tableFieldWidgets;
+		
 		private global::Gtk.ComboBox comboType;
+		
 		private global::QSWidgetLib.DatePicker dateDoc;
+		
 		private global::Gtk.Entry entryNumber;
+		
+		private global::Gtk.EventBox eventboxDateIcon;
+		
 		private global::Gtk.Image IconDate;
+		
+		private global::Gtk.EventBox eventboxNumberIcon;
+		
 		private global::Gtk.Image IconNumber;
+		
 		private global::Gtk.Label label1;
+		
 		private global::Gtk.Label label10;
+		
 		private global::Gtk.Label label11;
+		
 		private global::Gtk.Label label9;
+		
 		private global::Gtk.CheckButton checkDiagnostic;
+		
 		private global::Gtk.Button buttonLog;
+		
 		private global::Gtk.ProgressBar progresswork;
 
 		protected virtual void Build ()
@@ -193,29 +231,37 @@ namespace earchive
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
+			this.eventboxDateIcon = new global::Gtk.EventBox ();
+			this.eventboxDateIcon.Name = "eventboxDateIcon";
+			// Container child eventboxDateIcon.Gtk.Container+ContainerChild
 			this.IconDate = new global::Gtk.Image ();
 			this.IconDate.Name = "IconDate";
 			this.IconDate.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-dialog-info", global::Gtk.IconSize.Button);
-			this.tableFieldWidgets.Add (this.IconDate);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.IconDate]));
-			w13.TopAttach = ((uint)(3));
-			w13.BottomAttach = ((uint)(4));
-			w13.LeftAttach = ((uint)(2));
-			w13.RightAttach = ((uint)(3));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableFieldWidgets.Gtk.Table+TableChild
-			this.IconNumber = new global::Gtk.Image ();
-			this.IconNumber.Name = "IconNumber";
-			this.IconNumber.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-dialog-info", global::Gtk.IconSize.Button);
-			this.tableFieldWidgets.Add (this.IconNumber);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.IconNumber]));
-			w14.TopAttach = ((uint)(2));
-			w14.BottomAttach = ((uint)(3));
+			this.eventboxDateIcon.Add (this.IconDate);
+			this.tableFieldWidgets.Add (this.eventboxDateIcon);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.eventboxDateIcon]));
+			w14.TopAttach = ((uint)(3));
+			w14.BottomAttach = ((uint)(4));
 			w14.LeftAttach = ((uint)(2));
 			w14.RightAttach = ((uint)(3));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableFieldWidgets.Gtk.Table+TableChild
+			this.eventboxNumberIcon = new global::Gtk.EventBox ();
+			this.eventboxNumberIcon.Name = "eventboxNumberIcon";
+			// Container child eventboxNumberIcon.Gtk.Container+ContainerChild
+			this.IconNumber = new global::Gtk.Image ();
+			this.IconNumber.Name = "IconNumber";
+			this.IconNumber.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-dialog-info", global::Gtk.IconSize.Button);
+			this.eventboxNumberIcon.Add (this.IconNumber);
+			this.tableFieldWidgets.Add (this.eventboxNumberIcon);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.eventboxNumberIcon]));
+			w16.TopAttach = ((uint)(2));
+			w16.BottomAttach = ((uint)(3));
+			w16.LeftAttach = ((uint)(2));
+			w16.RightAttach = ((uint)(3));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
@@ -223,10 +269,10 @@ namespace earchive
 			this.label1.UseMarkup = true;
 			this.label1.Justify = ((global::Gtk.Justification)(2));
 			this.tableFieldWidgets.Add (this.label1);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label1]));
-			w15.RightAttach = ((uint)(3));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label1]));
+			w17.RightAttach = ((uint)(3));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
 			this.label10 = new global::Gtk.Label ();
 			this.label10.Name = "label10";
@@ -234,11 +280,11 @@ namespace earchive
 			this.label10.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата<span foreground=\"red\">*</span>:");
 			this.label10.UseMarkup = true;
 			this.tableFieldWidgets.Add (this.label10);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label10]));
-			w16.TopAttach = ((uint)(3));
-			w16.BottomAttach = ((uint)(4));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label10]));
+			w18.TopAttach = ((uint)(3));
+			w18.BottomAttach = ((uint)(4));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
 			this.label11 = new global::Gtk.Label ();
 			this.label11.Name = "label11";
@@ -246,11 +292,11 @@ namespace earchive
 			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString ("Тип документа<span foreground=\"red\">*</span>:");
 			this.label11.UseMarkup = true;
 			this.tableFieldWidgets.Add (this.label11);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label11]));
-			w17.TopAttach = ((uint)(1));
-			w17.BottomAttach = ((uint)(2));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label11]));
+			w19.TopAttach = ((uint)(1));
+			w19.BottomAttach = ((uint)(2));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
 			this.label9 = new global::Gtk.Label ();
 			this.label9.Name = "label9";
@@ -258,14 +304,14 @@ namespace earchive
 			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString ("Номер<span foreground=\"red\">*</span>:");
 			this.label9.UseMarkup = true;
 			this.tableFieldWidgets.Add (this.label9);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label9]));
-			w18.TopAttach = ((uint)(2));
-			w18.BottomAttach = ((uint)(3));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets [this.label9]));
+			w20.TopAttach = ((uint)(2));
+			w20.BottomAttach = ((uint)(3));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox3.Add (this.tableFieldWidgets);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.tableFieldWidgets]));
-			w19.Position = 0;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.tableFieldWidgets]));
+			w21.Position = 0;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.checkDiagnostic = new global::Gtk.CheckButton ();
 			this.checkDiagnostic.CanFocus = true;
@@ -274,40 +320,40 @@ namespace earchive
 			this.checkDiagnostic.DrawIndicator = true;
 			this.checkDiagnostic.UseUnderline = true;
 			this.vbox3.Add (this.checkDiagnostic);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.checkDiagnostic]));
-			w20.Position = 1;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.checkDiagnostic]));
+			w22.Position = 1;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.buttonLog = new global::Gtk.Button ();
 			this.buttonLog.CanFocus = true;
 			this.buttonLog.Name = "buttonLog";
 			this.buttonLog.UseUnderline = true;
 			this.buttonLog.Label = global::Mono.Unix.Catalog.GetString ("Показать журнал распознования.");
-			global::Gtk.Image w21 = new global::Gtk.Image ();
-			w21.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-execute", global::Gtk.IconSize.Button);
-			this.buttonLog.Image = w21;
+			global::Gtk.Image w23 = new global::Gtk.Image ();
+			w23.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-execute", global::Gtk.IconSize.Button);
+			this.buttonLog.Image = w23;
 			this.vbox3.Add (this.buttonLog);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.buttonLog]));
-			w22.Position = 2;
-			w22.Expand = false;
-			w22.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.buttonLog]));
+			w24.Position = 2;
+			w24.Expand = false;
+			w24.Fill = false;
 			this.hbox2.Add (this.vbox3);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox3]));
-			w23.Position = 1;
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox3]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.vbox2.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
-			w24.Position = 1;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox2]));
+			w26.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.progresswork = new global::Gtk.ProgressBar ();
 			this.progresswork.Name = "progresswork";
 			this.vbox2.Add (this.progresswork);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.progresswork]));
-			w25.Position = 2;
-			w25.Expand = false;
-			w25.Fill = false;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.progresswork]));
+			w27.Position = 2;
+			w27.Expand = false;
+			w27.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -329,6 +375,8 @@ namespace earchive
 			this.Action1.Activated += new global::System.EventHandler (this.OnAction1Activated);
 			this.treeviewImages.ButtonReleaseEvent += new global::Gtk.ButtonReleaseEventHandler (this.OnTreeviewImagesButtonReleaseEvent);
 			this.imageDoc.DragMotion += new global::Gtk.DragMotionHandler (this.OnImageDocDragMotion);
+			this.eventboxNumberIcon.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler (this.OnEventboxNumberIconButtonPressEvent);
+			this.eventboxDateIcon.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler (this.OnEventboxDateIconButtonPressEvent);
 			this.entryNumber.Changed += new global::System.EventHandler (this.OnEntryNumberChanged);
 			this.dateDoc.DateChanged += new global::System.EventHandler (this.OnDateDocDateChanged);
 			this.comboType.Changed += new global::System.EventHandler (this.OnComboTypeChanged);
