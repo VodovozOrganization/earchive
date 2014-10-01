@@ -45,7 +45,8 @@ namespace earchive
 						{
 							int Distance, MarkerPosX, MarkerPosY;
 							double MarkerSkew;
-							Distance = GetTextPosition(Marker.Text, page, out MarkerPosX, out MarkerPosY, out MarkerSkew);
+							RecognazeRule[] rules = new RecognazeRule[]{ Doc.Template.NumberRule, Doc.Template.DateRule};
+							Distance = GetTextPosition(Marker.Text, page, out MarkerPosX, out MarkerPosY, out MarkerSkew, rules);
 							if (Distance < 5)
 							{
 								logger.Debug("TextMarker <{0}> Distance: {1} Try:{2}", Marker.Text, Distance, i);
@@ -82,7 +83,7 @@ namespace earchive
 					logger.Debug("Number Shift X: {0}", CurRule.Box.ShiftX);
 					logger.Debug("Number Shift Y: {0}", CurRule.Box.ShiftY);
 					WorkZone = CurRule.Box.Clone();
-					//FIXME Для теста
+					//FIXME С этим пока работает лучше
 					WorkZone.RelativePosX += WorkZone.RelativeWidth * 0.2;
 					WorkZone.RelativePosY += WorkZone.RelativeHeigth * 0.2;
 					WorkZone.RelativeWidth *= 0.6;
@@ -105,10 +106,37 @@ namespace earchive
 									logger.Debug("Try: {0}", i);
 									logger.Debug("Found Field Value: {0}", FieldText);
 									logger.Debug("Recognize confidence: {0}", page.GetMeanConfidence());
+									if(CurRule.NextAfterTextMarker)
+										logger.Debug("By after market detection: {0}", CurRule.AfterTextMarkerValue);
 									if (FieldText == "")
 										ShowImage(PixBox, "Номер пустой. Зона номера документа.");
 									else
 										ShowImage(PixBox, "Зона номера документа.");
+								}
+								if (Doc.DocNumber == CurRule.AfterTextMarkerValue)
+								{
+									Doc.DocNumberConfidence = 1;
+									break;
+								}
+								if(CurRule.Validate == ValidationTypes.IsNumber)
+								{
+									int tempInt;
+									bool AfterIsNumber = int.TryParse (CurRule.AfterTextMarkerValue, out tempInt);
+									bool BoxIsNumber = int.TryParse (Doc.DocNumber, out tempInt);
+									if(BoxIsNumber)
+									{
+										break;
+									}
+									else if (AfterIsNumber)
+									{
+										Doc.DocNumber = CurRule.AfterTextMarkerValue;
+										//Doc.DocNumberConfidence = ;
+										break;
+									} 
+									else
+									{
+										Doc.DocNumberConfidence = 0;
+									}
 								}
 								if (Doc.DocNumberConfidence > 0.8)
 								{
@@ -237,7 +265,7 @@ namespace earchive
 			return BestDistance;
 		} */
 
-		int GetTextPosition(string Text, Page page, out int PosX, out int PosY, out double AngleRad)
+		int GetTextPosition(string Text, Page page, out int PosX, out int PosY, out double AngleRad, RecognazeRule[] AfterMarkerRules)
 		{
 			int BestDistance = 10000;
 			PosX = -1;
@@ -251,6 +279,7 @@ namespace earchive
 			do
 			{
 				int CurrentWordNumber = -1;
+				int CurrentAfterWord = 0;
 				int CurrentBestDistance = 10000;
 				string Line = LineIter.GetText(PageIteratorLevel.TextLine);
 
@@ -274,6 +303,7 @@ namespace earchive
 						{
 							CurrentBestDistance = PassDistance;
 							CurrentWordNumber = shift;
+							CurrentAfterWord = shift + i;
 						}
 					}
 				}
@@ -281,6 +311,15 @@ namespace earchive
 				{
 					logger.Debug("new best");
 					logger.Debug(LineIter.GetText(PageIteratorLevel.TextLine).Trim());
+					//Заполняем поля данными после маркера.
+					foreach(RecognazeRule rule in AfterMarkerRules)
+					{
+						if(rule.NextAfterTextMarker && WordsOfLine.Length > CurrentAfterWord + rule.ShiftWordsCount)
+						{
+							rule.AfterTextMarkerValue = WordsOfLine[CurrentAfterWord + rule.ShiftWordsCount];
+						}
+					}
+
 					BestDistance = CurrentBestDistance;
 					for(int i = 0; i < CurrentWordNumber; i++)
 					{
