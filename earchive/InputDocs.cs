@@ -124,6 +124,7 @@ namespace earchive
 		protected void OnTreeviewImagesSelectionChanged (object sender, EventArgs e)
 		{
 			TreeIter iter, iterimage, iterdoc;
+			logger.Debug ("OnTreeviewImagesSelectionChanged");
 			if(treeviewImages.Selection.GetSelected(out iter))
 			{
 				if(ImageList.IterHasChild(iter))
@@ -150,6 +151,7 @@ namespace earchive
 			}
 			else 
 			{
+				logger.Debug ("Doc disselect.");
 				CurrentDoc = null;
 				CurrentDocIter = TreeIter.Zero;
 				UpdateFieldsWidgets(true);
@@ -190,7 +192,7 @@ namespace earchive
 
 			if(CurrentDoc == null)
 			{
-				Console.WriteLine("Doc is empty");
+				logger.Warn("Doc is empty");
 				entryNumber.Sensitive = false;
 				dateDoc.Sensitive = false;
 				return;
@@ -902,8 +904,7 @@ namespace earchive
 			logger.Info("Выполнено");
 			progresswork.Text = "Выполнено";
 			progresswork.Fraction = 0;
-			//FIXME Обновить текущий документ в окне.
-			UpdateFieldsWidgets(false);
+			UpdateFieldsWidgets(true);
 		}
 
 		void SetRecognizeIcon(Gtk.Image img, float confidence)
