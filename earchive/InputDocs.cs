@@ -628,6 +628,18 @@ namespace earchive
 
 		protected void OnSaveActionActivated (object sender, EventArgs e)
 		{
+			try
+			{
+				SaveAllDocs ();
+			}
+			catch (Exception ex)
+			{
+				QSMain.ErrorMessageWithLog(this, "Ошибка в обработке документов", logger, ex);
+			}
+		}
+
+		void SaveAllDocs()
+		{
 			TreeIter iter, imageiter;
 			bool HasIncomplete = false;;
 			int CountDoc = 0;
