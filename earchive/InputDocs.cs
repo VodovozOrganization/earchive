@@ -39,7 +39,6 @@ namespace earchive
 			FieldWidgets = new Dictionary<int, object>();
 			FieldIcons = new Dictionary<int, Gtk.Image>();
 			ComboWorks.ComboFillReference (comboType, "doc_types", ComboWorks.ListMode.OnlyItems, false);
-			//FIXME разобраться с очищением памяти. Если закрыть окно или удалить картинки память не очищается.
 			ImageList = new ImageTreeStore(typeof(int), //0 - id
 			                          typeof(string), //1 - Image Name
 			                          typeof(string), //2 - full path
@@ -769,13 +768,12 @@ namespace earchive
 					progresswork.Adjustment.Value++;
 					MainClass.WaitRedraw();
 					ForRemove.Add(iter);
-					MainClass.StatusMessage("Ok");
+					logger.Info("Ok");
 				}
 				catch (Exception ex)
 				{
 					trans.Rollback ();
-					logger.ErrorException("Ошибка сохранения документов!", ex);
-					QSMain.ErrorMessage(this,ex);
+					QSMain.ErrorMessageWithLog(this, "Ошибка сохранения документов!", logger, ex);
 					return;
 				}
 			}
@@ -1028,7 +1026,7 @@ namespace earchive
 					MainClass.WaitRedraw();
 				};
 
-				scan.GetImages(false);
+				scan.GetImages();
 
 				treeviewImages.ExpandAll ();
 				progresswork.Text = "Ок";
@@ -1036,9 +1034,7 @@ namespace earchive
 			}
 			catch (Exception ex)
 			{
-				logger.Error(ex.ToString());
-				MainClass.StatusMessage("Ошибка в работе со сканером!");
-				QSMain.ErrorMessage(this,ex);
+				QSMain.ErrorMessageWithLog(this, "Ошибка в работе со сканером!", logger, ex);
 			}
 			finally
 			{

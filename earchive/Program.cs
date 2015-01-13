@@ -9,7 +9,6 @@ namespace earchive
 {
 	class MainClass
 	{
-		public static Label StatusBarLabel;
 		public static MainWindow MainWin;
 
 		public static void Main (string[] args)
@@ -18,6 +17,7 @@ namespace earchive
 			AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs e) {
 				QSMain.ErrorMessage(MainWin, (Exception) e.ExceptionObject);
 			};
+			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			CreateProjectParam();
 
 			// Создаем окно входа
@@ -53,18 +53,6 @@ namespace earchive
 			                                                             "Пользователь может изменять структуру базы данных"));
 
 			QSMain.User = new UserInfo();
-		}
-
-		public static void StatusMessage(string message)
-		{
-			if(StatusBarLabel != null)
-			{
-				StatusBarLabel.Text = message;
-				while (Application.EventsPending ())
-				{
-					Gtk.Main.Iteration ();
-				}
-			}
 		}
 
 		public static void WaitRedraw()

@@ -6,11 +6,13 @@ using Gdk;
 using MySql.Data.MySqlClient;
 using QSProjectsLib;
 using QSWidgetLib;
+using NLog;
 
 namespace earchive
 {
 	public partial class ViewDoc : Gtk.Dialog
 	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private DocumentInformation DocInfo;
 		private Dictionary<int, Gtk.Label> FieldLables;
 		private Dictionary<int, object> FieldWidgets;
@@ -30,7 +32,7 @@ namespace earchive
 
 		public void Fill(int doc_id)
 		{
-			MainClass.StatusMessage("Запрос документа №" + doc_id +"...");
+			logger.Info("Запрос документа №" + doc_id +"...");
 			try
 			{
 				DocId = doc_id;
@@ -147,13 +149,11 @@ namespace earchive
 				}
 				rdr.Close();
 				vboxImages.ShowAll();
-				MainClass.StatusMessage("Ok");
+				logger.Info("Ok");
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.ToString());
-				MainClass.StatusMessage("Ошибка получения документа!");
-				QSMain.ErrorMessage(this,ex);
+				QSMain.ErrorMessageWithLog(this, "Ошибка получения документа!", logger, ex);
 			}
 		}
 
@@ -205,7 +205,7 @@ namespace earchive
 		protected void OnButtonOkClicked (object sender, EventArgs e)
 		{
 			MySqlTransaction trans = QSMain.connectionDB.BeginTransaction ();
-			MainClass.StatusMessage("Записываем документ...");
+			logger.Info("Записываем документ...");
 			try
 			{
 				string sql;
@@ -255,14 +255,12 @@ namespace earchive
 					cmd.ExecuteNonQuery();
 				}
 				trans.Commit();
-				MainClass.StatusMessage("Ok");
+				logger.Info("Ok");
 			}
 			catch (Exception ex)
 			{
 				trans.Rollback ();
-				Console.WriteLine(ex.ToString());
-				MainClass.StatusMessage("Ошибка записи документа!");
-				QSMain.ErrorMessage(this,ex);
+				QSMain.ErrorMessageWithLog(this, "Ошибка записи документа!", logger, ex);
 			}
 		}
 

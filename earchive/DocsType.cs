@@ -1,6 +1,6 @@
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using Gtk;
 using MySql.Data.MySqlClient;
 using QSProjectsLib;
@@ -9,6 +9,7 @@ namespace earchive
 {
 	public partial class DocsType : Gtk.Dialog
 	{
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		public bool NewDocsType;
 		int TypeId;
 		bool ExtraTableCreated = false;
@@ -45,9 +46,9 @@ namespace earchive
 			{
 				foreach (System.Data.DataColumn col in schema.Columns)
 				{
-					Console.WriteLine("{0} = {1}", col.ColumnName, row[col]);
+					logger.Debug("{0} = {1}", col.ColumnName, row[col]);
 				}
-				Console.WriteLine("============================");
+				logger.Debug("============================");
 			}
 		}
 
@@ -55,7 +56,7 @@ namespace earchive
 		{
 			NewDocsType = false;
 			
-			MainClass.StatusMessage("Запрос типа документа №" + id +"...");
+			logger.Info("Запрос типа документа №" + id +"...");
 			string sql = "SELECT doc_types.* FROM doc_types " +
 					"WHERE doc_types.id = @id";
 			try
@@ -93,13 +94,11 @@ namespace earchive
 				this.Title = entryName.Text;
 				
 				UpdateFields ();
-				MainClass.StatusMessage("Ok");
+				logger.Info("Ok");
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.ToString());
-				MainClass.StatusMessage("Ошибка получения информации о типах документов!");
-				QSMain.ErrorMessage(this,ex);
+				QSMain.ErrorMessageWithLog(this, "Ошибка получения информации о типах документов!", logger, ex);
 			}
 			
 			TestCanSave();
@@ -154,7 +153,7 @@ namespace earchive
 		void SaveChanges()
 		{
 			MySqlTransaction trans = QSMain.connectionDB.BeginTransaction ();
-			MainClass.StatusMessage("Записываем информацию о типе документа...");
+			logger.Info("Записываем информацию о типе документа...");
 			try
 			{
 				//Провекра существует ли тип с таким названием. Для работы меню в окне ввода документов нужны уникальные названия.
@@ -223,14 +222,12 @@ namespace earchive
 					TypeId = Convert.ToInt32 (cmd.LastInsertedId);
 				trans.Commit ();
 				TestTableField ();
-				MainClass.StatusMessage("Ok");
+				logger.Info("Ok");
 			}
 			catch (Exception ex)
 			{
 				trans.Rollback ();
-				Console.WriteLine(ex.ToString());
-				MainClass.StatusMessage("Ошибка записи типа документов!");
-				QSMain.ErrorMessage(this,ex);
+				QSMain.ErrorMessageWithLog(this, "Ошибка записи типа документов!", logger, ex);
 			}
 		}
 
@@ -362,7 +359,7 @@ namespace earchive
 			int FieldId = (int)FieldsListStore.GetValue(iter, 0);
 
 			MySqlTransaction trans = QSMain.connectionDB.BeginTransaction ();
-			MainClass.StatusMessage("Удаляем поле...");
+			logger.Info("Удаляем поле...");
 			try
 			{
 				//Работаем с таблицей БД
@@ -379,14 +376,12 @@ namespace earchive
 
 				trans.Commit ();
 				UpdateFields ();
-				MainClass.StatusMessage("Ok");
+				logger.Info("Ok");
 			}
 			catch (Exception ex)
 			{
 				trans.Rollback ();
-				Console.WriteLine(ex.ToString());
-				MainClass.StatusMessage("Ошибка удаления поля!");
-				QSMain.ErrorMessage(this,ex);
+				QSMain.ErrorMessageWithLog(this, "Ошибка удаления поля!", logger, ex);
 			}
 		}
 

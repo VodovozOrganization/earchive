@@ -5,27 +5,49 @@ namespace earchive
 	public partial class ViewDoc
 	{
 		private global::Gtk.UIManager UIManager;
+		
 		private global::Gtk.Toolbar toolbar1;
+		
 		private global::Gtk.HBox hbox3;
+		
 		private global::Gtk.ScrolledWindow scrolledImages;
+		
 		private global::Gtk.VBox vboxImages;
+		
 		private global::Gtk.VBox vbox3;
+		
 		private global::Gtk.Table tableProperty;
+		
 		private global::QSWidgetLib.DatePicker dateDoc;
+		
 		private global::Gtk.Entry entryNumber;
+		
 		private global::Gtk.Label label1;
+		
 		private global::Gtk.Label label3;
+		
 		private global::Gtk.Label label4;
+		
 		private global::Gtk.Label label5;
+		
 		private global::Gtk.Label label6;
+		
 		private global::Gtk.Label labelCreateDate;
+		
 		private global::Gtk.Label labelCreateUser;
+		
 		private global::Gtk.Label labelType;
+		
 		private global::Gtk.Label label2;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		
 		private global::Gtk.TextView textviewComments;
+		
 		private global::Gtk.Button buttonPDF;
+		
 		private global::Gtk.Button buttonCancel;
+		
 		private global::Gtk.Button buttonOk;
 
 		protected virtual void Build ()
@@ -38,8 +60,8 @@ namespace earchive
 			this.AddAccelGroup (this.UIManager.AccelGroup);
 			this.Name = "earchive.ViewDoc";
 			this.WindowPosition = ((global::Gtk.WindowPosition)(1));
-			this.Modal = true;
 			this.DestroyWithParent = true;
+			this.Gravity = ((global::Gdk.Gravity)(5));
 			// Internal child earchive.ViewDoc.VBox
 			global::Gtk.VBox w2 = this.VBox;
 			w2.Name = "dialog1_VBox";

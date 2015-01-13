@@ -5,19 +5,31 @@ namespace earchive
 	public partial class Statistics
 	{
 		private global::Gtk.Table table2;
-		private global::Gtk.Label label2;
-		private global::Gtk.Label label3;
-		private global::Gtk.Label label5;
-		private global::Gtk.Label label7;
-		private global::Gtk.Label labelAvgImag;
-		private global::Gtk.Label labelCommonImag;
-		private global::Gtk.Label labelCountDoc;
-		private global::Gtk.Label labelCountImag;
-		private global::Gtk.Label label1;
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-		private global::Gtk.TreeView treeview1;
-		private global::Gtk.Button buttonOk;
 		
+		private global::Gtk.Label label2;
+		
+		private global::Gtk.Label label3;
+		
+		private global::Gtk.Label label5;
+		
+		private global::Gtk.Label label7;
+		
+		private global::Gtk.Label labelAvgImag;
+		
+		private global::Gtk.Label labelCommonImag;
+		
+		private global::Gtk.Label labelCountDoc;
+		
+		private global::Gtk.Label labelCountImag;
+		
+		private global::Gtk.Label label1;
+		
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		
+		private global::Gtk.TreeView treeview1;
+		
+		private global::Gtk.Button buttonOk;
+
 		protected virtual void Build ()
 		{
 			global::Stetic.Gui.Initialize (this);
@@ -171,26 +183,14 @@ namespace earchive
 			this.buttonOk.CanFocus = true;
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.UseUnderline = true;
-			// Container child buttonOk.Gtk.Container+ContainerChild
-			global::Gtk.Alignment w15 = new global::Gtk.Alignment (0.5F, 0.5F, 0F, 0F);
-			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			global::Gtk.HBox w16 = new global::Gtk.HBox ();
-			w16.Spacing = 2;
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Image w17 = new global::Gtk.Image ();
-			w17.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-close", global::Gtk.IconSize.Menu);
-			w16.Add (w17);
-			// Container child GtkHBox.Gtk.Container+ContainerChild
-			global::Gtk.Label w19 = new global::Gtk.Label ();
-			w19.LabelProp = global::Mono.Unix.Catalog.GetString ("_Закрыть");
-			w19.UseUnderline = true;
-			w16.Add (w19);
-			w15.Add (w16);
-			this.buttonOk.Add (w15);
+			this.buttonOk.Label = global::Mono.Unix.Catalog.GetString ("_Закрыть");
+			global::Gtk.Image w15 = new global::Gtk.Image ();
+			w15.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-close", global::Gtk.IconSize.Menu);
+			this.buttonOk.Image = w15;
 			this.AddActionWidget (this.buttonOk, -7);
-			global::Gtk.ButtonBox.ButtonBoxChild w23 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w14 [this.buttonOk]));
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w16 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w14 [this.buttonOk]));
+			w16.Expand = false;
+			w16.Fill = false;
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}

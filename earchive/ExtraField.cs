@@ -7,6 +7,7 @@ namespace earchive
 {
 	public partial class ExtraField : Gtk.Dialog
 	{
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		public bool NewField = true;
 		public string TableName;
 		public int DocTypeID;
@@ -27,7 +28,7 @@ namespace earchive
 		public void Fill(int id)
 		{
 			NewField = false;
-			MainClass.StatusMessage("Запрос поля №" + id +"...");
+			logger.Info("Запрос поля №" + id +"...");
 			string sql = "SELECT extra_fields.*, doc_types.table_name FROM extra_fields " +
 					"LEFT JOIN doc_types ON extra_fields.doc_type_id = doc_types.id " +
 					"WHERE extra_fields.id = @id";
@@ -68,13 +69,11 @@ namespace earchive
 				//Запрещаем менять тип поля
 				comboType.Sensitive = false;
 
-				MainClass.StatusMessage("Ok");
+				logger.Info("Ok");
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.ToString());
-				MainClass.StatusMessage("Ошибка получения информации о поле!");
-				QSMain.ErrorMessage(this,ex);
+				QSMain.ErrorMessageWithLog(this, "Ошибка получения информации о поле!", logger, ex);
 			}
 			
 			TestCanSave();
@@ -93,7 +92,7 @@ namespace earchive
 		protected void OnButtonOkClicked (object sender, EventArgs e)
 		{
 			MySqlTransaction trans = QSMain.connectionDB.BeginTransaction ();
-			MainClass.StatusMessage("Записываем информацию о поле...");
+			logger.Info("Записываем информацию о поле...");
 			try
 			{
 				//Работаем с таблицей БД
@@ -124,14 +123,12 @@ namespace earchive
 
 				cmd.ExecuteNonQuery ();
 				trans.Commit ();
-				MainClass.StatusMessage("Ok");
+				logger.Info("Ok");
 			}
 			catch (Exception ex)
 			{
 				trans.Rollback ();
-				Console.WriteLine(ex.ToString());
-				MainClass.StatusMessage("Ошибка сохранения поля!");
-				QSMain.ErrorMessage(this,ex);
+				QSMain.ErrorMessageWithLog(this, "Ошибка сохранения поля!", logger, ex);
 			}
 		}
 

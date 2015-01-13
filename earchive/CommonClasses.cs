@@ -19,6 +19,7 @@ namespace earchive
 
 	class DocumentInformation
 	{
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		public int TypeId {get; private set;}
 		public string TypeName {get; private set;}
 		public string DBTableName{get; private set;}
@@ -38,7 +39,7 @@ namespace earchive
 
 		private void GetDocInformation()
 		{
-			MainClass.StatusMessage("Запрос типа документа №" + TypeId +"...");
+			logger.Info("Запрос типа документа №" + TypeId +"...");
 			string sql = "SELECT doc_types.* FROM doc_types " +
 				"WHERE doc_types.id = @id";
 			try
@@ -69,12 +70,11 @@ namespace earchive
 				}
 				
 				rdr.Close();
-				MainClass.StatusMessage("Ok");
+				logger.Info("Ok");
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.ToString());
-				MainClass.StatusMessage("Ошибка получения информации о типе документа!");
+				logger.WarnException("Ошибка получения информации о типе документа!", ex);
 			}
 		}
 

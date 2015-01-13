@@ -6,6 +6,7 @@
   </configuration>
   <import>
     <widget-library name="../../../QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
+    <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../../../QSProjects/QSScan/bin/Debug/QSScan.dll" />
     <widget-library name="../../../QSProjects/QSSupportLib/bin/Debug/QSSupportLib.dll" />
     <widget-library name="../bin/Debug/earchive.exe" internal="true" />
@@ -1353,8 +1354,8 @@
     <action-group name="Default" />
     <property name="MemberName" />
     <property name="WindowPosition">Center</property>
-    <property name="Modal">True</property>
     <property name="DestroyWithParent">True</property>
+    <property name="Gravity">Center</property>
     <property name="Buttons">3</property>
     <property name="HelpButton">False</property>
     <child internal-child="VBox">
