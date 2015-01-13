@@ -59,7 +59,7 @@
       <HintPath>..\..\QSProjects\lib\NLog.dll</HintPath>
     </Reference>
     <Reference Include="Tesseract">
-      <HintPath>..\packages\Tesseract.1.0.12\lib\net40\Tesseract.dll</HintPath>
+      <HintPath>..\packages\Tesseract.2.1.1.1\lib\net40\Tesseract.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
