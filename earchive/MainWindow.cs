@@ -356,5 +356,10 @@ namespace earchive
 		{
 			buttonSearch.Click ();
 		}
+
+		protected void OnAction5Activated (object sender, EventArgs e)
+		{
+			QSMain.RunChangeLogDlg(this);
+		}
 	}
 }

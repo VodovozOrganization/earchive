@@ -95,6 +95,12 @@
         <property name="StockId">gtk-about</property>
         <signal name="Activated" handler="OnAboutActionActivated" />
       </action>
+      <action id="Action5">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">История версий</property>
+        <property name="ShortLabel" translatable="yes">История версий</property>
+        <signal name="Activated" handler="OnAction5Activated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">QS: Электронный архив</property>
@@ -120,6 +126,8 @@
                 <node type="Menuitem" action="Action3" />
               </node>
               <node type="Menu" action="Action4">
+                <node type="Menuitem" action="Action5" />
+                <node type="Separator" />
                 <node type="Menuitem" action="aboutAction" />
               </node>
             </node>
