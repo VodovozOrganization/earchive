@@ -59,6 +59,7 @@ namespace earchive
 			logger.Info("Запрос типа документа №" + id +"...");
 			string sql = "SELECT doc_types.* FROM doc_types " +
 					"WHERE doc_types.id = @id";
+			QSMain.CheckConnectionAlive();
 			try
 			{
 				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
@@ -111,7 +112,7 @@ namespace earchive
 			//Получаем таблицу полей
 			string sql = "SELECT extra_fields.* FROM extra_fields " +
 				"WHERE extra_fields.doc_type_id = @id";
-			
+			QSMain.CheckConnectionAlive();
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			cmd.Parameters.AddWithValue("@id", TypeId);
 			MySqlDataReader rdr = cmd.ExecuteReader();
@@ -152,6 +153,7 @@ namespace earchive
 
 		void SaveChanges()
 		{
+			QSMain.CheckConnectionAlive();
 			MySqlTransaction trans = QSMain.connectionDB.BeginTransaction ();
 			logger.Info("Записываем информацию о типе документа...");
 			try
@@ -358,6 +360,7 @@ namespace earchive
 			string FieldName = FieldsListStore.GetValue(iter, 2).ToString ();
 			int FieldId = (int)FieldsListStore.GetValue(iter, 0);
 
+			QSMain.CheckConnectionAlive();
 			MySqlTransaction trans = QSMain.connectionDB.BeginTransaction ();
 			logger.Info("Удаляем поле...");
 			try

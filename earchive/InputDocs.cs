@@ -678,6 +678,7 @@ namespace earchive
 				return false;
 			});
 			sqlhelp.Add(")");
+			QSMain.CheckConnectionAlive();
 			MySqlCommand cmd = new MySqlCommand(sqlhelp.Text, QSMain.connectionDB);
 			using (MySqlDataReader rdr = cmd.ExecuteReader())
 			{
@@ -724,6 +725,7 @@ namespace earchive
 					continue;
 
 				Document doc = (Document)ImageList.GetValue(iter, 3);
+				QSMain.CheckConnectionAlive();
 				MySqlTransaction trans = QSMain.connectionDB.BeginTransaction();
 				try
 				{

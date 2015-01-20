@@ -32,6 +32,7 @@ namespace earchive
 
 		public void Fill(int doc_id)
 		{
+			QSMain.CheckConnectionAlive();
 			logger.Info("Запрос документа №" + doc_id +"...");
 			try
 			{
@@ -204,6 +205,7 @@ namespace earchive
 
 		protected void OnButtonOkClicked (object sender, EventArgs e)
 		{
+			QSMain.CheckConnectionAlive();
 			MySqlTransaction trans = QSMain.connectionDB.BeginTransaction ();
 			logger.Info("Записываем документ...");
 			try

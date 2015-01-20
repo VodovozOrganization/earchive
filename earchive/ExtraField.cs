@@ -32,6 +32,7 @@ namespace earchive
 			string sql = "SELECT extra_fields.*, doc_types.table_name FROM extra_fields " +
 					"LEFT JOIN doc_types ON extra_fields.doc_type_id = doc_types.id " +
 					"WHERE extra_fields.id = @id";
+			QSMain.CheckConnectionAlive();
 			try
 			{
 				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
@@ -91,6 +92,7 @@ namespace earchive
 
 		protected void OnButtonOkClicked (object sender, EventArgs e)
 		{
+			QSMain.CheckConnectionAlive();
 			MySqlTransaction trans = QSMain.connectionDB.BeginTransaction ();
 			logger.Info("Записываем информацию о поле...");
 			try

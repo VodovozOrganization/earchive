@@ -27,6 +27,7 @@ namespace earchive
 		private void drawtable ()
 		{
 			string sql="SELECT COUNT(*) as cnt FROM docs";
+			QSMain.CheckConnectionAlive();
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			MySqlDataReader rdr = cmd.ExecuteReader();
 			rdr.Read();

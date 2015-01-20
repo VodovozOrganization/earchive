@@ -206,6 +206,7 @@ namespace earchive
 				sql += " AND date BETWEEN @startdate AND @enddate";
 			if(entryDocNumber.Text.Length > 0)
 				sql += String.Format (" AND number LIKE '%{0}%' ", entryDocNumber.Text);
+			QSMain.CheckConnectionAlive();
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			if(comboDocType.GetActiveIter(out iter))
 			{
@@ -315,6 +316,7 @@ namespace earchive
 			int itemid = (int) DocsListStore.GetValue(iter, 0);
 
 			string sql = "DELETE FROM docs WHERE id = @id";
+			QSMain.CheckConnectionAlive();
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			cmd.Parameters.AddWithValue ("@id", itemid);
 			cmd.ExecuteNonQuery ();

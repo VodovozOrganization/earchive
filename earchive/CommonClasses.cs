@@ -39,6 +39,7 @@ namespace earchive
 
 		private void GetDocInformation()
 		{
+			QSMain.CheckConnectionAlive();
 			logger.Info("Запрос типа документа №" + TypeId +"...");
 			string sql = "SELECT doc_types.* FROM doc_types " +
 				"WHERE doc_types.id = @id";
@@ -85,6 +86,7 @@ namespace earchive
 			CountExtraFields = 0;
 			
 			//Загрузка информации о дополнительных полях
+			QSMain.CheckConnectionAlive();
 			System.Data.DataTable schema = QSMain.connectionDB.GetSchema("Columns", new string[4] { null, QSMain.connectionDB.Database, "extra_" + DBTableName, null});
 			
 			string  sql = "SELECT * FROM extra_fields WHERE doc_type_id = @id";
