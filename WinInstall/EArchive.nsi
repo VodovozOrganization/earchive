@@ -1,6 +1,6 @@
 
 ;--------------------------------
-!define PRODUCT_VERSION "0.8.1"
+!define PRODUCT_VERSION "0.8.5"
 !define MIN_NET_MAJOR "4"
 !define MIN_NET_MINOR "0"
 !define MIN_NET_BUILD "*"
@@ -339,27 +339,48 @@ Section "MS .NET Framework ${MIN_NET_MAJOR}.${MIN_NET_MINOR}" SecFramework
  
 SectionEnd
 
-Section "GTK# 2.12.21" SecGTK
-  SectionIn RO
+Section "Visual C++ 2012" SecVisual
+	SectionIn RO
+	InitPluginsDir
+	SetOutPath "$pluginsdir\Requires"
+
+  ${If} ${RunningX64}
+	ReadRegStr $1 HKLM "SOFTWARE\Microsoft\VisualStudio\11.0\VC\Runtimes\x64" "Installed"
+	StrCmp $1 1 VisualInstalled
+  ${Else}
+	ReadRegStr $1 HKLM "SOFTWARE\Microsoft\VisualStudio\11.0\VC\Runtimes\x86" "Installed"
+	StrCmp $1 1 VisualInstalled
+  ${EndIf}
   
-  ; Test 2.12.25
-  System::Call "msi::MsiQueryProductStateA(t '{889E7D77-2A98-4020-83B1-0296FA1BDE8A}') i.r0"
-  StrCmp $0 "5" GTKDone
-  DetailPrint "GTK# 2.12.25 не установлен"
+  File "vcredist_x86.exe"
+  DetailPrint "Starting Microsoft Visual C++ 2012 (x86) Setup..."
+  ExecWait "$pluginsdir\Requires\vcredist_x86.exe /q"
+  Return
+ 
+  VisualInstalled:
+  DetailPrint "Microsoft Visual C++ 2012 (x86) is already installed!"
+ 
+SectionEnd
 
-  ; Test 2.12.21
-  System::Call "msi::MsiQueryProductStateA(t '{71109D19-D8C1-437D-A6DA-03B94F5187FB}') i.r0"
-  StrCmp $0 "5" GTKDone
-  DetailPrint "GTK# 2.12.21 не установлен"
+Section "GTK# 2.12.26" SecGTK
+  SectionIn RO
 
-; Install 2.12.21
-  DetailPrint "Запуск установщика GTK# 2.12.21"
-  File "gtk-sharp-2.12.21.msi"
-  ExecWait '"msiexec" /i "$pluginsdir\Requires\gtk-sharp-2.12.21.msi"  /passive'
+  ; Test 2.12.26
+  System::Call "msi::MsiQueryProductStateA(t '{BC25B808-A11C-4C9F-9C0A-6682E47AAB83}') i.r0"
+  StrCmp $0 "5" GTKDone
+  DetailPrint "GTK# 2.12.26 не установлен"
+
+; Install 2.12.26
+  DetailPrint "Запуск установщика GTK# 2.12.26"
+  File "gtk-sharp-2.12.26.msi"
+  ExecWait '"msiexec" /i "$pluginsdir\Requires\gtk-sharp-2.12.26.msi"  /passive'
 
 ; Setup Gtk style
   ${ConfigWrite} "$PROGRAMFILES\GtkSharp\2.12\share\themes\MS-Windows\gtk-2.0\gtkrc" "gtk-button-images =" "1" $R0
 
+; Fix Localication
+  SetOutPath "$PROGRAMFILES\GtkSharp\2.12\share\locale\ru\LC_MESSAGES"
+  File "LC_MESSAGES\*"
   GTKDone:
 SectionEnd
 
@@ -377,6 +398,7 @@ SectionEnd
   ;Language strings
   LangString DESC_SecProgram ${LANG_Russian} "Основные файлы программы"
   LangString DESC_SecFramework ${LANG_Russian} "Для работы программы необходима платформа .NET Framework. При необходимости будет выполнена установка через интернет."
+  LangString DESC_SecVisual ${LANG_Russian} "Для работы программы необходимы библиотеки Microsoft Visual C++ 2010"
   LangString DESC_SecGTK ${LANG_Russian} "Библиотеки GTK#, необходимые для работы программы"
   LangString DESC_SecDesktop ${LANG_Russian} "Установит ярлык программы на рабочий стол"
 
@@ -384,6 +406,7 @@ SectionEnd
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${SecProgram} $(DESC_SecProgram)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecFramework} $(DESC_SecFramework)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecVisual} $(DESC_SecVisual)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecGTK} $(DESC_SecGTK)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} $(DESC_SecDesktop)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
@@ -411,6 +434,6 @@ Section "Uninstall"
 
   ; Remove GTK#
   MessageBox MB_YESNO "Удалить библиотеки GTK#? Они были установлены для ${PRODUCT_NAME}, но могут использоваться другими приложениями." /SD IDYES IDNO endGTK
-    ExecWait '"msiexec" /X{71109D19-D8C1-437D-A6DA-03B94F5187FB} /passive'
+    ExecWait '"msiexec" /X{BC25B808-A11C-4C9F-9C0A-6682E47AAB83} /passive'
   endGTK:
 SectionEnd
