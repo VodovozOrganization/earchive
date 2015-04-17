@@ -10,6 +10,7 @@
     <widget-library name="../../../QSProjects/QSScan/bin/Debug/QSScan.dll" />
     <widget-library name="../../../QSProjects/QSSupportLib/bin/Debug/QSSupportLib.dll" />
     <widget-library name="../bin/Debug/earchive.exe" internal="true" />
+    <widget-library name="../../../QSProjects/QSUpdater/bin/Debug/QSUpdater.dll" />
   </import>
   <icon-factory>
     <icon-set id="rotate-90">
@@ -101,6 +102,13 @@
         <property name="ShortLabel" translatable="yes">История версий</property>
         <signal name="Activated" handler="OnAction5Activated" />
       </action>
+      <action id="ActionUpdate">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Проверить обновления..</property>
+        <property name="ShortLabel" translatable="yes">Проверить обновления..</property>
+        <property name="StockId">gtk-go-down</property>
+        <signal name="Activated" handler="OnActionUpdateActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">QS: Электронный архив</property>
@@ -127,6 +135,7 @@
               </node>
               <node type="Menu" action="Action4">
                 <node type="Menuitem" action="Action5" />
+                <node type="Menuitem" action="ActionUpdate" />
                 <node type="Separator" />
                 <node type="Menuitem" action="aboutAction" />
               </node>

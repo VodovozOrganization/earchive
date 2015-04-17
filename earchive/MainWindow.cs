@@ -4,8 +4,8 @@ using QSProjectsLib;
 using QSWidgetLib;
 using earchive;
 using MySql.Data.MySqlClient;
-using System.Collections.Generic;
 using NLog;
+using QSUpdater;
 
 namespace earchive
 {
@@ -25,6 +25,7 @@ namespace earchive
 			QSMain.StatusBarLabel = labelStatus;
 			this.Title = QSSupportLib.MainSupport.GetTitle();
 			QSMain.MakeNewStatusTargetForNlog();
+
 
 			Reference.RunReferenceItemDlg += OnRunReferenceItemDialog;
 			QSMain.ReferenceUpdated += OnReferenceUpdate;
@@ -54,6 +55,8 @@ namespace earchive
 			// Создаем главное окно
 			ComboWorks.ComboFillReference (comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
 			selectperiodDocs.ActiveRadio = SelectPeriod.Period.Week;
+
+			CheckUpdate.StartCheckUpdateThread (UpdaterFlags.StartInThread);
 		}
 		
 		protected void OnDeleteEvent (object sender, DeleteEventArgs a)
@@ -360,6 +363,11 @@ namespace earchive
 		protected void OnAction5Activated (object sender, EventArgs e)
 		{
 			QSMain.RunChangeLogDlg(this);
+		}
+
+		protected void OnActionUpdateActivated (object sender, EventArgs e)
+		{
+			CheckUpdate.StartCheckUpdateThread (UpdaterFlags.ShowAnyway);
 		}
 	}
 }
