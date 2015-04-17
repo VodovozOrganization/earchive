@@ -1,11 +1,11 @@
 using System;
 using Gtk;
-using QSProjectsLib;
-using QSWidgetLib;
-using earchive;
 using MySql.Data.MySqlClient;
 using NLog;
+using QSProjectsLib;
 using QSUpdater;
+using QSWidgetLib;
+using earchive;
 
 namespace earchive
 {
@@ -25,7 +25,12 @@ namespace earchive
 			QSMain.StatusBarLabel = labelStatus;
 			this.Title = QSSupportLib.MainSupport.GetTitle();
 			QSMain.MakeNewStatusTargetForNlog();
+			QSSupportLib.MainSupport.LoadBaseParameters ();
 
+			if (!QSSupportLib.MainSupport.CheckVersion (this)) {//Проверяем версию базы
+				CheckUpdate.StartCheckUpdateThread (UpdaterFlags.ShowAnyway | UpdaterFlags.UpdateRequired);
+				return;
+			}
 
 			Reference.RunReferenceItemDlg += OnRunReferenceItemDialog;
 			QSMain.ReferenceUpdated += OnReferenceUpdate;
