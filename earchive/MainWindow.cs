@@ -48,13 +48,9 @@ namespace earchive
 				return;
 			}
 
-			//Загружаем информацию о пользователе
-			if(QSMain.User.TestUserExistByLogin (true))
-				QSMain.User.UpdateUserInfoByLogin ();
 			UsersAction.Sensitive = QSMain.User.admin;
 			labelUser.LabelProp = QSMain.User.Name;
 			ActionDocTypes.Sensitive = QSMain.User.Permissions["edit_db"];
-			//buttonDelete.Sensitive = QSMain.User.Permissions["can_edit"];
 			buttonInput.Sensitive = QSMain.User.Permissions["can_edit"];
 
 			// Создаем главное окно

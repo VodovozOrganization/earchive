@@ -1,9 +1,7 @@
 using System;
-using Gtk;
-using MySql.Data;
-using MySql.Data.MySqlClient;
-using QSProjectsLib;
 using System.Collections.Generic;
+using Gtk;
+using QSProjectsLib;
 
 namespace earchive
 {
@@ -43,14 +41,11 @@ namespace earchive
 
 		static void CreateProjectParam()
 		{
-			QSMain.AdminFieldName = "admin";
 			QSMain.ProjectPermission = new Dictionary<string, UserPermission>();
 			QSMain.ProjectPermission.Add ("can_edit", new UserPermission("can_edit", "Изменение документов",
 			                                                      "Пользователь может изменять и добавлять документы"));
 			QSMain.ProjectPermission.Add ("edit_db", new UserPermission("edit_db", "Изменение БД",
 			                                                             "Пользователь может изменять структуру базы данных"));
-
-			QSMain.User = new UserInfo();
 		}
 
 		public static void WaitRedraw()
