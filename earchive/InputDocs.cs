@@ -903,8 +903,7 @@ namespace earchive
 					}
 					catch (Exception ex)
 					{
-						logger.ErrorException("Ошибка в модуле распознования!", ex);
-						QSMain.ErrorMessage(this,ex);
+						QSMain.ErrorMessageWithLog (this, "Ошибка в модуле распознования!", logger, ex);
 						ShowLog();
 					}
 					ImageList.SetValue(iter, 8, GetDocIconByState(doc.State));

@@ -75,7 +75,7 @@ namespace earchive
 			}
 			catch (Exception ex)
 			{
-				logger.WarnException("Ошибка получения информации о типе документа!", ex);
+				logger.Warn(ex, "Ошибка получения информации о типе документа!");
 			}
 		}
 
