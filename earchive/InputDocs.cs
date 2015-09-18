@@ -735,7 +735,7 @@ namespace earchive
 					cmd.Parameters.AddWithValue("@number", doc.DocNumber);
 					cmd.Parameters.AddWithValue("@date", doc.DocDate);
 					cmd.Parameters.AddWithValue("@create_date", DateTime.Now);
-					cmd.Parameters.AddWithValue("@user_id", QSMain.User.id);
+					cmd.Parameters.AddWithValue("@user_id", QSMain.User.Id);
 					cmd.Parameters.AddWithValue("@type_id", doc.TypeId);
 					cmd.ExecuteNonQuery();
 					long docid = cmd.LastInsertedId;

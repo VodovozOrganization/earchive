@@ -48,7 +48,7 @@ namespace earchive
 				return;
 			}
 
-			UsersAction.Sensitive = QSMain.User.admin;
+			UsersAction.Sensitive = QSMain.User.Admin;
 			labelUser.LabelProp = QSMain.User.Name;
 			ActionDocTypes.Sensitive = QSMain.User.Permissions["edit_db"];
 			buttonInput.Sensitive = QSMain.User.Permissions["can_edit"];
