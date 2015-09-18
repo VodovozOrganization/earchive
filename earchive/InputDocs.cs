@@ -666,20 +666,29 @@ namespace earchive
 				if(result == ResponseType.Cancel)
 					return;
 			}
-			//Проверяем на уникальность номера
+
+			logger.Info ("Проверяем на уникальность номера...");
+			QSMain.CheckConnectionAlive();
+			MySqlCommand cmd = QSMain.connectionDB.CreateCommand ();
 			DBWorks.SQLHelper sqlhelp = 
 				new DBWorks.SQLHelper("SELECT number, date, create_date, type_id FROM docs WHERE YEAR(date) = YEAR(CURDATE()) AND number IN (");
-			sqlhelp.QuoteMode = DBWorks.QuoteType.SingleQuotes;
+			int ix = 0;
 			ImageList.Foreach( delegate(TreeModel model, TreePath path, TreeIter iter2) 
 			{
 				Document TempDoc = (Document)model.GetValue(iter2, 3);
 				if(TempDoc != null)
-					sqlhelp.Add(TempDoc.DocNumber);
+				{
+					string paramName = String.Format ("@num{0}", ix);
+					sqlhelp.AddAsList(paramName);	
+					cmd.Parameters.AddWithValue (paramName, TempDoc.DocNumber);
+					ix++;
+				}
+
 				return false;
 			});
 			sqlhelp.Add(")");
-			QSMain.CheckConnectionAlive();
-			MySqlCommand cmd = new MySqlCommand(sqlhelp.Text, QSMain.connectionDB);
+			cmd.CommandText = sqlhelp.Text;
+			logger.Debug ("SQL: " + sqlhelp.Text);
 			using (MySqlDataReader rdr = cmd.ExecuteReader())
 			{
 				string conflicts = "";
