@@ -4,63 +4,6 @@ using Gdk;
 
 namespace earchive
 {
-	public enum ValidationTypes{
-		None,
-		IsNumber,
-		IsDate
-	}
-
-	public class RecognazeRule
-	{
-		public int FieldId;
-		public ValidationTypes Validate;
-
-		//Распознование в зоне маркера
-		public bool NextAfterTextMarker;
-		public int ShiftWordsCount;
-		[XmlIgnore]
-		public string AfterTextMarkerValue;
-
-		public RelationalRectangle Box;
-	}
-
-	public class TextMarker
-	{
-		public string Text;
-		public bool BeginOfLine;
-		public double PatternPosX;
-		public double PatternPosY;
-		public RelationalRectangle Zone;
-
-		[XmlIgnore]
-		public int TargetHeigth;
-		[XmlIgnore]
-		public int TargetWidth;
-
-		[XmlIgnore]
-		public int ActualPosX;
-		[XmlIgnore]
-		public int ActualPosY;
-		[XmlIgnore]
-		public double ActualSkew = 0;
-
-		public int ShiftX{
-			get{ return ActualPosX - (int)(PatternPosX * TargetWidth);}
-		}
-
-		public int ShiftY{
-			get{ return ActualPosY - (int)(PatternPosY * TargetHeigth);}
-		}
-
-		public void SetTarget(int width, int heigth)
-		{
-			TargetWidth = width;
-			TargetHeigth = heigth;
-
-			Zone.SetTarget(width, heigth);
-		}
-
-	}
 
 	public class RelationalRectangle
 	{
@@ -169,4 +112,3 @@ namespace earchive
 	}
 
 }
-

@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{916BB841-B4DF-451F-81B5-BF6E07E307E2}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>earchive</RootNamespace>
@@ -61,6 +59,12 @@
     <Reference Include="NLog">
       <HintPath>..\..\QSProjects\packages\NLog.4.2.3\lib\net40\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="zxing">
+      <HintPath>..\packages\ZXing.Net.0.14.0.1\lib\net40\zxing.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.presentation">
+      <HintPath>..\packages\ZXing.Net.0.14.0.1\lib\net40\zxing.presentation.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -91,15 +95,17 @@
     <Compile Include="widgets\ImageListCellRenderer.cs" />
     <Compile Include="CommonClasses.cs" />
     <Compile Include="gtk-gui\earchive.MainWindow.cs" />
-    <Compile Include="RecognizeDoc.cs" />
-    <Compile Include="RecognizeClasses.cs" />
-    <Compile Include="RecognizeTemplate.cs" />
     <Compile Include="TemplateProperty.cs" />
     <Compile Include="gtk-gui\earchive.TemplateProperty.cs" />
     <Compile Include="gtk-gui\earchive.Statistics.cs" />
     <Compile Include="Statistics.cs" />
-    <Compile Include="RecognizeHelper.cs" />
     <Compile Include="ImageTreeStore.cs" />
+    <Compile Include="Recognaze\Template\RecognizeTemplate.cs" />
+    <Compile Include="Recognaze\RecognizeHelper.cs" />
+    <Compile Include="Recognaze\RecognizeDoc.cs" />
+    <Compile Include="Recognaze\Template\RecognazeRule.cs" />
+    <Compile Include="Recognaze\Template\TextMarker.cs" />
+    <Compile Include="Recognaze\Template\RelationalRectangle.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -129,6 +135,8 @@
     <Folder Include="widgets\" />
     <Folder Include="x86\" />
     <Folder Include="tessdata\" />
+    <Folder Include="Recognaze\" />
+    <Folder Include="Recognaze\Template\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

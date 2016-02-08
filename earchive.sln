@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "earchive", "earchive\earchive.csproj", "{916BB841-B4DF-451F-81B5-BF6E07E307E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "QSLibs", "QSLibs", "{45532DD8-87FB-42AB-9230-D2F198D91793}"
