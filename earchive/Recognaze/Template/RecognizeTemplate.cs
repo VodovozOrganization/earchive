@@ -12,6 +12,19 @@ namespace earchive
 		public RecognazeRule NumberRule;
 		public RecognazeRule DateRule;
 		public RecognazeRule[] FieldRules;
+		public BarCodeRule[] BarCodeRules;
+
+		public bool UseTess{
+			get{
+				return Markers != null || NumberRule != null || DateRule != null || FieldRules != null;
+			}
+		}
+
+		public bool UseBarCode{
+			get{
+				return BarCodeRules != null;
+			}
+		}
 
 		public RecognizeTemplate ()
 		{

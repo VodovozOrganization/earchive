@@ -106,6 +106,7 @@
     <Compile Include="Recognaze\Template\RecognazeRule.cs" />
     <Compile Include="Recognaze\Template\TextMarker.cs" />
     <Compile Include="Recognaze\Template\RelationalRectangle.cs" />
+    <Compile Include="Recognaze\Template\BarCodeRule.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

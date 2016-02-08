@@ -399,8 +399,16 @@ namespace earchive
 			{
 				DocTemplate = new RecognizeTemplate();
 				labelTemplateName.LabelProp = "Новый";
-				//FIXME Убрать тестовый документ
-				DocTemplate.Name = "Торг12-тест";
+				//Дефолтный шаблон штрих код.
+				DocTemplate.Name = "УПД-Штрихкод";
+				DocTemplate.BarCodeRules = new BarCodeRule[]{
+					new BarCodeDateNumberRule() {
+						Box = new RelationalRectangle(0.509090909, 0, 0.294456763, 0.134796238)
+					}
+				};
+
+				//Дефолтный шаблон Tess
+/*				DocTemplate.Name = "Торг12-тест";
 				RecognazeRule testrule = new RecognazeRule();
 				testrule.Box = new RelationalRectangle(0.357468643, 0.321774194, 0.088939567, 0.026612903);
 				DocTemplate.NumberRule = testrule;
@@ -415,7 +423,7 @@ namespace earchive
 				Marker.PatternPosY = 0.324193548;
 				Marker.Zone = new RelationalRectangle(0.181299886, 0.292741935, 0.196693273, 0.12);
 				DocTemplate.Markers = new TextMarker[]{Marker};
-			}
+*/			}
 			//FIXME Открыть диалог настройки шаблона.
 		}
 

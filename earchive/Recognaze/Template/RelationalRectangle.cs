@@ -36,6 +36,13 @@ namespace earchive
 			TargetHeigth = 0;
 		}
 
+		/// <summary>
+		/// Клас относительного многоугольника(зоны на изображении). Зона задается в относительные единицах от 0 до 1.
+		/// </summary>
+		/// <param name="RPosX">Relational position x.</param>
+		/// <param name="RPosY">Relational position y.</param>
+		/// <param name="RWidth">Relational width.</param>
+		/// <param name="RHeigth">Relational heigth.</param>
 		public RelationalRectangle(double RPosX, double RPosY, double RWidth, double RHeigth)
 		{
 			RelativePosX = RPosX;

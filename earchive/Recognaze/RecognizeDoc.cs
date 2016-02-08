@@ -1,10 +1,9 @@
 using System;
-using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using Gdk;
-using Tesseract;
 using NLog;
+using Tesseract;
+using ZXing;
 
 namespace earchive
 {
@@ -24,6 +23,18 @@ namespace earchive
 		}
 
 		public void Recognize()
+		{
+			if (Doc.Template.UseBarCode)
+			{
+				foreach (var rule in Doc.Template.BarCodeRules)
+					RecognizeBarCode (rule);
+			}
+
+			if (Doc.Template.UseTess)
+				RecognizeTess ();
+		}
+
+		private void RecognizeTess()
 		{
 			using (var engine = new TesseractEngine(@"./tessdata", "rus", EngineMode.Default))
 			{
@@ -194,6 +205,34 @@ namespace earchive
 
 				//FIXME Добавить распознование дополнительных полей.
 			}
+		}
+
+		private void RecognizeBarCode (BarCodeRule rule)
+		{
+			Pixbuf WorkImage = Images[0];
+
+			RelationalRectangle WorkZone =  rule.Box.Clone();
+
+			WorkZone.SetTarget(WorkImage.Width, WorkImage.Height);
+
+			logger.Debug("Зона штрихкода, box: x={0},y={1},w={2},h={3}", WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
+			var cutedPixbuf = new Pixbuf(WorkImage, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
+
+			ShowImage (cutedPixbuf, "Зона штрихкода");
+
+			// create a barcode reader instance
+			IBarcodeReader reader = new BarcodeReader();
+			// load a bitmap
+			var barcodeBitmap = RecognizeHelper.PixbufToBitmap (cutedPixbuf);
+			// detect and decode the barcode inside the bitmap
+			var result = reader.Decode(barcodeBitmap);
+			// do something with the result
+			if (result != null) {
+				logger.Debug ("Формат штрих кода: {0}", result.BarcodeFormat.ToString ());
+				logger.Debug ("Текст штрих кода разпознан как: {0}", result.Text);
+				rule.ParseCode (Doc, result.Text);
+			} else
+				logger.Warn ("Штрих код не распознан.");
 		}
 
 		internal void ExpandRelativeZone(RelationalRectangle zone)

@@ -6,7 +6,7 @@ using QSWidgetLib;
 
 namespace earchive
 {
-	class DocFieldInfo
+	public class DocFieldInfo
 	{
 		public int ID;
 		public int ListStoreColumn;
@@ -17,7 +17,7 @@ namespace earchive
 		public bool Search;
 	}
 
-	class DocumentInformation
+	public class DocumentInformation
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		public int TypeId {get; private set;}
@@ -116,7 +116,7 @@ namespace earchive
 		}
 	}
 
-	class Document : earchive.DocumentInformation
+	public class Document : DocumentInformation
 	{
 		public Dictionary<int, object> FieldValues;
 		public Dictionary<int, float> FieldConfidence;

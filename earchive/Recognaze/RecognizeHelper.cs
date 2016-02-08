@@ -23,6 +23,16 @@ namespace earchive
 			return PixConverter.ToPix(sysimage);
 		}
 
+		public static Bitmap PixbufToBitmap(Pixbuf image)
+		{
+			MemoryStream  stream = new MemoryStream(image.SaveToBuffer("png"));
+			stream.Position = 0;
+
+			Bitmap sysimage = new Bitmap(stream);
+			stream.Close();
+
+			return sysimage;
+		}
 
 	}
 
