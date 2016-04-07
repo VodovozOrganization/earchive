@@ -230,7 +230,7 @@ namespace earchive
 			if (result != null) {
 				logger.Debug ("Формат штрих кода: {0}", result.BarcodeFormat.ToString ());
 				logger.Debug ("Текст штрих кода разпознан как: {0}", result.Text);
-				rule.ParseCode (Doc, result.Text);
+				rule.ParseCode (Doc, result.BarcodeFormat, result.Text);
 			} else
 				logger.Warn ("Штрих код не распознан.");
 		}
