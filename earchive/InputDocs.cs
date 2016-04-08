@@ -780,7 +780,7 @@ namespace earchive
 						cmd.Parameters.AddWithValue("@order_num", order);
 						cmd.Parameters.AddWithValue("@type", "jpg");
 						Pixbuf pix = (Pixbuf) ImageList.GetValue(imageiter, 5);
-						byte[] rawdata = pix.SaveToBuffer("jpeg");
+						byte[] rawdata = pix.SaveToBuffer("jpeg", new string[] {"quality"}, new string[] {"10"});
 						cmd.Parameters.AddWithValue("@size", rawdata.LongLength);
 						cmd.Parameters.AddWithValue("@image", rawdata);
 						cmd.ExecuteNonQuery();
