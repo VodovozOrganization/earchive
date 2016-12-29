@@ -1,6 +1,6 @@
 
 ;--------------------------------
-!define PRODUCT_VERSION "0.8.10"
+!define PRODUCT_VERSION "0.8.11"
 !define MIN_NET_MAJOR "4"
 !define MIN_NET_MINOR "0"
 !define MIN_NET_BUILD "*"
@@ -15,7 +15,7 @@ var NETInstalled
 Name "${PRODUCT_NAME}"
 
 ; The file to write
-OutFile "${EXE_NAME}-${PRODUCT_VERSION}.exe"
+OutFile "${EXE_NAME}-0.8.x.exe"
 
 !include "MUI.nsh"
 !include "x64.nsh"
