@@ -142,7 +142,7 @@ namespace earchive
 					ImageViewer view = new ImageViewer();
 					view.VerticalFit = false;
 					view.HorizontalFit = true;
-					view.pixbuf = DocImage.Image;
+					view.Pixbuf = DocImage.Image;
 					view.ButtonPressEvent += OnImagesButtonPressEvent;
 					vboxImages.Add(view);
 					DocImage.Widget = view;

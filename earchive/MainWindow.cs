@@ -27,10 +27,7 @@ namespace earchive
 			QSMain.MakeNewStatusTargetForNlog();
 			QSSupportLib.MainSupport.LoadBaseParameters ();
 
-			if (!QSSupportLib.MainSupport.CheckVersion (this)) {//Проверяем версию базы
-				CheckUpdate.StartCheckUpdateThread (UpdaterFlags.ShowAnyway | UpdaterFlags.UpdateRequired);
-				return;
-			}
+			MainUpdater.RunCheckVersion (true, true, true);
 
 			Reference.RunReferenceItemDlg += OnRunReferenceItemDialog;
 			QSMain.ReferenceUpdated += OnReferenceUpdate;
@@ -56,8 +53,6 @@ namespace earchive
 			// Создаем главное окно
 			ComboWorks.ComboFillReference (comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
 			selectperiodDocs.ActiveRadio = SelectPeriod.Period.Week;
-
-			CheckUpdate.StartCheckUpdateThread (UpdaterFlags.StartInThread);
 		}
 		
 		protected void OnDeleteEvent (object sender, DeleteEventArgs a)
