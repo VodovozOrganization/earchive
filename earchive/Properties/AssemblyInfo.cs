@@ -11,7 +11,7 @@ using QSProjectsLib;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Quality Solution")]
 [assembly: AssemblyProduct("QS: Электронный архив")]
-[assembly: AssemblyCopyright("Quality Solution 2016")]
+[assembly: AssemblyCopyright("Quality Solution 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyLogoIcon("earchive.icons.logo.png")]
