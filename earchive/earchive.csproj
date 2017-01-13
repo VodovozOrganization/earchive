@@ -65,6 +65,9 @@
     <Reference Include="zxing.presentation">
       <HintPath>..\packages\ZXing.Net.0.14.0.1\lib\net40\zxing.presentation.dll</HintPath>
     </Reference>
+    <Reference Include="GammaBinding">
+      <HintPath>..\..\GammaBinding\GammaBinding\bin\Debug\GammaBinding.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -129,6 +132,10 @@
     <ProjectReference Include="..\..\QSProjects\QSUpdater\QSUpdater.csproj">
       <Project>{6D755374-6EAF-44B6-8C6C-6FE5E5AB3432}</Project>
       <Name>QSUpdater</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
+      <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
+      <Name>GammaBinding</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

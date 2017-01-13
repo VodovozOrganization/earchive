@@ -23,6 +23,7 @@ namespace earchive
 		private Dictionary<int, object> FieldWidgets;
 		private Dictionary<int, Gtk.Image> FieldIcons;
 		private NLog.Targets.MemoryTarget RecognizeLog;
+		private ScanWorks scan = null;
 
 		//Настройки значков
 		string DocIconNew = Stock.New;
@@ -66,6 +67,20 @@ namespace earchive
 			treeviewImages.ShowAll ();
 			treeviewImages.Selection.Changed += OnTreeviewImagesSelectionChanged;
 			NextDocNumber = 1;
+
+			//Настраиваем сканирование
+			logger.Debug("Initialaze scan");
+			scan = new ScanWorks();
+
+			scan.Pulse += OnScanWorksPulse;
+			scan.ImageTransfer += OnScanWorksImageTransfer;
+
+			var scanners = scan.GetScannerList ();
+			if (scanners.Length > 0) {
+				comboScaner.ItemsList = scanners;
+				comboScaner.Active = scan.CurrentScanner;
+			} else
+				comboScaner.Sensitive = ScanAction.Sensitive = false;
 		}
 
 		protected void OnOpenActionActivated (object sender, EventArgs e)
@@ -679,7 +694,7 @@ namespace earchive
 				if(TempDoc != null)
 				{
 					string paramName = String.Format ("@num{0}", ix);
-					sqlhelp.AddAsList(paramName);	
+					sqlhelp.AddAsList(paramName);
 					cmd.Parameters.AddWithValue (paramName, TempDoc.DocNumber);
 					ix++;
 				}
@@ -1009,44 +1024,10 @@ namespace earchive
 
 		protected void OnScanActionActivated (object sender, EventArgs e)
 		{
-			ScanWorks scan = null;
 			try
 			{
-				logger.Info(Environment.OSVersion.Platform.ToString());
-				logger.Debug("init scan");
-				scan = new ScanWorks();
+
 				progresswork.Text = "Открытие сканера...";
-				MainClass.WaitRedraw();
-				logger.Debug("run scanner");
-
-				scan.Pulse += OnScanWorksPulse;
-
-				scan.ImageTransfer += delegate(object s, ImageTransferEventArgs arg) 
-				{
-					TreeIter iter;
-					progresswork.Text = "Завершаем загрузку...";
-					MainClass.WaitRedraw();
-					logger.Debug("ImageTransfer event");
-					iter = ImageListNewDoc();
-
-					Pixbuf image = arg.Image;
-					double ratio = 150f / Math.Max(image.Height, image.Width);
-					Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio),(int)(image.Height * ratio), InterpType.Bilinear);
-
-					ImageList.AppendValues (iter,
-					                        0,
-					                        null,
-					                        null,
-					                        null,
-					                        thumb,
-					                        image,
-					                        true,
-					                        "",
-					                        "");
-					progresswork.Text = "Ок";
-					progresswork.Adjustment.Value = progresswork.Adjustment.Upper;
-					MainClass.WaitRedraw();
-				};
 
 				scan.GetImages();
 
@@ -1058,11 +1039,34 @@ namespace earchive
 			{
 				QSMain.ErrorMessageWithLog(this, "Ошибка в работе со сканером!", logger, ex);
 			}
-			finally
-			{
-				if(scan != null)
-					scan.Close ();
-			}
+		}
+
+		void OnScanWorksImageTransfer (object s, ImageTransferEventArgs arg) 
+		{
+			TreeIter iter;
+			progresswork.Text = "Завершаем загрузку...";
+			MainClass.WaitRedraw();
+			logger.Debug("ImageTransfer event");
+			iter = ImageListNewDoc();
+
+			Pixbuf image = arg.Image;
+			double ratio = 150f / Math.Max(image.Height, image.Width);
+			Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio),(int)(image.Height * ratio), InterpType.Bilinear);
+
+			ImageList.AppendValues (iter,
+				0,
+				null,
+				null,
+				null,
+				thumb,
+				image,
+				true,
+				"",
+				"");
+			progresswork.Text = "Ок";
+			progresswork.Adjustment.Value = progresswork.Adjustment.Upper;
+			MainClass.WaitRedraw();
+
 		}
 
 		void OnScanWorksPulse (object sender, ScanWorksPulseEventArgs e)
@@ -1081,6 +1085,19 @@ namespace earchive
 		protected void OnEventboxDateIconButtonPressEvent(object o, ButtonPressEventArgs args)
 		{
 			OnDateDocDateChanged (eventboxDateIcon, EventArgs.Empty);
+		}
+
+		public override void Destroy ()
+		{
+			if(scan != null)
+				scan.Close ();
+			
+			base.Destroy ();
+		}
+
+		protected void OnComboScanerChanged(object sender, EventArgs e)
+		{
+			scan.CurrentScanner = comboScaner.Active;
 		}
 	}
 
