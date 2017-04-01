@@ -50,23 +50,23 @@
       <HintPath>..\lib\itextsharp.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
-    <Reference Include="Tesseract">
-      <HintPath>..\packages\Tesseract.2.1.1.1\lib\net40\Tesseract.dll</HintPath>
-    </Reference>
     <Reference Include="MySql.Data">
       <HintPath>..\..\QSProjects\packages\MySql.Data.6.9.9\lib\net40\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="zxing">
-      <HintPath>..\packages\ZXing.Net.0.14.0.1\lib\net40\zxing.dll</HintPath>
-    </Reference>
-    <Reference Include="zxing.presentation">
-      <HintPath>..\packages\ZXing.Net.0.14.0.1\lib\net40\zxing.presentation.dll</HintPath>
     </Reference>
     <Reference Include="GammaBinding">
       <HintPath>..\..\GammaBinding\GammaBinding\bin\Debug\GammaBinding.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
       <HintPath>..\..\QSProjects\packages\NLog.4.4.3\lib\net40\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Tesseract">
+      <HintPath>..\packages\Tesseract.3.0.2.0\lib\net40\Tesseract.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing">
+      <HintPath>..\packages\ZXing.Net.0.15.0\lib\net40\zxing.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.presentation">
+      <HintPath>..\packages\ZXing.Net.0.15.0\lib\net40\zxing.presentation.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -179,21 +179,13 @@
       <Link>tessdata\rus.traineddata</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="x86\libtesseract302.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="x86\liblept168.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="x64\libtesseract302.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="x64\liblept168.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="packages.config" />
     <None Include="changes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="x86\libtesseract304.dll" />
+    <None Include="x86\liblept172.dll" />
+    <None Include="x64\libtesseract304.dll" />
+    <None Include="x64\liblept172.dll" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
