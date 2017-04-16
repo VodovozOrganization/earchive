@@ -339,26 +339,26 @@ Section "MS .NET Framework ${MIN_NET_MAJOR}.${MIN_NET_MINOR}" SecFramework
  
 SectionEnd
 
-Section "Visual C++ 2012" SecVisual
+Section "Visual C++ 2015" SecVisual
 	SectionIn RO
 	InitPluginsDir
 	SetOutPath "$pluginsdir\Requires"
 
   ${If} ${RunningX64}
-	ReadRegStr $1 HKLM "SOFTWARE\Microsoft\VisualStudio\11.0\VC\Runtimes\x64" "Installed"
+	ReadRegStr $1 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Installed"
 	StrCmp $1 1 VisualInstalled
   ${Else}
-	ReadRegStr $1 HKLM "SOFTWARE\Microsoft\VisualStudio\11.0\VC\Runtimes\x86" "Installed"
+	ReadRegStr $1 HKLM "SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x86" "Installed"
 	StrCmp $1 1 VisualInstalled
   ${EndIf}
   
-  File "vcredist_x86.exe"
-  DetailPrint "Starting Microsoft Visual C++ 2012 (x86) Setup..."
-  ExecWait "$pluginsdir\Requires\vcredist_x86.exe /q"
+  File "vc_redist.x86.exe"
+  DetailPrint "Starting Microsoft Visual C++ 2015 (x86) Setup..."
+  ExecWait "$pluginsdir\Requires\vc_redist.x86.exe /q"
   Return
  
   VisualInstalled:
-  DetailPrint "Microsoft Visual C++ 2012 (x86) is already installed!"
+  DetailPrint "Microsoft Visual C++ 2015 (x86) is already installed!"
  
 SectionEnd
 
