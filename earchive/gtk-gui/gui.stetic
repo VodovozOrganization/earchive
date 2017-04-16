@@ -1861,12 +1861,12 @@
         <property name="StockId">rotate-270</property>
         <signal name="Activated" handler="OnRotate270ActionActivated" />
       </action>
-      <action id="Action1">
+      <action id="ActionRecognize">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Распознать</property>
         <property name="ShortLabel" translatable="yes">Распознать</property>
         <property name="StockId">recognize</property>
-        <signal name="Activated" handler="OnAction1Activated" />
+        <signal name="Activated" handler="OnActionRecognizeActivated" />
       </action>
     </action-group>
     <property name="MemberName" />
@@ -1887,7 +1887,7 @@
               <node type="Toolitem" action="clearAction" />
               <node type="Toolitem" action="openAction" />
               <node type="Toolitem" action="ScanAction" />
-              <node type="Toolitem" action="Action1" />
+              <node type="Toolitem" action="ActionRecognize" />
               <node type="Toolitem" action="saveAction" />
               <node type="Separator" />
               <node type="Toolitem" action="zoom100Action" />

@@ -23,6 +23,7 @@ namespace earchive
 		private Dictionary<int, object> FieldWidgets;
 		private Dictionary<int, Gtk.Image> FieldIcons;
 		private NLog.Targets.MemoryTarget RecognizeLog;
+		//private ScanAuxWorks scan = null;
 		private ScanWorks scan = null;
 
 		//Настройки значков
@@ -70,6 +71,7 @@ namespace earchive
 
 			//Настраиваем сканирование
 			logger.Debug("Initialaze scan");
+			//scan = new ScanAuxWorks();
 			scan = new ScanWorks();
 
 			scan.Pulse += OnScanWorksPulse;
@@ -859,7 +861,7 @@ namespace earchive
 			OnZoomFitActionActivated(null, null);
 		}
 
-		protected void OnAction1Activated (object sender, EventArgs e)
+		protected void OnActionRecognizeActivated (object sender, EventArgs e)
 		{
 			TreeIter iter, imageiter;
 
