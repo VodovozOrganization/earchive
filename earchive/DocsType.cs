@@ -424,6 +424,16 @@ namespace earchive
 				Marker.Zone = new RelationalRectangle(0.181299886, 0.292741935, 0.196693273, 0.12);
 				DocTemplate.Markers = new TextMarker[]{Marker};
 */			}
+			else
+			{
+				DocTemplate.NumberRule = new RecognazeRule ();
+				DocTemplate.NumberRule.NextAfterTextMarker = true;
+				DocTemplate.NumberRule.ShiftWordsCount = 2;
+				DocTemplate.DateRule = new RecognazeRule ();
+				DocTemplate.DateRule.NextAfterTextMarker = true;
+				DocTemplate.DateRule.ShiftWordsCount = 4;
+
+			}
 			//FIXME Открыть диалог настройки шаблона.
 		}
 
