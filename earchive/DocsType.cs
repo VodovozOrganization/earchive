@@ -447,6 +447,7 @@ namespace earchive
 
 			FileFilter Filter = new FileFilter();
 			Filter.AddMimeType("text/xml");
+			Filter.AddPattern ("*.xml");
 			Filter.Name = "xml";
 			Chooser.AddFilter(Filter);
 
