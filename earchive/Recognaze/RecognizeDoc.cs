@@ -187,11 +187,11 @@ namespace earchive
 					else
 					{
 						logger.Debug ("By after market detection: {0}", CurRule.AfterTextMarkerValue);
-						if(DateTime.TryParse(CurRule.AfterTextMarkerValue, out Doc.DocDate))
-						{
+						if (DateTime.TryParse (CurRule.AfterTextMarkerValue, out Doc.DocDate)) {
 							logger.Debug ("Date parsed:{0}", Doc.DocDate);
 							Doc.DocDateConfidence = CurRule.AfterTextMarkerConfidence;
-						}
+						} else
+							Doc.DocDateConfidence = -2;
 					}
 				}
 
