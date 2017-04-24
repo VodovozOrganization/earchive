@@ -15,11 +15,17 @@ namespace earchive
 		public int FieldId;
 		public ValidationTypes Validate;
 
-		//Распознование в зоне маркера
+#region Распознование в зоне маркера
+
 		public bool NextAfterTextMarker;
 		public int ShiftWordsCount;
+
 		[XmlIgnore]
 		public string AfterTextMarkerValue;
+
+		[XmlIgnore]
+		public float AfterTextMarkerConfidence;
+#endregion
 
 		public RelationalRectangle Box;
 	}

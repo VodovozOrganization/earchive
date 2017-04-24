@@ -25,6 +25,9 @@ namespace earchive
 		[XmlIgnore]
 		public double ActualSkew = 0;
 
+		[XmlIgnore]
+		public float Confidence;
+
 		public int ShiftX{
 			get{ return ActualPosX - (int)(PatternPosX * TargetWidth);}
 		}

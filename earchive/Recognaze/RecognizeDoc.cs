@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Linq;
 using Gdk;
 using NLog;
 using Tesseract;
@@ -64,6 +65,7 @@ namespace earchive
 								Marker.ActualPosX = MarkerPosX + WorkZone.PosX;
 								Marker.ActualPosY = MarkerPosY + WorkZone.PosY;
 								Marker.ActualSkew = MarkerSkew;
+								Marker.Confidence = page.GetMeanConfidence ();
 								logger.Debug("Image Shift X: {0}", Marker.ShiftX);
 								logger.Debug("Image Shift Y: {0}", Marker.ShiftY);
 								break;
@@ -90,75 +92,59 @@ namespace earchive
 				{
 					CurRule = Doc.Template.NumberRule;
 
-					CurRule.Box.SetShiftByMarker(Marker);
-					logger.Debug("Number Shift X: {0}", CurRule.Box.ShiftX);
-					logger.Debug("Number Shift Y: {0}", CurRule.Box.ShiftY);
-					WorkZone = CurRule.Box.Clone();
-					//FIXME С этим пока работает лучше
-					WorkZone.RelativePosX += WorkZone.RelativeWidth * 0.2;
-					WorkZone.RelativePosY += WorkZone.RelativeHeigth * 0.2;
-					WorkZone.RelativeWidth *= 0.6;
-					WorkZone.RelativeHeigth *= 0.6;
-					
-					Doc.DocNumberConfidence = 0;
-					for (int i = 1; i <= 5; i++)
+					if(CurRule.Box != null)
 					{
-						PixBox = new Pixbuf(WorkImage, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
-						using (var img = RecognizeHelper.PixbufToPix(PixBox))
-						{
-							using (var page = engine.Process(img, PageSegMode.SingleLine))
-							{
-	
-								string FieldText = page.GetText().Trim();
-								if (page.GetMeanConfidence() > Doc.DocNumberConfidence)
-								{
-									Doc.DocNumber = FieldText;
-									Doc.DocNumberConfidence = page.GetMeanConfidence();
-									logger.Debug("Try: {0}", i);
-									logger.Debug("Found Field Value: {0}", FieldText);
-									logger.Debug("Recognize confidence: {0}", page.GetMeanConfidence());
-									if(CurRule.NextAfterTextMarker)
-										logger.Debug("By after market detection: {0}", CurRule.AfterTextMarkerValue);
-									if (FieldText == "")
-										ShowImage(PixBox, "Номер пустой. Зона номера документа.");
-									else
-										ShowImage(PixBox, "Зона номера документа.");
-								}
-								if (Doc.DocNumber == CurRule.AfterTextMarkerValue)
-								{
-									Doc.DocNumberConfidence = 1;
-									break;
-								}
-								if(CurRule.Validate == ValidationTypes.IsNumber)
-								{
-									int tempInt;
-									bool AfterIsNumber = int.TryParse (CurRule.AfterTextMarkerValue, out tempInt);
-									bool BoxIsNumber = int.TryParse (Doc.DocNumber, out tempInt);
-									if(BoxIsNumber)
-									{
-										break;
+						CurRule.Box.SetShiftByMarker(Marker);
+						logger.Debug("Number Shift X: {0}", CurRule.Box.ShiftX);
+						logger.Debug("Number Shift Y: {0}", CurRule.Box.ShiftY);
+						WorkZone = CurRule.Box.Clone();
+						//FIXME С этим пока работает лучше
+						WorkZone.RelativePosX += WorkZone.RelativeWidth * 0.2;
+						WorkZone.RelativePosY += WorkZone.RelativeHeigth * 0.2;
+						WorkZone.RelativeWidth *= 0.6;
+						WorkZone.RelativeHeigth *= 0.6;
+						
+						Doc.DocNumberConfidence = 0;
+						for (int i = 1; i <= 5; i++) {
+							PixBox = new Pixbuf (WorkImage, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
+							using (var img = RecognizeHelper.PixbufToPix (PixBox)) {
+								using (var page = engine.Process (img, PageSegMode.SingleLine)) {
+
+									string FieldText = page.GetText ().Trim ();
+									if (page.GetMeanConfidence () > Doc.DocNumberConfidence) {
+										Doc.DocNumber = FieldText;
+										Doc.DocNumberConfidence = page.GetMeanConfidence ();
+										logger.Debug ("Try: {0}", i);
+										logger.Debug ("Found Field Value: {0}", FieldText);
+										logger.Debug ("Recognize confidence: {0}", page.GetMeanConfidence ());
+										if (FieldText == "")
+											ShowImage (PixBox, "Номер пустой. Зона номера документа.");
+										else
+											ShowImage (PixBox, "Зона номера документа.");
 									}
-									else if (AfterIsNumber)
-									{
-										Doc.DocNumber = CurRule.AfterTextMarkerValue;
-										//Doc.DocNumberConfidence = ;
-										break;
-									} 
-									else
-									{
-										Doc.DocNumberConfidence = 0;
+									if (CurRule.Validate == ValidationTypes.IsNumber) {
+										int tempInt;
+										bool BoxIsNumber = int.TryParse (Doc.DocNumber, out tempInt);
+										if (BoxIsNumber) {
+											break;
+										} else {
+											Doc.DocNumberConfidence = 0;
+										}
 									}
-								}
-								if (Doc.DocNumberConfidence > 0.8)
-								{
-									break;
-								}
-								else
-								{//Увеличиваем размер зоны поиска.
-									ExpandRelativeZone(WorkZone);
+									if (Doc.DocNumberConfidence > 0.8) {
+										break;
+									} else {//Увеличиваем размер зоны поиска.
+										ExpandRelativeZone (WorkZone);
+									}
 								}
 							}
 						}
+					}
+					else if (CurRule.NextAfterTextMarker)
+					{
+						logger.Debug ("By after market detection: {0}", CurRule.AfterTextMarkerValue);
+						Doc.DocNumber = CurRule.AfterTextMarkerValue;
+						Doc.DocNumberConfidence = CurRule.AfterTextMarkerConfidence;
 					}
 				}
 
@@ -166,39 +152,45 @@ namespace earchive
 				if(Doc.Template.DateRule != null)
 				{
 					CurRule = Doc.Template.DateRule;
+					if (CurRule.Box != null) {
+						CurRule.Box.SetShiftByMarker (Marker);
 
-					CurRule.Box.SetShiftByMarker(Marker);
+						PixBox = new Pixbuf (WorkImage, CurRule.Box.PosX, CurRule.Box.PosY, CurRule.Box.Width, CurRule.Box.Heigth);
+						using (var img = RecognizeHelper.PixbufToPix (PixBox)) {
+							using (var page = engine.Process (img, PageSegMode.SingleLine)) {
 
-					PixBox = new Pixbuf(WorkImage, CurRule.Box.PosX, CurRule.Box.PosY, CurRule.Box.Width, CurRule.Box.Heigth);
-					using (var img = RecognizeHelper.PixbufToPix(PixBox)) {
-						using (var page = engine.Process(img, PageSegMode.SingleLine)) {
+								string FieldText = page.GetText ().Trim ();
+								DateTime TempDate;
+								string [] words = FieldText.Split (new char [] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+								string Date = "";
+								foreach (string word in words) {
+									if (DateTime.TryParse (word, out TempDate))
+										Date = word;
+								}
 
-							string FieldText = page.GetText().Trim();
-							DateTime TempDate;
-							string[] words = FieldText.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-							string Date = "";
-							foreach(string word in words)
-							{
-								if(DateTime.TryParse(word, out TempDate))
-								   Date = word;
+								if (DateTime.TryParse (Date, out TempDate)) {
+									Doc.DocDate = TempDate;
+									Doc.DocDateConfidence = page.GetMeanConfidence ();
+								} else {
+									Doc.DocDateConfidence = -2;
+								}
+								logger.Debug ("Found Field Value: {0}", FieldText);
+								logger.Debug ("Split date Value: {0}", Date);
+								logger.Debug ("Recognize confidence: {0}", page.GetMeanConfidence ());
+								if (FieldText == "")
+									ShowImage (PixBox, "Дата пустая. Зона даты документа.");
+								else
+									ShowImage (PixBox, "Зона даты документа.");
 							}
-
-							if(DateTime.TryParse(Date, out TempDate))
-							{
-								Doc.DocDate = TempDate;
-								Doc.DocDateConfidence = page.GetMeanConfidence();
-							}
-							else
-							{
-								Doc.DocDateConfidence = -2;
-							}
-							logger.Debug("Found Field Value: {0}", FieldText);
-							logger.Debug("Split date Value: {0}", Date);
-							logger.Debug("Recognize confidence: {0}", page.GetMeanConfidence());
-							if(FieldText == "")
-								ShowImage(PixBox, "Дата пустая. Зона даты документа.");
-							else
-								ShowImage(PixBox, "Зона даты документа.");
+						}
+					}
+					else
+					{
+						logger.Debug ("By after market detection: {0}", CurRule.AfterTextMarkerValue);
+						if(DateTime.TryParse(CurRule.AfterTextMarkerValue, out Doc.DocDate))
+						{
+							logger.Debug ("Date parsed:{0}", Doc.DocDate);
+							Doc.DocDateConfidence = CurRule.AfterTextMarkerConfidence;
 						}
 					}
 				}
@@ -374,9 +366,30 @@ namespace earchive
 					AngleRad = Math.Atan2(Box.Y2 - Box.Y1, Box.X2 - Box.X1); //угл наклона базовой линии.
 					double AngleGrad = AngleRad * (180/Math.PI);
 					logger.Debug("Angle rad:{0} grad:{1}", AngleRad, AngleGrad);
-				}
 
-			} while( LineIter.Next(PageIteratorLevel.TextLine));
+					//Получаем уровень распознования полей в маркере.
+					int iterAlreadyShifted = CurrentWordNumber - CurrentAfterWord;
+					bool stopIteration = false;
+					foreach (RecognazeRule rule in AfterMarkerRules.Where(x => x.NextAfterTextMarker).OrderBy(x => x.ShiftWordsCount)) 
+					{
+						while(iterAlreadyShifted < rule.ShiftWordsCount)
+						{
+							if(LineIter.IsAtFinalOf (PageIteratorLevel.TextLine, PageIteratorLevel.Word))
+							{
+								stopIteration = true;
+								break;
+							}
+							LineIter.Next (PageIteratorLevel.Word);
+							iterAlreadyShifted++;
+						}
+						if (stopIteration)
+							break;
+						rule.AfterTextMarkerConfidence = LineIter.GetConfidence (PageIteratorLevel.Word);
+						logger.Debug ("Cлово {0} со сдвигом {1} имеет точность {2}.", LineIter.GetText (PageIteratorLevel.Word), rule.ShiftWordsCount, rule.AfterTextMarkerConfidence);
+					}
+				}
+			} 
+			while( LineIter.Next(PageIteratorLevel.TextLine));
 			LineIter.Dispose();
 			return BestDistance;
 		}
