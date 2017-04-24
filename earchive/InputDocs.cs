@@ -72,17 +72,25 @@ namespace earchive
 			//Настраиваем сканирование
 			logger.Debug("Initialaze scan");
 			//scan = new ScanAuxWorks();
-			scan = new ScanWorks();
+			try 
+			{
+				scan = new ScanWorks ();
 
-			scan.Pulse += OnScanWorksPulse;
-			scan.ImageTransfer += OnScanWorksImageTransfer;
+				scan.Pulse += OnScanWorksPulse;
+				scan.ImageTransfer += OnScanWorksImageTransfer;
 
-			var scanners = scan.GetScannerList ();
-			if (scanners.Length > 0) {
-				comboScaner.ItemsList = scanners;
-				comboScaner.Active = scan.CurrentScanner;
-			} else
+				var scanners = scan.GetScannerList ();
+				if (scanners.Length > 0) {
+					comboScaner.ItemsList = scanners;
+					comboScaner.Active = scan.CurrentScanner;
+				} else
+					comboScaner.Sensitive = ScanAction.Sensitive = false;
+			}
+			catch(Exception ex)
+			{
+				logger.Error (ex, "Не удалось инициализировать подсистему сканирования.");
 				comboScaner.Sensitive = ScanAction.Sensitive = false;
+			}
 		}
 
 		protected void OnOpenActionActivated (object sender, EventArgs e)
