@@ -949,6 +949,7 @@ namespace earchive
 			logger.Info("Выполнено");
 			progresswork.Text = "Выполнено";
 			progresswork.Fraction = 0;
+			CurrentDoc = (Document)ImageList.GetValue (CurrentDocIter, 3);
 			UpdateFieldsWidgets(true);
 		}
 
