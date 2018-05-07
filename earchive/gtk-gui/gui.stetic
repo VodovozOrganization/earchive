@@ -5,13 +5,14 @@
     <target-gtk-version>2.12</target-gtk-version>
   </configuration>
   <import>
+    <widget-library name="../../../GammaBinding/GammaBinding/bin/Debug/GammaBinding.dll" />
     <widget-library name="../../../QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
     <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../../../QSProjects/QSScan/bin/Debug/QSScan.dll" />
     <widget-library name="../../../QSProjects/QSSupportLib/bin/Debug/QSSupportLib.dll" />
-    <widget-library name="../bin/Debug/earchive.exe" internal="true" />
     <widget-library name="../../../QSProjects/QSUpdater/bin/Debug/QSUpdater.dll" />
     <widget-library name="../../../GammaBinding/GammaBinding/bin/Debug/GammaBinding.dll" />
+    <widget-library name="../bin/Debug/earchive.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="rotate-90">
