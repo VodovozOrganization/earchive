@@ -21,6 +21,7 @@ namespace earchive
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		public int TypeId {get; private set;}
+		public string Name { get; private set; }
 		public string TypeName {get; private set;}
 		public string DBTableName{get; private set;}
 		public bool DBTableExsist{get; private set;}
@@ -35,6 +36,57 @@ namespace earchive
 			GetDocInformation ();
 			if(DBTableExsist)
 				GetFieldsInformation ();
+		}
+
+		public DocumentInformation (string typeName)
+		{
+			TypeName = typeName;
+			GetDocumentInformationByTypeName ();
+			if (DBTableExsist)
+				GetFieldsInformation ();
+		}
+
+		public void GetDocumentInformationByTypeName()
+		{
+			QSMain.CheckConnectionAlive();
+			logger.Info("Запрос типа документа " + TypeName + "...");
+			string sql = "SELECT doc_types.* FROM doc_types " +
+				"WHERE doc_types.type_name = @type_name LIMIT 1";
+			MySqlDataReader rdr = null;
+			try {
+				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
+				cmd.Parameters.AddWithValue("@type_name", TypeName);
+				rdr = cmd.ExecuteReader();
+
+				if (!rdr.Read())
+					return;
+				
+				TypeId = rdr.GetInt32("id");
+
+				Name = rdr["name"].ToString();
+				if (rdr["table_name"] == DBNull.Value)
+					DBTableExsist = false;
+				else {
+					DBTableName = rdr["table_name"].ToString ();
+					DBTableExsist = true;
+				}
+
+				if (rdr["description"] != DBNull.Value)
+					Description = rdr.GetString("description");
+
+				if (rdr["template"] != DBNull.Value) {
+					string str = rdr.GetString("template");
+					Template = RecognizeTemplate.Load(str);
+				}
+
+				rdr.Close();
+				logger.Info ("Ok");
+			} catch(Exception ex) {
+				logger.Warn(ex, "Ошибка получения информации о типе документа!");
+			}
+			finally{
+				rdr?.Close();
+			}
 		}
 
 		private void GetDocInformation()
@@ -52,7 +104,7 @@ namespace earchive
 				if(!rdr.Read())
 					return;
 				
-				TypeName = rdr["name"].ToString ();
+				Name = rdr["name"].ToString ();
 				if(rdr["table_name"] == DBNull.Value)
 					DBTableExsist = false;
 				else
@@ -60,6 +112,8 @@ namespace earchive
 					DBTableName = rdr["table_name"].ToString ();
 					DBTableExsist = true;
 				}
+
+				TypeName = rdr ["type_name"].ToString();
 
 				if(rdr["description"] != DBNull.Value)
 					Description = rdr.GetString ("description");
@@ -125,20 +179,28 @@ namespace earchive
 		public DateTime DocDate;
 		public float DocDateConfidence;
 
+		public Document (string typeName) : base (typeName)
+		{
+			Init();
+		}
+
 		public Document (int TypeId) : base(TypeId)
 		{
-			FieldValues = new Dictionary<int, object>();
-			FieldConfidence = new Dictionary<int, float>();
+			Init();
+		}
+
+		private void Init()
+		{
+			FieldValues = new Dictionary<int, object> ();
+			FieldConfidence = new Dictionary<int, float> ();
 			DocNumber = "";
 			DocNumberConfidence = -1;
 			DocDateConfidence = -1;
-			if(DBTableExsist)
-			{
+			if (DBTableExsist) {
 				//FIXME Возможно в этом случае объекты выше не надо создавать
-				foreach (DocFieldInfo Field in FieldsList)
-				{
+				foreach (DocFieldInfo Field in FieldsList) {
 					FieldValues.Add (Field.ID, null);
-					FieldConfidence.Add(Field.ID, -1);
+					FieldConfidence.Add (Field.ID, -1);
 				}
 			}
 		}
@@ -172,6 +234,10 @@ namespace earchive
 					temp = DocState.New;
 				else 
 					temp = DocState.Bad;
+
+				if (TypeId < 0) {
+					temp = DocState.Bad;
+				}
 				return temp;
 			}
 		}

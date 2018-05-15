@@ -484,7 +484,7 @@ namespace earchive
 			{
 				Document doc = new Document(Typeid);
 				ImageList.SetValue(iter, 3, doc);
-				ImageList.SetValue(iter, 7, doc.TypeName);
+				ImageList.SetValue(iter, 7, doc.Name);
 				CurrentDoc = doc;
 				UpdateFieldsWidgets(true);
 			}
@@ -509,7 +509,7 @@ namespace earchive
 					{
 						Document doc = new Document(Typeid);
 						ImageList.SetValue(iter, 3, doc);
-						ImageList.SetValue(iter, 7, doc.TypeName);
+						ImageList.SetValue(iter, 7, doc.Name);
 					}
 				}while(ImageList.IterNext(ref iter));
 			}
@@ -628,7 +628,7 @@ namespace earchive
 				int Type = (int)comboType.Model.GetValue(iter, 1);
 				Document doc = new Document(Type);
 				ImageList.SetValue(CurrentDocIter, 3, doc);
-				ImageList.SetValue(CurrentDocIter, 7, doc.TypeName);
+				ImageList.SetValue(CurrentDocIter, 7, doc.Name);
 				CurrentDoc = doc;
 				UpdateFieldsWidgets(false);
 			}
@@ -727,7 +727,7 @@ namespace earchive
 						Document TempDoc = (Document)model.GetValue(iter2, 3);
 						if(TempDoc != null && TempDoc.DocNumber == number && TempDoc.TypeId == type_id)
 						{
-							conflicts += String.Format("{0} {1} от {2:d} загружен {3}\n", TempDoc.TypeName, number, rdr["date"], rdr["create_date"]);
+							conflicts += String.Format("{0} {1} от {2:d} загружен {3}\n", TempDoc.Name, number, rdr["date"], rdr["create_date"]);
 							return true;
 						}
 						return false;
@@ -904,43 +904,51 @@ namespace earchive
 				if(ImageList.IterDepth(iter) == 0)
 				{
 					logger.Info((string) ImageList.GetValue(iter, 1));
-					Document doc = (Document) ImageList.GetValue(iter, 3);
-					if(doc == null)
-					{
-						logger.Warn("Тип не определён. Переходим к следующему...");
-						continue;
-					}
-					if(doc.Template == null)
-					{
-						logger.Warn("Шаблон распознования не указан. Переходим к следующему...");
-						continue;
-					}
-					int ImagesCount = ImageList.IterNChildren(iter);
-					Pixbuf[] Images = new Pixbuf[ImagesCount];
+					//Получаем список изображений документа
+					int ImagesCount = ImageList.IterNChildren (iter);
+					Pixbuf[] Images = new Pixbuf [ImagesCount];
 					int i = 0;
-					ImageList.IterChildren(out imageiter, iter);
-					do
-					{
-						Images[i] = (Pixbuf) ImageList.GetValue(imageiter, 5);
+					ImageList.IterChildren (out imageiter, iter);
+					do {
+						Images [i] = (Pixbuf)ImageList.GetValue (imageiter, 5);
 						i++;
-					}while(ImageList.IterNext(ref imageiter));
-					logger.Info("Тип: {0}", doc.TypeName);
-					logger.Info("Количество страниц: {0}", ImagesCount);
-					logger.Info("Инициализация движка...");
-					RecognizeDoc tess = new RecognizeDoc(doc, Images);
-					tess.DiagnosticMode = checkDiagnostic.Active;
-					//FIXME Для теста
-					tess.parent = this;
-					try
-					{
-						tess.Recognize();
+					} while (ImageList.IterNext (ref imageiter));
+
+					Document doc = (Document)ImageList.GetValue (iter, 3);
+
+					//Распознание QR кода с распознаванием типа документа
+					var qrResult = QRCodeRecognizer.TryParse(Images, ref doc);
+
+					//Если QR кода нет или не распознан попытка распознать другими способами
+					if (!qrResult) {
+						logger.Warn ("QR код не распознан или не указан в документе. Пытаемся распознать другими способами...");
+						if (doc == null) {
+							logger.Warn ("Тип не определён. Переходим к следующему...");
+							continue;
+						}
+						if (doc.Template == null) {
+							logger.Warn ("Шаблон распознования не указан. Переходим к следующему...");
+							continue;
+						}
+
+						logger.Info ("Тип: {0}", doc.Name);
+						logger.Info ("Количество страниц: {0}", ImagesCount);
+						logger.Info ("Инициализация движка...");
+						RecognizeDoc tess = new RecognizeDoc (doc, Images);
+						tess.DiagnosticMode = checkDiagnostic.Active;
+						//FIXME Для теста
+						tess.parent = this;
+						try {
+							tess.Recognize ();
+						} catch (Exception ex) {
+							QSMain.ErrorMessageWithLog (this, "Ошибка в модуле распознования!", logger, ex);
+							ShowLog ();
+						}
+					}else {
+						ImageList.SetValue (iter, 7, doc.Name);
+						ImageList.SetValue (iter, 3, doc);
 					}
-					catch (Exception ex)
-					{
-						QSMain.ErrorMessageWithLog (this, "Ошибка в модуле распознования!", logger, ex);
-						ShowLog();
-					}
-					ImageList.SetValue(iter, 8, GetDocIconByState(doc.State));
+					ImageList.SetValue (iter, 8, GetDocIconByState (doc.State));
 				}
 				progresswork.Adjustment.Value++;
 				MainClass.WaitRedraw();

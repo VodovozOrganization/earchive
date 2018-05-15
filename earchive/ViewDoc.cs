@@ -59,8 +59,8 @@ namespace earchive
 				rdr.Close();
 
 				DocInfo = new DocumentInformation(DocType);
-				this.Title = DocInfo.TypeName + " №" + entryNumber.Text + " от " + dateDoc.DateText;
-				labelType.LabelProp = DocInfo.TypeName;
+				this.Title = DocInfo.Name + " №" + entryNumber.Text + " от " + dateDoc.DateText;
+				labelType.LabelProp = DocInfo.Name;
 
 				//Дополнительные поля
 				if(DocInfo.CountExtraFields > 0)
@@ -185,7 +185,7 @@ namespace earchive
 				                      "Отмена",ResponseType.Cancel,
 				                      "Сохранить",ResponseType.Accept);
 			//FileFilter filter = new FileFilter();
-			fc.CurrentName = DocInfo.TypeName + " " + entryNumber.Text + ".jpg";
+			fc.CurrentName = DocInfo.Name + " " + entryNumber.Text + ".jpg";
 			fc.Show(); 
 			if(fc.Run() == (int) ResponseType.Accept)
 			{
@@ -291,7 +291,7 @@ namespace earchive
 				                      FileChooserAction.Save,
 				                      "Отмена",ResponseType.Cancel,
 				                      "Сохранить",ResponseType.Accept);
-			fc.CurrentName = DocInfo.TypeName + " " + entryNumber.Text + ".pdf";
+			fc.CurrentName = DocInfo.Name + " " + entryNumber.Text + ".pdf";
 			fc.Show(); 
 			if(fc.Run() == (int) ResponseType.Accept)
 			{
