@@ -23,7 +23,11 @@ namespace earchive
 				Bitmap bitmap = TypeDescriptor.GetConverter(typeof(Bitmap)).ConvertFrom(imgBuffer) as Bitmap;
                 BitmapLuminanceSource source = new BitmapLuminanceSource(bitmap);				
 				BinaryBitmap bb = new BinaryBitmap(new HybridBinarizer(source));
-                string result = qrCodeReader.decode(bb).Text;
+				var qrResult = qrCodeReader.decode(bb);
+				if (qrResult == null) {
+					return false;
+				}
+				string result = qrResult.Text;
                 var parameters = result.Split(';');
                 if(parameters.Count() != 3) {
                     continue;
