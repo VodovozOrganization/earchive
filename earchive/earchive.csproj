@@ -14,6 +14,7 @@
     <ReleaseVersion>0.8</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
     <UseMSBuildEngine>False</UseMSBuildEngine>
+	<TargetOS>Linux</TargetOS>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,6 +35,15 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseWin|x86' ">
+    <Optimize>false</Optimize>
+    <OutputPath>bin\ReleaseWin</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Configuration.Contains('Win'))">
+    <TargetOS>Win</TargetOS>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -185,5 +195,8 @@
     <None Include="x86\liblept172.dll" />
     <None Include="x64\libtesseract304.dll" />
     <None Include="x64\liblept172.dll" />
+    <None Condition=" '$(TargetOS)' == 'Win' " Include="../lib/OnlyWin/Mono.Posix.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
