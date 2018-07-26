@@ -1,6 +1,6 @@
 Unicode true
 ;--------------------------------
-!define PRODUCT_VERSION "0.8.12"
+!define PRODUCT_VERSION "0.8.13"
 !define MIN_NET_MAJOR "4"
 !define MIN_NET_MINOR "0"
 !define MIN_NET_BUILD "*"
