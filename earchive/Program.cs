@@ -9,6 +9,7 @@ namespace earchive
 	{
 		public static MainWindow MainWin;
 
+		[STAThread]
 		public static void Main (string[] args)
 		{
 			Application.Init ();
