@@ -17,13 +17,8 @@ namespace earchive
         public static bool TryParse(Pixbuf[] images, ref Document doc)
         {
             QRCodeReader qrCodeReader = new QRCodeReader ();
-
 			foreach(var image in images) {
-				var imgBuffer = image.SaveToBuffer("jpeg");
-				Bitmap bitmap = TypeDescriptor.GetConverter(typeof(Bitmap)).ConvertFrom(imgBuffer) as Bitmap;
-                BitmapLuminanceSource source = new BitmapLuminanceSource(bitmap);				
-				BinaryBitmap bb = new BinaryBitmap(new HybridBinarizer(source));
-				var qrResult = qrCodeReader.decode(bb);
+				var qrResult = QRScanner.ReadQRCode(image);
 				if (qrResult == null) {
 					return false;
 				}

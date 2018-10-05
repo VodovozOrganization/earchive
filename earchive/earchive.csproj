@@ -118,6 +118,7 @@
     <Compile Include="Recognaze\Template\RelationalRectangle.cs" />
     <Compile Include="Recognaze\Template\BarCodeRule.cs" />
     <Compile Include="Recognaze\QRCodeRecognizer.cs" />
+    <Compile Include="Recognaze\QRScanner.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
