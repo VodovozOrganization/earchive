@@ -5,13 +5,13 @@
     <target-gtk-version>2.12</target-gtk-version>
   </configuration>
   <import>
-    <widget-library name="../../../QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
-    <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
-    <widget-library name="../../../QSProjects/QSScan/bin/Debug/QSScan.dll" />
-    <widget-library name="../../../QSProjects/QSSupportLib/bin/Debug/QSSupportLib.dll" />
-    <widget-library name="../../../QSProjects/QSUpdater/bin/Debug/QSUpdater.dll" />
-    <widget-library name="../../../GammaBinding/GammaBinding/bin/Debug/GammaBinding.dll" />
-    <widget-library name="../bin/Debug/earchive.exe" internal="true" />
+    <widget-library name="../../../QSProjects/QSWidgetLib/bin/Release/QSWidgetLib.dll" />
+    <widget-library name="../../../QSProjects/QSScan/bin/Release/QSScan.dll" />
+    <widget-library name="../../../QSProjects/QSSupportLib/bin/Release/QSSupportLib.dll" />
+    <widget-library name="../../../QSProjects/QSUpdater/bin/Release/QSUpdater.dll" />
+    <widget-library name="../../../GammaBinding/GammaBinding/bin/Release/GammaBinding.dll" />
+    <widget-library name="../bin/ReleaseWin/earchive.exe" internal="true" />
+    <widget-library name="../../../QSProjects/QSProjectsLib/bin/Release/QSProjectsLib.dll" />
   </import>
   <icon-factory>
     <icon-set id="rotate-90">

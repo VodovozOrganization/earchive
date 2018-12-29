@@ -75,7 +75,7 @@ namespace earchive
 			try 
 			{
 				scan = new ScanWorks ();
-
+				scan.ScanerSetup = ScanerSetup.Native;
 				scan.Pulse += OnScanWorksPulse;
 				scan.ImageTransfer += OnScanWorksImageTransfer;
 
