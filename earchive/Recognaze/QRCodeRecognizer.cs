@@ -1,19 +1,13 @@
 ﻿using System;
-using ZXing.QrCode;
-using Gdk;
-using ZXing;
-using ZXing.Common;
-using System.ComponentModel;
-using System.Drawing;
 using System.Globalization;
-using System.Collections.Generic;
 using System.Linq;
+using Gdk;
+using ZXing.QrCode;
 
 namespace earchive
 {
-    public static class QRCodeRecognizer
+	public static class QRCodeRecognizer
 	{
-
         public static bool TryParse(Pixbuf[] images, ref Document doc)
         {
             QRCodeReader qrCodeReader = new QRCodeReader ();
@@ -51,7 +45,6 @@ namespace earchive
                 doc.DocDateConfidence = 1;
                 return true;
 			}
-
             return false;
 		}
 	}

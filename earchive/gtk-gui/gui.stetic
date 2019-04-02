@@ -5,13 +5,14 @@
     <target-gtk-version>2.12</target-gtk-version>
   </configuration>
   <import>
-    <widget-library name="../../../QSProjects/QSWidgetLib/bin/Release/QSWidgetLib.dll" />
-    <widget-library name="../../../QSProjects/QSScan/bin/Release/QSScan.dll" />
-    <widget-library name="../../../QSProjects/QSSupportLib/bin/Release/QSSupportLib.dll" />
-    <widget-library name="../../../QSProjects/QSUpdater/bin/Release/QSUpdater.dll" />
-    <widget-library name="../../../GammaBinding/GammaBinding/bin/Release/GammaBinding.dll" />
-    <widget-library name="../bin/ReleaseWin/earchive.exe" internal="true" />
-    <widget-library name="../../../QSProjects/QSProjectsLib/bin/Release/QSProjectsLib.dll" />
+    <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
+    <widget-library name="../../../QSProjects/QSScan/bin/Debug/QSScan.dll" />
+    <widget-library name="../../../QSProjects/QSSupportLib/bin/Debug/QSSupportLib.dll" />
+    <widget-library name="../../../GammaBinding/GammaBinding/bin/Debug/GammaBinding.dll" />
+    <widget-library name="../../../QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
+    <widget-library name="../../../QSProjects/QS.Updater/bin/Debug/QS.Updater.dll" />
+    <widget-library name="../../../QSProjects/QS.Updater.Gtk/bin/Debug/QSUpdater.dll" />
+    <widget-library name="../bin/Debug/earchive.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="rotate-90">
@@ -304,6 +305,7 @@
                 <property name="ShowCurMonth">False</property>
                 <property name="ShowCurQuarter">False</property>
                 <property name="ShowCurYear">False</property>
+                <property name="WithTime">False</property>
                 <signal name="DatesChanged" handler="OnSelectperiodDocsDatesChanged" />
               </widget>
               <packing>
@@ -526,7 +528,7 @@
         <child>
           <widget class="Gtk.Table" id="table1">
             <property name="MemberName" />
-            <property name="NRows">4</property>
+            <property name="NRows">5</property>
             <property name="NColumns">3</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
@@ -563,6 +565,28 @@
               <packing>
                 <property name="TopAttach">1</property>
                 <property name="BottomAttach">2</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">True</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Entry" id="entryType">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="IsEditable">True</property>
+                <property name="InvisibleChar">●</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
@@ -635,7 +659,7 @@
                 </child>
               </widget>
               <packing>
-                <property name="BottomAttach">3</property>
+                <property name="BottomAttach">4</property>
                 <property name="LeftAttach">2</property>
                 <property name="RightAttach">3</property>
                 <property name="AutoSize">True</property>
@@ -664,8 +688,8 @@
                 </child>
               </widget>
               <packing>
-                <property name="TopAttach">3</property>
-                <property name="BottomAttach">4</property>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">3</property>
                 <property name="AutoSize">True</property>
@@ -711,8 +735,8 @@
                 </child>
               </widget>
               <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
@@ -772,8 +796,8 @@
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -794,9 +818,29 @@
                 <property name="MnemonicWidget">(None)</property>
               </widget>
               <packing>
-                <property name="TopAttach">3</property>
-                <property name="BottomAttach">4</property>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
                 <property name="AutoSize">False</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label7">
+                <property name="MemberName" />
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">Идентификатор типа:</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
+                <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>

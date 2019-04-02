@@ -96,12 +96,17 @@ namespace earchive
 		protected void OnOpenActionActivated (object sender, EventArgs e)
 		{
 			TreeIter iter;
-			FileChooserDialog Chooser = new FileChooserDialog("Выберите изображения для загрузки...", 
-			                                              this,
-			                                              FileChooserAction.Open,
-			                                              "Отмена", ResponseType.Cancel,
-			                                              "Открыть", ResponseType.Accept );
-			Chooser.SelectMultiple = true;
+			FileChooserDialog Chooser = new FileChooserDialog(
+											"Выберите изображения для загрузки...",
+											this,
+											FileChooserAction.Open,
+											"Отмена",
+											ResponseType.Cancel,
+											"Открыть",
+											ResponseType.Accept
+										) {
+											SelectMultiple = true
+										};
 
 			FileFilter Filter = new FileFilter();
 			Filter.AddPixbufFormats ();

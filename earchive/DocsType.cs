@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Gtk;
 using MySql.Data.MySqlClient;
@@ -71,8 +70,10 @@ namespace earchive
 				
 				TypeId = rdr.GetInt32 ("id");
 				entryID.Text = rdr["id"].ToString();
-				entryName.Text = rdr["name"].ToString ();
-				if(rdr["table_name"] == DBNull.Value)
+				entryName.Text = rdr["name"].ToString();
+				if (rdr["type_name"] != DBNull.Value)
+					entryType.Text = rdr["type_name"].ToString();
+				if (rdr["table_name"] == DBNull.Value)
 					ExtraTableCreated = false;
 				else
 				{
@@ -197,19 +198,23 @@ namespace earchive
 				}
 				// Работаем с шаблоном
 				if(NewDocsType)
-					sql = "INSERT INTO doc_types(name, table_name, template, description)" +
-						"VALUES (@name, @table_name, @template, @description)";
+					sql = "INSERT INTO doc_types(name, type_name, table_name, template, description)" +
+						"VALUES (@name, @type_name, @table_name, @template, @description)";
 				else
-					sql = "UPDATE doc_types SET name = @name, table_name = @table_name, template = @template, description = @description " +
+					sql = "UPDATE doc_types SET name = @name, type_name = @type_name, table_name = @table_name, template = @template, description = @description " +
 						"WHERE id = @id";
 				cmd = new MySqlCommand(sql, QSMain.connectionDB, trans);
 				cmd.Parameters.AddWithValue ("@id", TypeId);
 				cmd.Parameters.AddWithValue ("@name", entryName.Text);
-				if(entryDBTable.Text != "")
-					cmd.Parameters.AddWithValue ("@table_name", entryDBTable.Text);
-				else 
-					cmd.Parameters.AddWithValue ("@table_name", DBNull.Value);
-				if(textviewDescription.Buffer.Text != "")
+				if (!string.IsNullOrEmpty(entryType.Text))
+					cmd.Parameters.AddWithValue("@type_name", entryType.Text);
+				else
+					cmd.Parameters.AddWithValue("@type_name", DBNull.Value);
+				if (entryDBTable.Text != "")
+					cmd.Parameters.AddWithValue("@table_name", entryDBTable.Text);
+				else
+					cmd.Parameters.AddWithValue("@table_name", DBNull.Value);
+				if (textviewDescription.Buffer.Text != "")
 					cmd.Parameters.AddWithValue ("@description", textviewDescription.Buffer.Text);
 				else 
 					cmd.Parameters.AddWithValue ("@description", DBNull.Value);
@@ -492,6 +497,5 @@ namespace earchive
 			DocTemplate = null;
 			labelTemplateName.LabelProp = "Отсутствует";
 		}
-
 	}
 }

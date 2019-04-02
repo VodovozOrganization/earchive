@@ -73,9 +73,6 @@
     <Reference Include="Google.Protobuf">
       <HintPath>..\packages\Google.Protobuf.3.5.1\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
-    <Reference Include="MySql.Data">
-      <HintPath>..\packages\MySql.Data.8.0.13\lib\net452\MySql.Data.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -99,6 +96,13 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="MySql.Data">
+      <HintPath>..\packages\MySql.Data.8.0.15\lib\net452\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="QS.Utilities">
+      <HintPath>..\..\QSProjects\QS.Utilities\bin\Release\QS.Utilities.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -158,10 +162,6 @@
       <Project>{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}</Project>
       <Name>QSSupportLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSUpdater\QSUpdater.csproj">
-      <Project>{6D755374-6EAF-44B6-8C6C-6FE5E5AB3432}</Project>
-      <Name>QSUpdater</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
       <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
       <Name>GammaBinding</Name>
@@ -169,6 +169,14 @@
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
       <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
       <Name>QSProjectsLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Updater\QS.Updater.csproj">
+      <Project>{0F2A9FD4-6FC1-4912-9C8A-72028305A37E}</Project>
+      <Name>QS.Updater</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Updater.Gtk\QS.Updater.Gtk.csproj">
+      <Project>{6D755374-6EAF-44B6-8C6C-6FE5E5AB3432}</Project>
+      <Name>QS.Updater.Gtk</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
