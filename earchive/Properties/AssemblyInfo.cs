@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using QS.Project.Versioning;
 using QSProjectsLib;
 
 // Information about this assembly is defined by the following attributes. 
@@ -7,7 +8,6 @@ using QSProjectsLib;
 
 [assembly: AssemblyTitle("QS: Электронный архив")]
 [assembly: AssemblyDescription("Программа для ведения электронного архива документов.")]
-[assembly: AssemblyEdition("gpl")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Quality Solution")]
 [assembly: AssemblyProduct("QS: Электронный архив")]
@@ -15,7 +15,7 @@ using QSProjectsLib;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyLogoIcon("earchive.icons.logo.png")]
-[assembly: AssemblySupport("", true, "MySQL, Tesseract, Saraff.Twain, iTextSharp, ZXing.Net")]
+[assembly: AssemblySupport("MySQL, Tesseract, Saraff.Twain, iTextSharp, ZXing.Net")]
 [assembly: AssemblyAppWebsite("http://www.qsolution.ru/")]
 
 [assembly: AssemblyAuthor("Ганьков Андрей <gav@qsolution.ru>")]

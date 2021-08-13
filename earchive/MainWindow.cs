@@ -1,17 +1,22 @@
-using System;
 using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
-using QS.Updater;
+using QS.Project.Versioning;
+using QS.Project.Versioning.Product;
+using QS.Project.ViewModels;
+using QS.Project.Views;
 using QS.Utilities;
 using QSProjectsLib;
 using QSWidgetLib;
+using System;
 
 namespace earchive
 {
-	public partial class MainWindow : Window
+    public partial class MainWindow : Window
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+
+		IApplicationInfo applicationInfo = new ApplicationVersionInfo();
 		ListStore DocsListStore;
 		DocumentInformation CurDocType;
 		int UsedExtraFields;
@@ -22,26 +27,11 @@ namespace earchive
 			Build();
 
 			QSMain.StatusBarLabel = labelStatus;
-			this.Title = QSSupportLib.MainSupport.GetTitle();
+			this.Title = $"{applicationInfo.ProductTitle} v{applicationInfo.Version} от {applicationInfo.BuildDate:dd.MM.yyyy HH:mm}";
 			QSMain.MakeNewStatusTargetForNlog();
-			QSSupportLib.MainSupport.LoadBaseParameters();
-
-			MainUpdater.RunCheckVersion(true, true, true);
 
 			Reference.RunReferenceItemDlg += OnRunReferenceItemDialog;
 			QSMain.ReferenceUpdated += OnReferenceUpdate;
-
-			if (QSMain.User.Login == "root") {
-				string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
-				MessageDialog md = new MessageDialog(this, DialogFlags.DestroyWithParent,
-													  MessageType.Info,
-													  ButtonsType.Ok,
-													  Message);
-				md.Run();
-				md.Destroy();
-				OnUsersActionActivated(null, null);
-				return;
-			}
 
 			UsersAction.Sensitive = QSMain.User.Admin;
 			labelUser.LabelProp = QSMain.User.Name;
@@ -319,8 +309,12 @@ namespace earchive
 		}
 
 		protected void OnAboutActionActivated(object sender, EventArgs e)
-		{
-			QSMain.RunAboutDialog();
+		{			
+			IProductService productService = new ProductService();
+			AboutViewModel aboutViewModel = new AboutViewModel(applicationInfo, productService);
+			AboutView aboutView = new AboutView(aboutViewModel);
+			aboutView.Run();
+			aboutView.Destroy();
 		}
 
 		protected void OnQuitActionActivated(object sender, EventArgs e)
