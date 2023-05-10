@@ -145,13 +145,37 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\..\GammaBinding\Gamma.Utilities\Gamma.Utilities.csproj">
+    <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
+      <Project>{190cea0d-ea23-4c91-8030-203a5afed7b7}</Project>
+      <Name>Gamma.Binding</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj">
       <Project>{1bf2a638-420d-456c-96a7-36873a0fb894}</Project>
       <Name>Gamma.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.BaseParameters\QS.BaseParameters.csproj">
+      <Project>{a869ec36-67d2-4a36-95e9-0b1e7350928f}</Project>
+      <Name>QS.BaseParameters</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.ErrorReporting.Client\QS.ErrorReporting.Client.csproj">
+      <Project>{baba2cb7-6efe-4b1b-9324-74cbcbacf257}</Project>
+      <Name>QS.ErrorReporting.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.ErrorReporting\QS.ErrorReporting.csproj">
+      <Project>{7baff136-4379-4d1d-a554-7dc340caf7a2}</Project>
+      <Name>QS.ErrorReporting</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Abstract\QS.Project.Abstract.csproj">
+      <Project>{e95be5dc-a197-4657-87dc-a2d677eadb76}</Project>
+      <Name>QS.Project.Abstract</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
       <Name>QS.Project.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Project.Desktop\QS.Project.Desktop.csproj">
+      <Project>{5ef2a7da-3886-4809-95df-880bd783a211}</Project>
+      <Name>QS.Project.Desktop</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Project.Gtk\QS.Project.Gtk.csproj">
       <Project>{3c0f3944-cbd5-4bd6-83d4-cf33ad6fc68c}</Project>
@@ -161,9 +185,17 @@
       <Project>{28a78143-42e3-40e7-86f5-dd7e1679be86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Updater.Core\QS.Updater.Core.csproj">
+      <Project>{bc159ba7-ef22-4800-ac34-de4b2b386aae}</Project>
+      <Name>QS.Updater.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj">
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSSaaS\QSSaaS.csproj">
+      <Project>{4b502fe5-d419-4b5c-9276-0a25ef2f508a}</Project>
+      <Name>QSSaaS</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSWidgetLib\QSWidgetLib.csproj">
       <Project>{5A2BB01E-E124-432E-8099-D1343D3897B9}</Project>
@@ -172,10 +204,6 @@
     <ProjectReference Include="..\..\QSProjects\QSScan\QSScan.csproj">
       <Project>{DB2EEB00-FF15-4AF8-887D-E3261C31B173}</Project>
       <Name>QSScan</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
-      <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
-      <Name>GammaBinding</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
       <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
