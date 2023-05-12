@@ -267,9 +267,21 @@ namespace earchive
 			if ((ResponseType)win.Run() == ResponseType.Ok)
 				UpdateDocs();
 			win.Destroy();
-		}
+        }
 
-		protected void OnTreeviewDocsCursorChanged(object sender, EventArgs e)
+        protected void OnButtonOpenAllClicked(object sender, EventArgs e)
+        {
+            treeviewDocs.Selection.GetSelected(out TreeIter iter);
+            int ItemId = (int)DocsListStore.GetValue(iter, 0);
+            ViewDoc win = new ViewDoc();
+            win.Fill(ItemId);
+            win.Show();
+            if ((ResponseType)win.Run() == ResponseType.Ok)
+                UpdateDocs();
+            win.Destroy();
+        }
+
+        protected void OnTreeviewDocsCursorChanged(object sender, EventArgs e)
 		{
 			bool RowSelected = treeviewDocs.Selection.CountSelectedRows() == 1;
 			buttonOpen.Sensitive = RowSelected;
