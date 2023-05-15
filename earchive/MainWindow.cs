@@ -1,6 +1,11 @@
+using Gamma.Binding.Core;
 using Gtk;
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI.Relational;
+using NHibernate.Criterion;
 using NLog;
+using QS.Dialog.Gtk;
+using QS.DomainModel.UoW;
 using QS.Project.Versioning;
 using QS.Project.Versioning.Product;
 using QS.Project.ViewModels;
@@ -9,10 +14,14 @@ using QS.Utilities;
 using QSProjectsLib;
 using QSWidgetLib;
 using System;
+using System.Collections.Generic;
+using System.ServiceModel.Channels;
+using System.Text.RegularExpressions;
+using ZXing.PDF417.Internal;
 
 namespace earchive
 {
-    public partial class MainWindow : Window
+	public partial class MainWindow : Window
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -41,9 +50,21 @@ namespace earchive
 			// Создаем главное окно
 			ComboWorks.ComboFillReference(comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
 			selectperiodDocs.ActiveRadio = SelectPeriod.Period.Week;
-		}
 
-		protected void OnDeleteEvent(object sender, DeleteEventArgs a)
+			//Настройка контролов поиска кодов УПД
+            yentryClient.Completion = new EntryCompletion();
+            yentryClient.Completion.Model = new ListStore(typeof(string));
+            yentryClient.Completion.MinimumKeyLength = 2;
+            yentryClient.Completion.TextColumn = 0;
+            yentryClient.Completion.Complete();
+
+            yentryClient.Completion.MatchSelected += OnCompletionMatchSelected;
+            yentryClient.Completion.MatchFunc = CompletionMatchFunc;
+            yentryClient.Changed += OnYentryClientChanged;
+            yentryClient.FocusInEvent += OnYentryClientFocusInEvent;
+        }
+
+        protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 		{
 			Application.Quit();
 			a.RetVal = true;
@@ -160,15 +181,121 @@ namespace earchive
 		protected void OnComboDocTypeChanged(object sender, EventArgs e)
 		{
 			CurDocType = null;
-			if (comboDocType.GetActiveIter(out TreeIter iter)) {
+			if (comboDocType.GetActiveIter(out TreeIter iter)) 
+			{
 				int CurrentTypeId = (int)comboDocType.Model.GetValue(iter, 1);
 				CurDocType = new DocumentInformation(CurrentTypeId);
+				SetUpdSearchControlsSettings(CurrentTypeId);
 				PrepareDocsTable();
 				UpdateDocs();
 			}
 		}
 
-		void UpdateDocs()
+        #region Поиск УПД
+        private void SetUpdSearchControlsSettings(int currentDocementId)
+        {
+            yentryClient.Text = string.Empty;
+            comboboxentryAddress.Clear();
+            var selectedUpdDocumentType = currentDocementId == 5;
+
+            if (selectedUpdDocumentType)
+			{
+                yentryClient.Visible = true;
+                yentryClient.Sensitive = true;
+
+                comboboxentryAddress.Visible = true;
+                comboboxentryAddress.Sensitive = true;
+
+				return;
+            }
+
+            yentryClient.Visible = false;
+			yentryClient.Sensitive = false;
+
+            comboboxentryAddress.Visible = false;
+            comboboxentryAddress.Sensitive = false;
+        }
+
+		private void CounterpartyEntryFillAutocomplete()
+        {
+            var completionListStore = new ListStore(typeof(string));
+
+			var items = new List<string>();
+
+			if(yentryClient.Text.StartsWith("а"))
+			{
+				items.Add("арбуз");
+				items.Add("ананас");
+				items.Add("апельсин");
+			}
+
+            if (yentryClient.Text.StartsWith("б"))
+            {
+                items.Add("баран");
+                items.Add("барабан");
+                items.Add("букашка");
+            }
+
+            foreach (var item in items)
+            {
+                if (String.IsNullOrWhiteSpace(item))
+                    continue;
+                completionListStore.AppendValues(item);
+            }
+
+            yentryClient.Completion.Model = completionListStore;
+            if (yentryClient.HasFocus)
+            {
+                yentryClient.Completion.Complete();
+            }
+        }
+
+        private void OnYentryClientChanged(object sender, EventArgs e)
+        {
+			CounterpartyEntryFillAutocomplete();
+        }
+
+        private void OnYentryClientFocusInEvent(object o, FocusInEventArgs args)
+        {
+            CounterpartyEntryFillAutocomplete();
+        }
+
+        private bool CompletionMatchFunc(EntryCompletion completion, string key, TreeIter iter)
+        {
+            var value = completion.Model.GetValue(iter, 0).ToString().ToLower();
+			var isMatch = Regex.IsMatch(value, String.Format("\\b{0}.*", Regex.Escape(yentryClient.Text.ToLower())));
+            CompletionFullMatchFunc(completion, key, iter);
+            return isMatch;
+        }
+
+		private bool CompletionFullMatchFunc(EntryCompletion completion, string key, TreeIter iter)
+        {
+            var value = completion.Model.GetValue(iter, 0).ToString().ToLower();
+			bool isMatch = key == value;
+
+			if(isMatch)
+			{
+				GetAllCunterpartyAdresses();
+            }
+
+			return isMatch;
+		}
+
+        [GLib.ConnectBefore]
+        void OnCompletionMatchSelected(object o, MatchSelectedArgs args)
+        {
+            yentryClient.Text = (string)args.Model.GetValue(args.Iter, 0);
+			GetAllCunterpartyAdresses();
+            args.RetVal = true;
+        }
+
+		private void GetAllCunterpartyAdresses()
+		{
+
+		}
+        #endregion
+
+        void UpdateDocs()
 		{
 			if (CurDocType == null)
 				return;
@@ -267,21 +394,21 @@ namespace earchive
 			if ((ResponseType)win.Run() == ResponseType.Ok)
 				UpdateDocs();
 			win.Destroy();
-        }
+		}
 
-        protected void OnButtonOpenAllClicked(object sender, EventArgs e)
-        {
-            treeviewDocs.Selection.GetSelected(out TreeIter iter);
-            int ItemId = (int)DocsListStore.GetValue(iter, 0);
-            ViewDoc win = new ViewDoc();
-            win.Fill(ItemId);
-            win.Show();
-            if ((ResponseType)win.Run() == ResponseType.Ok)
-                UpdateDocs();
-            win.Destroy();
-        }
+		protected void OnButtonOpenAllClicked(object sender, EventArgs e)
+		{
+			treeviewDocs.Selection.GetSelected(out TreeIter iter);
+			int ItemId = (int)DocsListStore.GetValue(iter, 0);
+			ViewDoc win = new ViewDoc();
+			win.Fill(ItemId);
+			win.Show();
+			if ((ResponseType)win.Run() == ResponseType.Ok)
+				UpdateDocs();
+			win.Destroy();
+		}
 
-        protected void OnTreeviewDocsCursorChanged(object sender, EventArgs e)
+		protected void OnTreeviewDocsCursorChanged(object sender, EventArgs e)
 		{
 			bool RowSelected = treeviewDocs.Selection.CountSelectedRows() == 1;
 			buttonOpen.Sensitive = RowSelected;
