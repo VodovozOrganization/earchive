@@ -1,3 +1,4 @@
+using earchive.UpdGrpc;
 using Gamma.Binding.Core;
 using Gtk;
 using MySql.Data.MySqlClient;
@@ -15,6 +16,7 @@ using QSProjectsLib;
 using QSWidgetLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ServiceModel.Channels;
 using System.Text.RegularExpressions;
 using ZXing.PDF417.Internal;
@@ -30,8 +32,10 @@ namespace earchive
 		DocumentInformation CurDocType;
 		int UsedExtraFields;
 		InputDocs InputDocsWin;
+		private EarchiveUpdServiceClient _earchiveUpdServiceClient;
 
-		public MainWindow() : base(WindowType.Toplevel)
+
+        public MainWindow() : base(WindowType.Toplevel)
 		{
 			Build();
 
@@ -62,6 +66,8 @@ namespace earchive
             yentryClient.Completion.MatchFunc = CompletionMatchFunc;
             yentryClient.Changed += OnYentryClientChanged;
             yentryClient.FocusInEvent += OnYentryClientFocusInEvent;
+
+			_earchiveUpdServiceClient = new EarchiveUpdServiceClient();
         }
 
         protected void OnDeleteEvent(object sender, DeleteEventArgs a)
@@ -220,21 +226,26 @@ namespace earchive
         {
             var completionListStore = new ListStore(typeof(string));
 
-			var items = new List<string>();
+            var items = _earchiveUpdServiceClient
+				.GetCounterparties(yentryClient.Text.ToLower())
+				.Select(c => c.Name)
+				.ToList();
 
-			if(yentryClient.Text.StartsWith("а"))
-			{
-				items.Add("арбуз");
-				items.Add("ананас");
-				items.Add("апельсин");
-			}
+            //var items = new List<string>();
 
-            if (yentryClient.Text.StartsWith("б"))
-            {
-                items.Add("баран");
-                items.Add("барабан");
-                items.Add("букашка");
-            }
+            //if(yentryClient.Text.StartsWith("а"))
+            //{
+            //	items.Add("арбуз");
+            //	items.Add("ананас");
+            //	items.Add("апельсин");
+            //}
+
+            //         if (yentryClient.Text.StartsWith("б"))
+            //         {
+            //             items.Add("баран");
+            //             items.Add("барабан");
+            //             items.Add("букашка");
+            //         }
 
             foreach (var item in items)
             {
@@ -257,7 +268,7 @@ namespace earchive
 
         private void OnYentryClientFocusInEvent(object o, FocusInEventArgs args)
         {
-            CounterpartyEntryFillAutocomplete();
+            //CounterpartyEntryFillAutocomplete();
         }
 
         private bool CompletionMatchFunc(EntryCompletion completion, string key, TreeIter iter)
