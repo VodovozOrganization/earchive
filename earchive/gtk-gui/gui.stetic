@@ -175,7 +175,7 @@
                   <placeholder />
                 </child>
                 <child>
-                  <widget class="Gamma.GtkWidgets.yComboBoxEntry" id="comboboxentryAddress">
+                  <widget class="Gamma.GtkWidgets.yComboBox" id="comboboxentryAddress">
                     <property name="MemberName" />
                     <property name="Visible">False</property>
                     <property name="Sensitive">False</property>

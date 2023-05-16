@@ -36,7 +36,7 @@ namespace earchive
 
 		private global::Gtk.Table tableDocsSelectionSettings;
 
-		private global::Gamma.GtkWidgets.yComboBoxEntry comboboxentryAddress;
+		private global::Gamma.GtkWidgets.yComboBox comboboxentryAddress;
 
 		private global::Gtk.ComboBox comboDocType;
 
@@ -151,7 +151,7 @@ namespace earchive
 			this.tableDocsSelectionSettings.RowSpacing = ((uint)(6));
 			this.tableDocsSelectionSettings.ColumnSpacing = ((uint)(6));
 			// Container child tableDocsSelectionSettings.Gtk.Table+TableChild
-			this.comboboxentryAddress = new global::Gamma.GtkWidgets.yComboBoxEntry();
+			this.comboboxentryAddress = new global::Gamma.GtkWidgets.yComboBox();
 			this.comboboxentryAddress.Sensitive = false;
 			this.comboboxentryAddress.Name = "comboboxentryAddress";
 			this.tableDocsSelectionSettings.Add(this.comboboxentryAddress);
