@@ -57,7 +57,9 @@ namespace earchive
 			ComboWorks.ComboFillReference(comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
 			selectperiodDocs.ActiveRadio = SelectPeriod.Period.Week;
 
-			//Настройка контролов поиска кодов УПД
+            //Настройка контролов поиска кодов УПД
+            _earchiveUpdServiceClient = new EarchiveUpdServiceClient();
+
             yentryClient.Completion = new EntryCompletion();
             yentryClient.Completion.Model = new ListStore(typeof(CounterpartyInfo));
             yentryClient.Completion.MinimumKeyLength = 2;
@@ -72,11 +74,7 @@ namespace earchive
             yentryClient.Changed += OnYentryClientChanged;
             yentryClient.FocusInEvent += OnYentryClientFocusInEvent;
 
-
-			_earchiveUpdServiceClient = new EarchiveUpdServiceClient();
             comboboxAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
-			var deliveryPoints = _earchiveUpdServiceClient.GetDeliveryPoints(new CounterpartyInfo { Id = 2, Name = "Мараковский" });
-            comboboxAddress.ItemsList = deliveryPoints;
             comboboxAddress.SelectionNotifyEvent += OnComboboxAddressItemSelected;
         }
 
@@ -211,7 +209,7 @@ namespace earchive
         private void SetUpdSearchControlsSettings(int currentDocementId)
         {
             yentryClient.Text = string.Empty;
-            comboboxAddress.Clear();
+
             var selectedUpdDocumentType = currentDocementId == 5;
 
             if (selectedUpdDocumentType)
