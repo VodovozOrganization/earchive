@@ -74,10 +74,10 @@ namespace earchive
 
 
 			_earchiveUpdServiceClient = new EarchiveUpdServiceClient();
-            comboboxentryAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
+            comboboxAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
 			var deliveryPoints = _earchiveUpdServiceClient.GetDeliveryPoints(new CounterpartyInfo { Id = 2, Name = "Мараковский" });
-            comboboxentryAddress.ItemsList = deliveryPoints;
-			comboboxentryAddress.SelectionNotifyEvent += OnComboboxentryAddressItemSelected;
+            comboboxAddress.ItemsList = deliveryPoints;
+            comboboxAddress.SelectionNotifyEvent += OnComboboxAddressItemSelected;
         }
 
         protected void OnDeleteEvent(object sender, DeleteEventArgs a)
@@ -211,7 +211,7 @@ namespace earchive
         private void SetUpdSearchControlsSettings(int currentDocementId)
         {
             yentryClient.Text = string.Empty;
-            comboboxentryAddress.Clear();
+            comboboxAddress.Clear();
             var selectedUpdDocumentType = currentDocementId == 5;
 
             if (selectedUpdDocumentType)
@@ -219,8 +219,8 @@ namespace earchive
                 yentryClient.Visible = true;
                 yentryClient.Sensitive = true;
 
-                comboboxentryAddress.Visible = true;
-                comboboxentryAddress.Sensitive = true;
+                comboboxAddress.Visible = true;
+                comboboxAddress.Sensitive = true;
 
 				return;
             }
@@ -228,8 +228,8 @@ namespace earchive
             yentryClient.Visible = false;
 			yentryClient.Sensitive = false;
 
-            comboboxentryAddress.Visible = false;
-            comboboxentryAddress.Sensitive = false;
+            comboboxAddress.Visible = false;
+            comboboxAddress.Sensitive = false;
         }
 
 		private void CounterpartyEntryFillAutocomplete()
@@ -317,19 +317,19 @@ namespace earchive
 
 		private void GetAllCounterpartyAdresses(CounterpartyInfo selectedCounterparty)
         {
-            comboboxentryAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
-            comboboxentryAddress.SelectionNotifyEvent += OnComboboxentryAddressItemSelected;
+            comboboxAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
+            comboboxAddress.SelectionNotifyEvent += OnComboboxAddressItemSelected;
 
             var deliveryPoints = _earchiveUpdServiceClient
                 .GetDeliveryPoints(selectedCounterparty)
                 .Select(d => d)
                 .ToList();
-            comboboxentryAddress.ItemsList = deliveryPoints;
+            comboboxAddress.ItemsList = deliveryPoints;
         }
 
-        private void OnComboboxentryAddressItemSelected(object o, SelectionNotifyEventArgs args)
+        private void OnComboboxAddressItemSelected(object o, SelectionNotifyEventArgs args)
         {
-			var selectedAddress = (DeliveryPointInfo)comboboxentryAddress.SelectedItem;
+			var selectedAddress = (DeliveryPointInfo)comboboxAddress.SelectedItem;
         }
 
 

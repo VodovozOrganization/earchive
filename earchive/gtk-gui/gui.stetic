@@ -175,7 +175,7 @@
                   <placeholder />
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yListComboBox" id="comboboxentryAddress">
+                  <widget class="QS.Widgets.GtkUI.SpecialListComboBox" id="comboboxAddress">
                     <property name="MemberName" />
                     <property name="Visible">False</property>
                     <property name="Sensitive">False</property>
@@ -183,6 +183,8 @@
                     <property name="Items" translatable="yes" />
                     <property name="AddIfNotExist">False</property>
                     <property name="DefaultFirst">False</property>
+                    <property name="ShowSpecialStateAll">False</property>
+                    <property name="ShowSpecialStateNot">False</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">5</property>

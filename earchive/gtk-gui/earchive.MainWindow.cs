@@ -36,7 +36,7 @@ namespace earchive
 
 		private global::Gtk.Table tableDocsSelectionSettings;
 
-		private global::Gamma.Widgets.yListComboBox comboboxentryAddress;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox comboboxAddress;
 
 		private global::Gtk.ComboBox comboDocType;
 
@@ -151,13 +151,15 @@ namespace earchive
 			this.tableDocsSelectionSettings.RowSpacing = ((uint)(6));
 			this.tableDocsSelectionSettings.ColumnSpacing = ((uint)(6));
 			// Container child tableDocsSelectionSettings.Gtk.Table+TableChild
-			this.comboboxentryAddress = new global::Gamma.Widgets.yListComboBox();
-			this.comboboxentryAddress.Sensitive = false;
-			this.comboboxentryAddress.Name = "comboboxentryAddress";
-			this.comboboxentryAddress.AddIfNotExist = false;
-			this.comboboxentryAddress.DefaultFirst = false;
-			this.tableDocsSelectionSettings.Add(this.comboboxentryAddress);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.tableDocsSelectionSettings[this.comboboxentryAddress]));
+			this.comboboxAddress = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.comboboxAddress.Sensitive = false;
+			this.comboboxAddress.Name = "comboboxAddress";
+			this.comboboxAddress.AddIfNotExist = false;
+			this.comboboxAddress.DefaultFirst = false;
+			this.comboboxAddress.ShowSpecialStateAll = false;
+			this.comboboxAddress.ShowSpecialStateNot = false;
+			this.tableDocsSelectionSettings.Add(this.comboboxAddress);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.tableDocsSelectionSettings[this.comboboxAddress]));
 			w3.TopAttach = ((uint)(5));
 			w3.BottomAttach = ((uint)(6));
 			w3.LeftAttach = ((uint)(1));
@@ -439,7 +441,7 @@ namespace earchive
 			}
 			this.DefaultWidth = 794;
 			this.DefaultHeight = 560;
-			this.comboboxentryAddress.Hide();
+			this.comboboxAddress.Hide();
 			this.labelAddress.Hide();
 			this.labelClient.Hide();
 			this.yentryClient.Hide();
