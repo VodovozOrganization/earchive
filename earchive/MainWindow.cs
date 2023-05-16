@@ -72,7 +72,12 @@ namespace earchive
             yentryClient.Changed += OnYentryClientChanged;
             yentryClient.FocusInEvent += OnYentryClientFocusInEvent;
 
+
 			_earchiveUpdServiceClient = new EarchiveUpdServiceClient();
+            comboboxentryAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
+			var deliveryPoints = _earchiveUpdServiceClient.GetDeliveryPoints(new CounterpartyInfo { Id = 2, Name = "Мараковский" });
+            comboboxentryAddress.ItemsList = deliveryPoints;
+			comboboxentryAddress.SelectionNotifyEvent += OnComboboxentryAddressItemSelected;
         }
 
         protected void OnDeleteEvent(object sender, DeleteEventArgs a)
@@ -311,13 +316,23 @@ namespace earchive
         }
 
 		private void GetAllCounterpartyAdresses(CounterpartyInfo selectedCounterparty)
-		{
+        {
+            comboboxentryAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
+            comboboxentryAddress.SelectionNotifyEvent += OnComboboxentryAddressItemSelected;
+
             var deliveryPoints = _earchiveUpdServiceClient
                 .GetDeliveryPoints(selectedCounterparty)
                 .Select(d => d)
                 .ToList();
             comboboxentryAddress.ItemsList = deliveryPoints;
         }
+
+        private void OnComboboxentryAddressItemSelected(object o, SelectionNotifyEventArgs args)
+        {
+			var selectedAddress = (DeliveryPointInfo)comboboxentryAddress.SelectedItem;
+        }
+
+
         #endregion
 
         void UpdateDocs()
