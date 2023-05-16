@@ -1,9 +1,11 @@
 using earchive.UpdGrpc;
+using EarchiveApi;
 using Gamma.Binding.Core;
 using Gtk;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Relational;
 using NHibernate.Criterion;
+using NHibernate.Mapping;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -57,10 +59,13 @@ namespace earchive
 
 			//Настройка контролов поиска кодов УПД
             yentryClient.Completion = new EntryCompletion();
-            yentryClient.Completion.Model = new ListStore(typeof(string));
+            yentryClient.Completion.Model = new ListStore(typeof(CounterpartyInfo));
             yentryClient.Completion.MinimumKeyLength = 2;
             yentryClient.Completion.TextColumn = 0;
             yentryClient.Completion.Complete();
+            //var cell = new CellRendererText();
+            //yentryClient.Completion.PackStart(cell, true);
+            //yentryClient.Completion.SetCellDataFunc(cell, OnCellLayoutDataFunc);
 
             yentryClient.Completion.MatchSelected += OnCompletionMatchSelected;
             yentryClient.Completion.MatchFunc = CompletionMatchFunc;
@@ -224,33 +229,19 @@ namespace earchive
 
 		private void CounterpartyEntryFillAutocomplete()
         {
-            var completionListStore = new ListStore(typeof(string));
+            var completionListStore = new ListStore(typeof(CounterpartyInfo));
 
             var items = _earchiveUpdServiceClient
 				.GetCounterparties(yentryClient.Text.ToLower())
-				.Select(c => c.Name)
+				.Select(c => c)
 				.ToList();
-
-            //var items = new List<string>();
-
-            //if(yentryClient.Text.StartsWith("а"))
-            //{
-            //	items.Add("арбуз");
-            //	items.Add("ананас");
-            //	items.Add("апельсин");
-            //}
-
-            //         if (yentryClient.Text.StartsWith("б"))
-            //         {
-            //             items.Add("баран");
-            //             items.Add("барабан");
-            //             items.Add("букашка");
-            //         }
 
             foreach (var item in items)
             {
-                if (String.IsNullOrWhiteSpace(item))
+                if (item.Id < 1 || String.IsNullOrWhiteSpace(item.Name))
+                {
                     continue;
+                }
                 completionListStore.AppendValues(item);
             }
 
@@ -259,6 +250,23 @@ namespace earchive
             {
                 yentryClient.Completion.Complete();
             }
+        }
+        private void OnCellLayoutDataFunc(CellLayout cell_layout, CellRenderer cell, TreeModel tree_model, TreeIter iter)
+        {
+            var streetName = (CounterpartyInfo)tree_model.GetValue(iter, 1);
+            //var streetTypeName = (string)tree_model.GetValue(iter, (int)columns.StreetTypeName);
+            //var streetDistrict = (string)tree_model.GetValue(iter, (int)columns.StreeDistrict);
+            //var pattern = string.Format("\\b{0}", Regex.Escape(Text.ToLower()));
+            //streetName = Regex.Replace(streetName, pattern, match => $"<b>{match.Value}</b>", RegexOptions.IgnoreCase);
+
+            //if (!string.IsNullOrWhiteSpace(streetDistrict))
+            //{
+            //    streetDistrict = $"({streetDistrict})";
+            //}
+
+            //((CellRendererText)cell).Markup =
+            //    string.IsNullOrWhiteSpace(streetDistrict) ? $"{streetTypeName.ToLower()} {streetName}" :
+            //        $"{streetTypeName.ToLower()} {streetName} {streetDistrict}";
         }
 
         private void OnYentryClientChanged(object sender, EventArgs e)
@@ -281,12 +289,13 @@ namespace earchive
 
 		private bool CompletionFullMatchFunc(EntryCompletion completion, string key, TreeIter iter)
         {
-            var value = completion.Model.GetValue(iter, 0).ToString().ToLower();
+			var counterpartyInfo = (CounterpartyInfo)completion.Model.GetValue(iter, 0);
+            var value = counterpartyInfo.Name.ToLower();
 			bool isMatch = key == value;
 
 			if(isMatch)
 			{
-				GetAllCunterpartyAdresses();
+				GetAllCounterpartyAdresses(counterpartyInfo);
             }
 
 			return isMatch;
@@ -295,15 +304,19 @@ namespace earchive
         [GLib.ConnectBefore]
         void OnCompletionMatchSelected(object o, MatchSelectedArgs args)
         {
-            yentryClient.Text = (string)args.Model.GetValue(args.Iter, 0);
-			GetAllCunterpartyAdresses();
+			var selectedCounterparty = (CounterpartyInfo)args.Model.GetValue(args.Iter, 0);
+            yentryClient.Text = selectedCounterparty.Name;
+			GetAllCounterpartyAdresses(selectedCounterparty);
             args.RetVal = true;
         }
 
-		private void GetAllCunterpartyAdresses()
+		private void GetAllCounterpartyAdresses(CounterpartyInfo selectedCounterparty)
 		{
-
-		}
+            var deliveryPoints = _earchiveUpdServiceClient
+                .GetDeliveryPoints(selectedCounterparty)
+                .Select(d => d)
+                .ToList();
+        }
         #endregion
 
         void UpdateDocs()

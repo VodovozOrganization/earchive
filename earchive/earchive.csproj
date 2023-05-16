@@ -229,6 +229,9 @@
     <PackageReference Include="NLog">
       <Version>4.7.10</Version>
     </PackageReference>
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
+      <Version>4.5.3</Version>
+    </PackageReference>
     <PackageReference Include="Tesseract">
       <Version>4.1.1</Version>
     </PackageReference>
@@ -278,7 +281,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-	<Protobuf Include="UpdGrpc\earchive_upd.proto" GrpcServices="Client" />
+    <Protobuf Include="UpdGrpc\earchive_upd.proto" GrpcServices="Client" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">

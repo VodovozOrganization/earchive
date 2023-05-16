@@ -1,6 +1,7 @@
 ﻿using EarchiveApi;
 using GLib;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
@@ -11,99 +12,87 @@ using ZXing.Aztec.Internal;
 
 namespace earchive.UpdGrpc
 {
-    public class EarchiveUpdServiceClient : IDisposable
-    {
-        private static string ServiceAddress = "localhost";
-        private uint ServicePort = 5000;
-        private Channel _channel;
-        private EarchiveUpd.EarchiveUpdClient _earchiveUpdClient;
+	public class EarchiveUpdServiceClient : IDisposable
+	{
+		private static string ServiceAddress = "localhost";
+		private uint ServicePort = 5000;
+		private Channel _channel;
+		private EarchiveUpd.EarchiveUpdClient _earchiveUpdClient;
 
-        public bool IsNotificationActive => _channel.State == ChannelState.Ready;
+		public bool IsNotificationActive => _channel.State == ChannelState.Ready;
 
-        public event EventHandler<ConnectionStateEventArgs> ChannelStateChanged;
+		public event EventHandler<ConnectionStateEventArgs> ChannelStateChanged;
 
-        public EarchiveUpdServiceClient()
-        {
-            _channel = new Channel($"{ServiceAddress}:{ServicePort}", ChannelCredentials.Insecure);
-            _earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
-        }
+		public EarchiveUpdServiceClient()
+		{
+			_channel = new Channel($"{ServiceAddress}:{ServicePort}", ChannelCredentials.Insecure);
+			_earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
+		}
 
-        public List<CounterpartyInfo> GetCounterparties(string nameSubstring)
-        {
-            var counterparties = new List<CounterpartyInfo>();
+		public List<CounterpartyInfo> GetCounterparties(string nameSubstring)
+		{
+			var counterparties = new List<CounterpartyInfo>();
 
-            var response = _earchiveUpdClient.GetCounterparites(new NameSubstring { NamePart = nameSubstring });
-            var responseReaderTask = Task.Run(async () =>
+			var response = _earchiveUpdClient.GetCounterparites(new NameSubstring { NamePart = nameSubstring });
+
+			while (response.ResponseStream.MoveNext().Result)
+			{
+				var counterparty = response.ResponseStream.Current;
+				counterparties.Add(counterparty);
+			}
+			return counterparties;
+		}
+
+		public List<DeliveryPointInfo> GetDeliveryPoints(CounterpartyInfo counterparty) 
+		{ 
+			var deliveryPoints = new List<DeliveryPointInfo>();
+
+			var response = _earchiveUpdClient.GetAddresses(counterparty);
+
+			while (response.ResponseStream.MoveNext().Result)
+			{
+				var address = response.ResponseStream.Current;
+				deliveryPoints.Add(address);
+			}
+
+			return deliveryPoints;
+		}
+
+		public List<UpdResponseInfo> GetUpdCodes(int counterpartyId, int deliveryPointId, DateTime startDate, DateTime endDate)
+		{
+			var updCodes = new List<UpdResponseInfo>();
+			var requestInfo = new UpdRequestInfo
+			{
+				CounterpartyId = counterpartyId,
+				DeliveryPointId = deliveryPointId,
+				StartDate = Timestamp.FromDateTime(DateTime.Now.AddYears(-2)),
+				EndDate = Timestamp.FromDateTime(DateTime.Now)
+			};
+
+            var response = _earchiveUpdClient.GetUpdCode(requestInfo);
+
+            while (response.ResponseStream.MoveNext().Result)
             {
-                while (await response.ResponseStream.MoveNext())
-                {
-                    var counterparty = response.ResponseStream.Current;
-                    counterparties.Add(counterparty);
-                }
-            });
-            return counterparties;
+                var updCode = response.ResponseStream.Current;
+                updCodes.Add(updCode);
+            }
+
+            return updCodes;
         }
 
-        private void Connect()
-        {
-            _channel = new Channel($"{ServiceAddress}:{ServicePort}", ChannelCredentials.Insecure);
-            _earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
+		public void Dispose()
+		{
+			_channel.ShutdownAsync();
+		}
+	}
 
+	public class ConnectionStateEventArgs : EventArgs
+	{
+		public ConnectionStateEventArgs(ChannelState channelState)
+		{
+			ChannelState = channelState;
+		}
 
-            //notificationClient = new NotificationService.NotificationServiceClient(channel);
-
-            //var request = new NotificationSubscribeRequest { Extension = extension };
-            //var response = notificationClient.Subscribe(request);
-            //var watcher = new NotificationConnectionWatcher(channel, OnChanalStateChanged);
-
-            //var responseReaderTask = Task.Run(async () =>
-            //{
-            //    while (await response.ResponseStream.MoveNext(token))
-            //    {
-            //        FailSince = null;
-            //        var message = response.ResponseStream.Current;
-            //        logger.Debug($"extension:{extension} Received:{message}");
-            //        OnAppearedMessage(message);
-            //    }
-            //    logger.Warn($"Соединение с NotificationService[{extension}] завершено.");
-            //}, token).ContinueWith(task =>
-            //{
-            //    if (task.IsCanceled || (task.Exception?.InnerException as RpcException)?.StatusCode == StatusCode.Cancelled)
-            //    {
-            //        logger.Info($"Соединение с NotificationService[{extension}] отменено.");
-            //    }
-            //    else if (task.IsFaulted)
-            //    {
-            //        if (FailSince == null)
-            //            FailSince = DateTime.Now;
-            //        var failedTime = (DateTime.Now - FailSince).Value;
-            //        if (failedTime.Seconds < 10)
-            //            Thread.Sleep(1000);
-            //        else if (failedTime.Minutes < 10)
-            //            Thread.Sleep(4000);
-            //        else
-            //            Thread.Sleep(30000);
-            //        logger.Error(task.Exception);
-            //        logger.Info($"Соединение с NotificationService[{extension}] разорвано... Пробуем соединиться.");
-            //        Connect();
-            //    }
-            //})
-            //    ;
-        }
-
-        public void Dispose()
-        {
-            _channel.ShutdownAsync();
-        }
-    }
-
-    public class ConnectionStateEventArgs : EventArgs
-    {
-        public ConnectionStateEventArgs(ChannelState channelState)
-        {
-            ChannelState = channelState;
-        }
-
-        public ChannelState ChannelState { get; }
-    }
+		public ChannelState ChannelState { get; }
+	}
 }
