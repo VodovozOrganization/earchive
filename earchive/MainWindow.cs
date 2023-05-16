@@ -316,6 +316,7 @@ namespace earchive
                 .GetDeliveryPoints(selectedCounterparty)
                 .Select(d => d)
                 .ToList();
+            comboboxentryAddress.ItemsList = deliveryPoints;
         }
         #endregion
 
