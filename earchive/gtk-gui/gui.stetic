@@ -175,7 +175,7 @@
                   <placeholder />
                 </child>
                 <child>
-                  <widget class="QS.Widgets.GtkUI.SpecialListComboBox" id="comboboxentryAddress">
+                  <widget class="Gamma.Widgets.yListComboBox" id="comboboxentryAddress">
                     <property name="MemberName" />
                     <property name="Visible">False</property>
                     <property name="Sensitive">False</property>
@@ -183,8 +183,6 @@
                     <property name="Items" translatable="yes" />
                     <property name="AddIfNotExist">False</property>
                     <property name="DefaultFirst">False</property>
-                    <property name="ShowSpecialStateAll">False</property>
-                    <property name="ShowSpecialStateNot">False</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">5</property>
@@ -299,6 +297,7 @@
                 <child>
                   <widget class="Gtk.Label" id="labelClient">
                     <property name="MemberName" />
+                    <property name="Visible">False</property>
                     <property name="Xalign">1</property>
                     <property name="LabelProp" translatable="yes">Клиент:</property>
                   </widget>
