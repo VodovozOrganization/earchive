@@ -367,9 +367,10 @@ namespace earchive
 
 		[GLib.ConnectBefore]
 		void OnCompletionMatchSelected(object o, MatchSelectedArgs args)
-		{
-			SelectedCounterparty = (CounterpartyInfo)args.Model.GetValue(args.Iter, 0);
-			yentryClient.Text = SelectedCounterparty.Name;
+        {
+			var selectedCounterparty = (CounterpartyInfo)args.Model.GetValue(args.Iter, 0);
+            yentryClient.Text = selectedCounterparty.Name;
+            SelectedCounterparty = selectedCounterparty;
 			args.RetVal = true;
 		}
 
@@ -523,7 +524,9 @@ namespace earchive
 				"Получен {0} документ.",
 				"Получено {0} документа.",
 				"Получено {0} документов."));
-		}
+
+            ybuttonOpenAll.Sensitive = SelectedDocumentTypeId.HasValue && DocsListStore.IterNChildren() > 0;
+        }
 
 		void UpdateDocs()
 		{
@@ -587,6 +590,8 @@ namespace earchive
 				"Получен {0} документ.",
 				"Получено {0} документа.",
 				"Получено {0} документов."));
+
+			ybuttonOpenAll.Sensitive = SelectedDocumentTypeId.HasValue && DocsListStore.IterNChildren() > 0;
 		}
 
 		protected void OnSelectperiodDocsDatesChanged(object sender, EventArgs e)
@@ -654,8 +659,9 @@ namespace earchive
 				}
 			}
 
+			docIds.Sort();
 			ViewDoc win = new ViewDoc();
-			win.Fill(docIds);
+			win.Fill(docIds, SelectedDocumentTypeId.Value);
 			win.Show();
 			if ((ResponseType)win.Run() == ResponseType.Ok)
 			{
