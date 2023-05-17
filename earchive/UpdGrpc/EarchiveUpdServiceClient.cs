@@ -18,8 +18,6 @@ namespace earchive.UpdGrpc
 
 		public bool IsConnectionActive => _channel.State == ChannelState.Ready || _channel.State == ChannelState.Idle;
 
-		public event EventHandler<ConnectionStateEventArgs> ChannelStateChanged;
-
 		public EarchiveUpdServiceClient()
 		{
 			_channel = new Channel($"{ServiceAddress}:{ServicePort}", ChannelCredentials.Insecure);
@@ -89,15 +87,5 @@ namespace earchive.UpdGrpc
 		{
 			_channel.ShutdownAsync();
 		}
-	}
-
-	public class ConnectionStateEventArgs : EventArgs
-	{
-		public ConnectionStateEventArgs(ChannelState channelState)
-		{
-			ChannelState = channelState;
-		}
-
-		public ChannelState ChannelState { get; }
 	}
 }

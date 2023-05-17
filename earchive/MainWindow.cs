@@ -639,10 +639,23 @@ namespace earchive
 
 		protected void OnButtonOpenAllClicked(object sender, EventArgs e)
 		{
-			treeviewDocs.Selection.GetSelected(out TreeIter iter);
-			int ItemId = (int)DocsListStore.GetValue(iter, 0);
+			if(DocsListStore.IterNChildren() < 1)
+			{
+				return;
+			}
+
+			var docIds = new List<int>();
+
+			foreach(object[] item in DocsListStore)
+			{
+				if(item.Length > 0 && item[0] is int code)
+				{
+					docIds.Add(code);
+				}
+			}
+
 			ViewDoc win = new ViewDoc();
-			win.Fill(ItemId);
+			win.Fill(docIds);
 			win.Show();
 			if ((ResponseType)win.Run() == ResponseType.Ok)
 			{
@@ -659,6 +672,7 @@ namespace earchive
 		{
 			bool RowSelected = treeviewDocs.Selection.CountSelectedRows() == 1;
 			buttonOpen.Sensitive = RowSelected;
+			ybuttonOpenAll.Sensitive = true;
 			buttonDelete.Sensitive = RowSelected && QSMain.User.Permissions["can_edit"];
 		}
 

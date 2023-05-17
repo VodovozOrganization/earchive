@@ -73,7 +73,7 @@ namespace earchive
 						Label NameLable = new Label(field.Name + ":");
 						NameLable.Xalign = 1;
 						tableProperty.Attach(NameLable, 0, 1, Row, Row+1, 
-						                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+												 AttachOptions.Fill, AttachOptions.Fill, 0, 0);
 						FieldLables.Add(field.ID, NameLable);
 						object ValueWidget;
 						switch (field.Type) {
@@ -86,7 +86,7 @@ namespace earchive
 							break;
 						}
 						tableProperty.Attach((Widget)ValueWidget, 1, 2, Row, Row+1, 
-						                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+												 AttachOptions.Fill, AttachOptions.Fill, 0, 0);
 						FieldWidgets.Add(field.ID, ValueWidget);
 
 						Row++;
@@ -158,6 +158,60 @@ namespace earchive
 			}
 		}
 
+		public void Fill(List<int> docIds)
+		{
+			DocInfo = new DocumentInformation(5);
+			this.Title = DocInfo.Name + "выгрузка документов";
+			labelType.LabelProp = DocInfo.Name;
+
+			QSMain.CheckConnectionAlive();
+
+			try
+			{ 
+				// Загружаем изображения
+				var sql = "SELECT * FROM images " +
+				 "WHERE FIND_IN_SET(doc_id, @docIds) " +
+				 "ORDER BY order_num";
+
+				var cmd = new MySqlCommand(sql, QSMain.connectionDB);
+
+				var docIdsParameterValue = string.Join(",", docIds);
+				cmd.Parameters.AddWithValue("@docIds", docIdsParameterValue);
+
+				MySqlDataReader rdr = cmd.ExecuteReader();
+
+				while (rdr.Read())
+				{
+					DocumentImage DocImage = new DocumentImage();
+					DocImage.Changed = false;
+					DocImage.id = rdr.GetInt32("id");
+					DocImage.order = rdr.GetInt32("order_num");
+					DocImage.size = rdr.GetInt64("size");
+					DocImage.type = rdr.GetString("type");
+					DocImage.file = new byte[DocImage.size];
+					rdr.GetBytes(rdr.GetOrdinal("image"), 0, DocImage.file, 0, (int)DocImage.size);
+					DocImage.Image = new Pixbuf(DocImage.file);
+
+					//Добавляем вижет
+					ImageViewer view = new ImageViewer();
+					view.VerticalFit = false;
+					view.HorizontalFit = true;
+					view.Pixbuf = DocImage.Image;
+					view.ButtonPressEvent += OnImagesButtonPressEvent;
+					vboxImages.Add(view);
+					DocImage.Widget = view;
+					Images.Add(DocImage);
+				}
+				rdr.Close();
+				vboxImages.ShowAll();
+				logger.Info("Ok");
+			}
+			catch (Exception ex)
+			{
+				QSMain.ErrorMessageWithLog(this, "Ошибка получения документа!", logger, ex);
+			}
+		}
+
 		protected void OnImagesButtonPressEvent (object o, ButtonPressEventArgs args)
 		{
 			if((int)args.Event.Button == 3)
@@ -180,10 +234,10 @@ namespace earchive
 		{
 			FileChooserDialog fc=
 				new FileChooserDialog("Укажите файл для сохранения картинки",
-				                      this,
-				                      FileChooserAction.Save,
-				                      "Отмена",ResponseType.Cancel,
-				                      "Сохранить",ResponseType.Accept);
+									  this,
+									  FileChooserAction.Save,
+									  "Отмена",ResponseType.Cancel,
+									  "Сохранить",ResponseType.Accept);
 			//FileFilter filter = new FileFilter();
 			fc.CurrentName = DocInfo.Name + " " + entryNumber.Text + ".jpg";
 			fc.Show(); 
@@ -244,7 +298,7 @@ namespace earchive
 						switch (field.Type) {
 							case "varchar" :
 							cmd.Parameters.AddWithValue(field.DBName, 
-							                            ((Entry)FieldWidgets[field.ID]).Text);
+														((Entry)FieldWidgets[field.ID]).Text);
 							break;
 							default :
 							cmd.Parameters.AddWithValue(field.DBName, DBNull.Value);
@@ -287,10 +341,10 @@ namespace earchive
 		{
 			FileChooserDialog fc=
 				new FileChooserDialog("Укажите файл для сохранения документа",
-				                      this,
-				                      FileChooserAction.Save,
-				                      "Отмена",ResponseType.Cancel,
-				                      "Сохранить",ResponseType.Accept);
+									  this,
+									  FileChooserAction.Save,
+									  "Отмена",ResponseType.Cancel,
+									  "Сохранить",ResponseType.Accept);
 			fc.CurrentName = DocInfo.Name + " " + entryNumber.Text + ".pdf";
 			fc.Show(); 
 			if(fc.Run() == (int) ResponseType.Accept)
