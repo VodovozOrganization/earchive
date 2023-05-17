@@ -72,8 +72,7 @@ namespace earchive
 					{
 						Label NameLable = new Label(field.Name + ":");
 						NameLable.Xalign = 1;
-						tableProperty.Attach(NameLable, 0, 1, Row, Row+1, 
-												 AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+						tableProperty.Attach(NameLable, 0, 1, Row, Row+1, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
 						FieldLables.Add(field.ID, NameLable);
 						object ValueWidget;
 						switch (field.Type) {
@@ -85,8 +84,7 @@ namespace earchive
 							ValueWidget = new Label();
 							break;
 						}
-						tableProperty.Attach((Widget)ValueWidget, 1, 2, Row, Row+1, 
-												 AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+						tableProperty.Attach((Widget)ValueWidget, 1, 2, Row, Row+1, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
 						FieldWidgets.Add(field.ID, ValueWidget);
 
 						Row++;
@@ -277,14 +275,17 @@ namespace earchive
 
 		protected void OnImagePopupSave(object sender, EventArgs Arg)
 		{
-			FileChooserDialog fc=
-				new FileChooserDialog("Укажите файл для сохранения картинки",
-									  this,
-									  FileChooserAction.Save,
-									  "Отмена",ResponseType.Cancel,
-									  "Сохранить",ResponseType.Accept);
+			FileChooserDialog fc= new FileChooserDialog(
+				"Укажите файл для сохранения картинки",
+				this,
+				FileChooserAction.Save,
+				"Отмена",ResponseType.Cancel,
+				"Сохранить",ResponseType.Accept);
+
 			//FileFilter filter = new FileFilter();
-			fc.CurrentName = DocInfo.Name + " " + entryNumber.Text + ".jpg";
+			fc.CurrentName = string.IsNullOrEmpty(entryNumber.Text)
+				? DocInfo.Name + " изображение" + ".jpg"
+				: DocInfo.Name + " " + entryNumber.Text + ".jpg";
 			fc.Show(); 
 			if(fc.Run() == (int) ResponseType.Accept)
 			{
@@ -342,8 +343,7 @@ namespace earchive
 						first = false;
 						switch (field.Type) {
 							case "varchar" :
-							cmd.Parameters.AddWithValue(field.DBName, 
-														((Entry)FieldWidgets[field.ID]).Text);
+							cmd.Parameters.AddWithValue(field.DBName, ((Entry)FieldWidgets[field.ID]).Text);
 							break;
 							default :
 							cmd.Parameters.AddWithValue(field.DBName, DBNull.Value);
@@ -384,15 +384,17 @@ namespace earchive
 
 		protected void OnButtonPDFClicked (object sender, EventArgs e)
 		{
-			FileChooserDialog fc=
-				new FileChooserDialog("Укажите файл для сохранения документа",
-									  this,
-									  FileChooserAction.Save,
-									  "Отмена",ResponseType.Cancel,
-									  "Сохранить",ResponseType.Accept);
+			FileChooserDialog fc= new FileChooserDialog(
+				"Укажите файл для сохранения документа",
+				this,
+				FileChooserAction.Save,
+				"Отмена",ResponseType.Cancel,
+				"Сохранить",ResponseType.Accept);
+
 			fc.CurrentName = string.IsNullOrEmpty(entryNumber.Text)
 				? DocInfo.Name + " выгрузка" + ".pdf"
 				: DocInfo.Name + " " + entryNumber.Text + ".pdf";
+
 			fc.Show(); 
 			if(fc.Run() == (int) ResponseType.Accept)
 			{

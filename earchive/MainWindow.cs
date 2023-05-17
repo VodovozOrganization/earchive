@@ -367,10 +367,10 @@ namespace earchive
 
 		[GLib.ConnectBefore]
 		void OnCompletionMatchSelected(object o, MatchSelectedArgs args)
-        {
+		{
 			var selectedCounterparty = (CounterpartyInfo)args.Model.GetValue(args.Iter, 0);
-            yentryClient.Text = selectedCounterparty.Name;
-            SelectedCounterparty = selectedCounterparty;
+			yentryClient.Text = selectedCounterparty.Name;
+			SelectedCounterparty = selectedCounterparty;
 			args.RetVal = true;
 		}
 
@@ -525,8 +525,8 @@ namespace earchive
 				"Получено {0} документа.",
 				"Получено {0} документов."));
 
-            ybuttonOpenAll.Sensitive = SelectedDocumentTypeId.HasValue && DocsListStore.IterNChildren() > 0;
-        }
+			ybuttonOpenAll.Sensitive = SelectedDocumentTypeId.HasValue && DocsListStore.IterNChildren() > 0;
+		}
 
 		void UpdateDocs()
 		{
