@@ -1,14 +1,9 @@
 using earchive.UpdGrpc;
 using EarchiveApi;
-using Gamma.Binding.Core;
 using Gtk;
 using MySql.Data.MySqlClient;
-using MySqlX.XDevAPI.Relational;
-using NHibernate.Criterion;
-using NHibernate.Mapping;
 using NLog;
-using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
+using QS.Dialog.GtkUI;
 using QS.Project.Versioning;
 using QS.Project.Versioning.Product;
 using QS.Project.ViewModels;
@@ -19,9 +14,7 @@ using QSWidgetLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.ServiceModel.Channels;
 using System.Text.RegularExpressions;
-using ZXing.PDF417.Internal;
 
 namespace earchive
 {
@@ -34,10 +27,13 @@ namespace earchive
 		DocumentInformation CurDocType;
 		int UsedExtraFields;
 		InputDocs InputDocsWin;
+
+		private int? _selectiedDocumentTypeId;
+		private CounterpartyInfo _selectedCounterparty;
+		private DeliveryPointInfo _selectedDeliveryPoint;
 		private EarchiveUpdServiceClient _earchiveUpdServiceClient;
 
-
-        public MainWindow() : base(WindowType.Toplevel)
+		public MainWindow() : base(WindowType.Toplevel)
 		{
 			Build();
 
@@ -57,28 +53,93 @@ namespace earchive
 			ComboWorks.ComboFillReference(comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
 			selectperiodDocs.ActiveRadio = SelectPeriod.Period.Week;
 
-            //Настройка контролов поиска кодов УПД
-            _earchiveUpdServiceClient = new EarchiveUpdServiceClient();
+			SetUpdControls();
+		}
 
-            yentryClient.Completion = new EntryCompletion();
-            yentryClient.Completion.Model = new ListStore(typeof(CounterpartyInfo));
-            yentryClient.Completion.MinimumKeyLength = 2;
-            yentryClient.Completion.TextColumn = 0;
-            yentryClient.Completion.Complete();
-            //var cell = new CellRendererText();
-            //yentryClient.Completion.PackStart(cell, true);
-            //yentryClient.Completion.SetCellDataFunc(cell, OnCellLayoutDataFunc);
+		private void SetUpdControls()
+		{
+			//Настройка контролов поиска кодов УПД
+			_earchiveUpdServiceClient = new EarchiveUpdServiceClient();
 
-            yentryClient.Completion.MatchSelected += OnCompletionMatchSelected;
-            yentryClient.Completion.MatchFunc = CompletionMatchFunc;
-            yentryClient.Changed += OnYentryClientChanged;
-            yentryClient.FocusInEvent += OnYentryClientFocusInEvent;
+			yentryClient.Completion = new EntryCompletion();
+			yentryClient.Completion.Model = new ListStore(typeof(CounterpartyInfo));
+			yentryClient.Completion.MinimumKeyLength = 2;
+			yentryClient.Completion.TextColumn = 0;
+			yentryClient.Completion.Complete();
+			var cell = new CellRendererText();
+			yentryClient.Completion.PackStart(cell, true);
+			yentryClient.Completion.SetCellDataFunc(cell, OnCellLayoutDataFunc);
 
-            comboboxAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
-            comboboxAddress.SelectionNotifyEvent += OnComboboxAddressItemSelected;
-        }
+			yentryClient.Completion.MatchSelected += OnCompletionMatchSelected;
+			yentryClient.Completion.MatchFunc = CompletionMatchFunc;
+			yentryClient.Changed += OnYentryClientChanged;
 
-        protected void OnDeleteEvent(object sender, DeleteEventArgs a)
+			comboboxAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
+			comboboxAddress.ItemSelected += OnComboboxAddressItemSelected;
+		}
+
+		#region Свойства
+		public int? SelectedDocumentTypeId
+		{
+			get => _selectiedDocumentTypeId;
+			set 
+			{ 
+				if(_selectiedDocumentTypeId != value)
+				{
+					_selectiedDocumentTypeId = value;
+
+					if (_selectiedDocumentTypeId.HasValue)
+					{
+						SetUpdSearchControlsSettings();
+					}
+
+					SelectedCounterparty = null;
+					SelectedDeliveryPoint = null;
+				}
+			}
+		}
+
+		public CounterpartyInfo SelectedCounterparty
+		{
+			get => _selectedCounterparty;
+			set
+			{
+				if(_selectedCounterparty != value)
+				{
+					_selectedCounterparty = value;
+
+					if (_selectedCounterparty != null)
+					{
+						entryDocNumber.Text = string.Empty;
+						GetAllCounterpartyAdresses();
+					}
+					else
+					{
+						ClearComboboxAddresses();
+					}
+				}
+			}
+		}
+
+		public DeliveryPointInfo SelectedDeliveryPoint
+		{
+			get => _selectedDeliveryPoint;
+			set 
+			{
+				if(_selectedDeliveryPoint != value)
+				{
+					_selectedDeliveryPoint = value;
+
+					if (_selectedDeliveryPoint != null)
+					{
+						GetUpdDocs();
+					}
+				}
+			}
+		}
+		#endregion
+
+		protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 		{
 			Application.Quit();
 			a.RetVal = true;
@@ -199,141 +260,272 @@ namespace earchive
 			{
 				int CurrentTypeId = (int)comboDocType.Model.GetValue(iter, 1);
 				CurDocType = new DocumentInformation(CurrentTypeId);
-				SetUpdSearchControlsSettings(CurrentTypeId);
+				SelectedDocumentTypeId = CurrentTypeId;
 				PrepareDocsTable();
 				UpdateDocs();
 			}
 		}
 
-        #region Поиск УПД
-        private void SetUpdSearchControlsSettings(int currentDocementId)
-        {
-            yentryClient.Text = string.Empty;
+		#region Поиск УПД
+		private void SetUpdSearchControlsSettings()
+		{
+			yentryClient.Text = string.Empty;
 
-            var selectedUpdDocumentType = currentDocementId == 5;
+			var selectedUpdDocumentType = SelectedDocumentTypeId == 5;
 
-            if (selectedUpdDocumentType)
+			if (selectedUpdDocumentType)
 			{
-                yentryClient.Visible = true;
-                yentryClient.Sensitive = true;
+				yentryClient.Visible = true;
+				yentryClient.Sensitive = true;
+				labelClient.Visible = true;
 
-                comboboxAddress.Visible = true;
-                comboboxAddress.Sensitive = true;
+				comboboxAddress.Visible = true;
+				comboboxAddress.Sensitive = true;
+				labelAddress.Visible = true;
 
 				return;
-            }
+			}
 
-            yentryClient.Visible = false;
+			yentryClient.Visible = false;
 			yentryClient.Sensitive = false;
+			labelClient.Visible = false;
 
-            comboboxAddress.Visible = false;
-            comboboxAddress.Sensitive = false;
-        }
+			comboboxAddress.Visible = false;
+			comboboxAddress.Sensitive = false;
+			labelAddress.Visible = false;
+		}
 
 		private void CounterpartyEntryFillAutocomplete()
-        {
-            var completionListStore = new ListStore(typeof(CounterpartyInfo));
+		{
+			var completionListStore = new ListStore(typeof(CounterpartyInfo));
 
-            var items = _earchiveUpdServiceClient
-				.GetCounterparties(yentryClient.Text.ToLower())
-				.Select(c => c)
-				.ToList();
+			var items = new List<CounterpartyInfo>();
 
-            foreach (var item in items)
-            {
-                if (item.Id < 1 || String.IsNullOrWhiteSpace(item.Name))
-                {
-                    continue;
-                }
-                completionListStore.AppendValues(item);
-            }
+			if (_earchiveUpdServiceClient.IsConnectionActive)
+			{
+				items = _earchiveUpdServiceClient.GetCounterparties(yentryClient.Text.ToLower());
+			}
+			else
+			{
+				ShowGrpcServiceUnavailableMessage();
+			}
 
-            yentryClient.Completion.Model = completionListStore;
-            if (yentryClient.HasFocus)
-            {
-                yentryClient.Completion.Complete();
-            }
-        }
-        private void OnCellLayoutDataFunc(CellLayout cell_layout, CellRenderer cell, TreeModel tree_model, TreeIter iter)
-        {
-            var streetName = (CounterpartyInfo)tree_model.GetValue(iter, 1);
-            //var streetTypeName = (string)tree_model.GetValue(iter, (int)columns.StreetTypeName);
-            //var streetDistrict = (string)tree_model.GetValue(iter, (int)columns.StreeDistrict);
-            //var pattern = string.Format("\\b{0}", Regex.Escape(Text.ToLower()));
-            //streetName = Regex.Replace(streetName, pattern, match => $"<b>{match.Value}</b>", RegexOptions.IgnoreCase);
+			foreach (var item in items)
+			{
+				if (item.Id < 1 || String.IsNullOrWhiteSpace(item.Name))
+				{
+					continue;
+				}
+				completionListStore.AppendValues(item);
+			}
 
-            //if (!string.IsNullOrWhiteSpace(streetDistrict))
-            //{
-            //    streetDistrict = $"({streetDistrict})";
-            //}
+			yentryClient.Completion.Model = completionListStore;
 
-            //((CellRendererText)cell).Markup =
-            //    string.IsNullOrWhiteSpace(streetDistrict) ? $"{streetTypeName.ToLower()} {streetName}" :
-            //        $"{streetTypeName.ToLower()} {streetName} {streetDistrict}";
-        }
+			if (yentryClient.HasFocus)
+			{
+				yentryClient.Completion.Complete();
+			}
+		}
 
-        private void OnYentryClientChanged(object sender, EventArgs e)
-        {
+		private void OnCellLayoutDataFunc(CellLayout cell_layout, CellRenderer cell, TreeModel tree_model, TreeIter iter)
+		{
+			var counterpartyName = ((CounterpartyInfo)tree_model.GetValue(iter, 0)).Name;
+			var pattern = string.Format("\\b{0}", Regex.Escape(yentryClient.Text.ToLower()));
+			counterpartyName = Regex.Replace(counterpartyName, pattern, match => $"<b>{match.Value}</b>", RegexOptions.IgnoreCase);
+
+			((CellRendererText)cell).Markup = counterpartyName;
+		}
+
+		private void OnYentryClientChanged(object sender, EventArgs e)
+		{
+			SelectedCounterparty = null;
+			SelectedDeliveryPoint = null;
 			CounterpartyEntryFillAutocomplete();
-        }
+		}
 
-        private void OnYentryClientFocusInEvent(object o, FocusInEventArgs args)
-        {
-            //CounterpartyEntryFillAutocomplete();
-        }
-
-        private bool CompletionMatchFunc(EntryCompletion completion, string key, TreeIter iter)
-        {
-            var value = completion.Model.GetValue(iter, 0).ToString().ToLower();
+		private bool CompletionMatchFunc(EntryCompletion completion, string key, TreeIter iter)
+		{
+			var value = completion.Model.GetValue(iter, 0).ToString().ToLower();
 			var isMatch = Regex.IsMatch(value, String.Format("\\b{0}.*", Regex.Escape(yentryClient.Text.ToLower())));
-            CompletionFullMatchFunc(completion, key, iter);
-            return isMatch;
-        }
+			CompletionFullMatchFunc(completion, key, iter);
+			return isMatch;
+		}
 
 		private bool CompletionFullMatchFunc(EntryCompletion completion, string key, TreeIter iter)
-        {
-			var counterpartyInfo = (CounterpartyInfo)completion.Model.GetValue(iter, 0);
-            var value = counterpartyInfo.Name.ToLower();
+		{
+			var enteredCounterpartyNameValue = (CounterpartyInfo)completion.Model.GetValue(iter, 0);
+			var value = enteredCounterpartyNameValue.Name.ToLower();
 			bool isMatch = key == value;
 
 			if(isMatch)
 			{
-				GetAllCounterpartyAdresses(counterpartyInfo);
-            }
+				SelectedCounterparty = enteredCounterpartyNameValue;
+			}
 
 			return isMatch;
 		}
 
-        [GLib.ConnectBefore]
-        void OnCompletionMatchSelected(object o, MatchSelectedArgs args)
-        {
-			var selectedCounterparty = (CounterpartyInfo)args.Model.GetValue(args.Iter, 0);
-            yentryClient.Text = selectedCounterparty.Name;
-			GetAllCounterpartyAdresses(selectedCounterparty);
-            args.RetVal = true;
-        }
+		[GLib.ConnectBefore]
+		void OnCompletionMatchSelected(object o, MatchSelectedArgs args)
+		{
+			SelectedCounterparty = (CounterpartyInfo)args.Model.GetValue(args.Iter, 0);
+			yentryClient.Text = SelectedCounterparty.Name;
+			args.RetVal = true;
+		}
 
-		private void GetAllCounterpartyAdresses(CounterpartyInfo selectedCounterparty)
-        {
-            comboboxAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
-            comboboxAddress.SelectionNotifyEvent += OnComboboxAddressItemSelected;
+		private void GetAllCounterpartyAdresses()
+		{
+			comboboxAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
 
-            var deliveryPoints = _earchiveUpdServiceClient
-                .GetDeliveryPoints(selectedCounterparty)
-                .Select(d => d)
-                .ToList();
-            comboboxAddress.ItemsList = deliveryPoints;
-        }
+			if(SelectedCounterparty != null)
+			{
+				if (_earchiveUpdServiceClient.IsConnectionActive)
+				{
+					var deliveryPoints = _earchiveUpdServiceClient
+					.GetDeliveryPoints(SelectedCounterparty)
+					.Select(d => d)
+					.ToList();
+					comboboxAddress.ItemsList = deliveryPoints;
+					return;
+				}
+				else
+				{
+					ShowGrpcServiceUnavailableMessage();
+				}
+					
+			}
+			comboboxAddress.ItemsList = null;
+		}
 
-        private void OnComboboxAddressItemSelected(object o, SelectionNotifyEventArgs args)
-        {
-			var selectedAddress = (DeliveryPointInfo)comboboxAddress.SelectedItem;
-        }
+		private void OnComboboxAddressItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			SelectedDeliveryPoint = (DeliveryPointInfo)comboboxAddress.SelectedItem;
+		}
 
+		private bool GetUpdDocs()
+		{
+			if (SelectedDocumentTypeId != 5 || SelectedCounterparty == null || SelectedDeliveryPoint == null)
+			{
+				return false;
+			}
 
-        #endregion
+			var udpCodes = new List<long>();
 
-        void UpdateDocs()
+			if (_earchiveUpdServiceClient.IsConnectionActive)
+			{
+				udpCodes = _earchiveUpdServiceClient
+					.GetUpdCodes(SelectedCounterparty.Id, SelectedDeliveryPoint.Id, DateTime.Now.AddYears(-30), DateTime.Now)
+					.Select(c => c.Id)
+					.ToList();
+
+				UpdateDocs(udpCodes);
+				return true;
+			}
+
+			ShowGrpcServiceUnavailableMessage();
+
+			return true;
+		}
+
+		private void ClearComboboxAddresses()
+		{
+			comboboxAddress.ItemsList = null;
+		}
+		#endregion
+
+		private void UpdateDocs(List<long> documentsCodes)
+		{
+			if (CurDocType == null || documentsCodes.Count < 1)
+			{
+				return;
+			}
+
+			logger.Info("Запрос группы документов в базе...");
+
+			DocsListStore.Clear();
+
+			string sqlExtra = "";
+			if (CurDocType.DBTableExsist)
+			{
+				sqlExtra = "LEFT JOIN extra_" 
+							+ CurDocType.DBTableName 
+							+ " ON extra_" 
+							+ CurDocType.DBTableName 
+							+ ".doc_id = docs.id ";
+			}
+			
+			string sql = "SELECT * FROM docs " + sqlExtra + " WHERE docs.type_id = @typeId AND FIND_IN_SET(number, @documentsCodesList) ";
+
+			if (!selectperiodDocs.IsAllTime)
+			{
+				sql += " AND date BETWEEN @startDate AND @endDate";
+			}
+
+			QSMain.CheckConnectionAlive();
+
+			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
+
+			if (comboDocType.GetActiveIter(out TreeIter iter))
+			{
+				cmd.Parameters.AddWithValue("@typeId", comboDocType.Model.GetValue(iter, 1));
+			}
+
+			var documentsCodesParameterValue = string.Join(",", documentsCodes);
+			cmd.Parameters.AddWithValue("@documentsCodesList", documentsCodesParameterValue);
+
+			cmd.Parameters.AddWithValue("@startDate", selectperiodDocs.DateBegin);
+			cmd.Parameters.AddWithValue("@endDate", selectperiodDocs.DateEnd);
+
+			MySqlDataReader rdr = cmd.ExecuteReader();
+
+			while (rdr.Read())
+			{
+				object[] Values = new object[4 + UsedExtraFields];
+				Values[0] = rdr.GetInt32("id");
+				if (rdr["number"] != DBNull.Value)
+					Values[1] = rdr.GetString("number");
+				else
+					Values[1] = "";
+				if (rdr["date"] != DBNull.Value)
+					Values[2] = string.Format("{0:d}", rdr.GetDateTime("date"));
+				else
+					Values[2] = "";
+				Values[3] = string.Format("{0}", rdr.GetDateTime("create_date"));
+
+				if (CurDocType.FieldsList != null)
+				{
+					foreach (DocFieldInfo item in CurDocType.FieldsList)
+					{
+						if (!item.Display && !item.Search)
+							continue;
+						switch (item.Type)
+						{
+							case "varchar":
+								if (rdr[item.DBName] != DBNull.Value)
+									Values[item.ListStoreColumn] = rdr.GetString(item.DBName);
+								else
+									Values[item.ListStoreColumn] = "";
+								break;
+						}
+					}
+				}
+
+				DocsListStore.AppendValues(Values);
+			}
+
+			rdr.Close();
+
+			OnTreeviewDocsCursorChanged(null, null);
+
+			int totaldoc = DocsListStore.IterNChildren();
+
+			logger.Info(NumberToTextRus.FormatCase(totaldoc,
+				"Получен {0} документ.",
+				"Получено {0} документа.",
+				"Получено {0} документов."));
+		}
+
+		void UpdateDocs()
 		{
 			if (CurDocType == null)
 				return;
@@ -399,6 +591,11 @@ namespace earchive
 
 		protected void OnSelectperiodDocsDatesChanged(object sender, EventArgs e)
 		{
+			if(GetUpdDocs())
+			{
+				return;
+			}
+
 			if (selectperiodDocs.IsAllTime && entryDocNumber.Text.Length < 2)
 				entryDocNumber.GrabFocus();
 			else
@@ -430,7 +627,13 @@ namespace earchive
 			win.Fill(ItemId);
 			win.Show();
 			if ((ResponseType)win.Run() == ResponseType.Ok)
+			{
+				if (GetUpdDocs())
+				{
+					return;
+				}
 				UpdateDocs();
+			}
 			win.Destroy();
 		}
 
@@ -442,7 +645,13 @@ namespace earchive
 			win.Fill(ItemId);
 			win.Show();
 			if ((ResponseType)win.Run() == ResponseType.Ok)
+			{
+				if(GetUpdDocs())
+				{
+					return;
+				}
 				UpdateDocs();
+			}
 			win.Destroy();
 		}
 
@@ -473,6 +682,11 @@ namespace earchive
 
 		protected void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
+			if (GetUpdDocs())
+			{
+				return;
+			}
+
 			UpdateDocs();
 		}
 
@@ -501,7 +715,19 @@ namespace earchive
 
 		protected void OnButtonSearchClicked(object sender, EventArgs e)
 		{
+			if(string.IsNullOrEmpty(entryDocNumber.Text))
+			{
+				return;
+			}
+
+			SelectedCounterparty = null;
+			SelectedDeliveryPoint = null;
+
+			yentryClient.Text = string.Empty;
+			ClearComboboxAddresses();
+
 			UpdateDocs();
+
 		}
 
 		protected void OnEntryDocNumberActivated(object sender, EventArgs e)
@@ -518,6 +744,11 @@ namespace earchive
 		{
 			//нужно разобраться как работает новый апдейтер
 			//CheckUpdate.StartCheckUpdateThread (UpdaterFlags.ShowAnyway);
+		}
+
+		private void ShowGrpcServiceUnavailableMessage()
+		{
+			MessageDialogHelper.RunErrorDialog("Служба получения кодов не доступна");
 		}
 	}
 }
