@@ -10,19 +10,17 @@ namespace UpdGrpcClientService
 {
 	public class UpdServiceClient : IDisposable
 	{
-		//private static Logger logger = LogManager.GetCurrentClassLogger();
-
 		private Channel _channel;
 		private EarchiveUpd.EarchiveUpdClient _earchiveUpdClient;
 		private readonly ILogger _logger;
 
-		public bool IsConnectionActive => true || _channel.State == ChannelState.Ready || _channel.State == ChannelState.Idle;
+		public bool IsConnectionActive => _channel.State == ChannelState.Ready || _channel.State == ChannelState.Idle;
 
-		public UpdServiceClient(string serviceAddress, ILogger logger)
+		public UpdServiceClient(string serviceAddress, int servicePort, ILogger logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_channel = new Channel("http://localhost:5000", ChannelCredentials.SecureSsl);
-            _earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
+			_channel = new Channel(serviceAddress, servicePort, ChannelCredentials.Insecure);
+			_earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
 		}
 
 		public List<CounterpartyInfo> GetCounterparties(string nameSubstring)
@@ -31,13 +29,17 @@ namespace UpdGrpcClientService
 
 			var response = _earchiveUpdClient.GetCounterparites(new NameSubstring { NamePart = nameSubstring });
 
-			while (IsConnectionActive && response.ResponseStream.MoveNext().Result)
+			while (response.ResponseStream.MoveNext().Result)
 			{
 				var counterparty = response.ResponseStream.Current;
 				counterparties.Add(counterparty);
 			}
 
-			_logger.Info($"Запрос поиска имени контрагента со значением подстроки \"{nameSubstring}\" вернул {counterparties.Count} результатов.");
+			_logger.Info(
+				"Запрос поиска имени контрагента со значением подстроки \"{NameSubstring}\" вернул {CounterpartiesCount} результатов.",
+				nameSubstring,
+				counterparties.Count);
+
 			return counterparties;
 		}
 
@@ -47,13 +49,18 @@ namespace UpdGrpcClientService
 
 			var response = _earchiveUpdClient.GetAddresses(counterparty);
 
-			while (IsConnectionActive && response.ResponseStream.MoveNext().Result)
+			while (response.ResponseStream.MoveNext().Result)
 			{
 				var address = response.ResponseStream.Current;
 				deliveryPoints.Add(address);
 			}
 
-			_logger.Info($"Запрос поиска точек доставки для контрагента {counterparty.Name} (id = {counterparty.Id}) вернул {deliveryPoints.Count} результатов.");
+			_logger.Info(
+				"Запрос поиска точек доставки для контрагента {CounterpartyName} (id = {CounterpartyId}) вернул {DeliveryPointsCount} результатов.",
+				counterparty.Name,
+				counterparty.Id,
+				deliveryPoints.Count);
+
 			return deliveryPoints;
 		}
 
@@ -74,13 +81,18 @@ namespace UpdGrpcClientService
 
 			var response = _earchiveUpdClient.GetUpdCode(requestInfo);
 
-			while (IsConnectionActive && response.ResponseStream.MoveNext().Result)
+			while (response.ResponseStream.MoveNext().Result)
 			{
 				var updCode = response.ResponseStream.Current;
 				updCodes.Add(updCode);
 			}
 
-			_logger.Info($"Запрос поиска кодов УПД для контрагента id = {counterpartyId} и точки доставки id = {deliveryPointId}  вернул {updCodes.Count} результатов.");
+			_logger.Info(
+				"Запрос поиска кодов УПД для контрагента id = {CounterpartyId} и точки доставки id = {DeliveryPointId}  вернул {UpdCodesCount} результатов.",
+				counterpartyId,
+				deliveryPointId,
+				updCodes.Count);
+
 			return updCodes;
 		}
 

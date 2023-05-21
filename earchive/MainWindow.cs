@@ -59,7 +59,11 @@ namespace earchive
 		private void SetUpdControls()
 		{
 			//Настройка контролов поиска кодов УПД
-			_earchiveUpdServiceClient = new UpdServiceClient("https://localhost:5001", logger);
+			var serviceHost = 
+			_earchiveUpdServiceClient = new UpdServiceClient(
+				GetUpdServerHostAddress(), 
+				GetUpdServerHostPort(), 
+				logger);
 
 			yentryClient.Completion = new EntryCompletion();
 			yentryClient.Completion.Model = new ListStore(typeof(CounterpartyInfo));
@@ -267,6 +271,67 @@ namespace earchive
 		}
 
 		#region Поиск УПД
+
+		private string GetUpdServerHostAddress()
+		{
+			string hostAddress = string.Empty;
+			try
+			{
+				string sql = 
+					@"SELECT str_value FROM base_parameters
+					WHERE name = @parameterName";
+				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
+				cmd.Parameters.AddWithValue("@parameterName", "upd_grpc_address");
+				MySqlDataReader rdr = cmd.ExecuteReader();
+
+				if (!rdr.Read())
+				{
+					return hostAddress;
+				}
+
+				hostAddress = rdr.GetString("str_value");
+
+				rdr.Close();
+			}
+			catch(Exception ex)
+			{
+				hostAddress = string.Empty;
+				logger.Error(ex, "Ошибка при выполнении запроса адреса хоста сервера поиска кодов УПД");
+			}
+			return hostAddress;
+		}
+
+		private int GetUpdServerHostPort()
+		{
+			string hostPort = string.Empty;
+			try
+			{
+				string sql =
+					@"SELECT str_value FROM base_parameters
+					WHERE name = @parameterName";
+				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
+				cmd.Parameters.AddWithValue("@parameterName", "upd_grpc_port");
+				MySqlDataReader rdr = cmd.ExecuteReader();
+
+				if (!rdr.Read())
+				{
+					return 0;
+				}
+
+				hostPort = rdr.GetString("str_value");
+
+				rdr.Close();
+			}
+			catch (Exception ex)
+			{
+				hostPort = string.Empty;
+				logger.Error(ex, "Ошибка при выполнении запроса порта хоста сервера поиска кодов УПД");
+			}
+
+			int.TryParse(hostPort, out int hostPortInt);
+			return hostPortInt;
+		}
+
 		private void SetUpdSearchControlsSettings()
 		{
 			yentryClient.Text = string.Empty;
