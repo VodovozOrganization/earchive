@@ -121,7 +121,6 @@
     <Compile Include="gtk-gui\earchive.DocsType.cs" />
     <Compile Include="ExtraField.cs" />
     <Compile Include="gtk-gui\earchive.ExtraField.cs" />
-    <Compile Include="UpdGrpc\EarchiveUpdServiceClient.cs" />
     <Compile Include="ViewDoc.cs" />
     <Compile Include="gtk-gui\earchive.ViewDoc.cs" />
     <Compile Include="InputDocs.cs" />
@@ -210,19 +209,12 @@
       <Project>{6D755374-6EAF-44B6-8C6C-6FE5E5AB3432}</Project>
       <Name>QS.Updater.Gtk</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Services\UpdGrpcClientService\UpdGrpcClientService.csproj">
+      <Project>{9c3c44ad-4f6a-4ec8-a501-dd4539b8d172}</Project>
+      <Name>UpdGrpcClientService</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf">
-      <Version>3.23.0</Version>
-    </PackageReference>
-    <PackageReference Include="Grpc.Net.Client">
-      <Version>2.53.0</Version>
-    </PackageReference>
-    <PackageReference Include="Grpc.Tools">
-      <Version>2.54.0</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="MySql.Data">
       <Version>8.0.28</Version>
     </PackageReference>
@@ -279,9 +271,6 @@
     <None Include="Mono.Posix.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Protobuf Include="UpdGrpc\earchive_upd.proto" GrpcServices="Client" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">

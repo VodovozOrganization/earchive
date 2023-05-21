@@ -4,6 +4,7 @@ using Grpc.Core;
 using System;
 using System.Collections.Generic;
 using NLog;
+using Grpc.Net.Client;
 
 namespace UpdGrpcClientService
 {
@@ -13,16 +14,15 @@ namespace UpdGrpcClientService
 
 		private Channel _channel;
 		private EarchiveUpd.EarchiveUpdClient _earchiveUpdClient;
-		private readonly string serviceAddress;
 		private readonly ILogger _logger;
 
-		public bool IsConnectionActive => _channel.State == ChannelState.Ready || _channel.State == ChannelState.Idle;
+		public bool IsConnectionActive => true || _channel.State == ChannelState.Ready || _channel.State == ChannelState.Idle;
 
 		public UpdServiceClient(string serviceAddress, ILogger logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_channel = new Channel($"{serviceAddress}", ChannelCredentials.Insecure);
-			_earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
+			_channel = new Channel("http://localhost:5000", ChannelCredentials.SecureSsl);
+            _earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
 		}
 
 		public List<CounterpartyInfo> GetCounterparties(string nameSubstring)

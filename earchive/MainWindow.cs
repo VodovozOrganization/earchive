@@ -1,4 +1,3 @@
-using earchive.UpdGrpc;
 using EarchiveApi;
 using Gtk;
 using MySql.Data.MySqlClient;
@@ -15,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using UpdGrpcClientService;
 
 namespace earchive
 {
@@ -31,7 +31,7 @@ namespace earchive
 		private int? _selectiedDocumentTypeId;
 		private CounterpartyInfo _selectedCounterparty;
 		private DeliveryPointInfo _selectedDeliveryPoint;
-		private EarchiveUpdServiceClient _earchiveUpdServiceClient;
+		private UpdServiceClient _earchiveUpdServiceClient;
 
 		public MainWindow() : base(WindowType.Toplevel)
 		{
@@ -59,7 +59,7 @@ namespace earchive
 		private void SetUpdControls()
 		{
 			//Настройка контролов поиска кодов УПД
-			_earchiveUpdServiceClient = new EarchiveUpdServiceClient();
+			_earchiveUpdServiceClient = new UpdServiceClient("https://localhost:5001", logger);
 
 			yentryClient.Completion = new EntryCompletion();
 			yentryClient.Completion.Model = new ListStore(typeof(CounterpartyInfo));
