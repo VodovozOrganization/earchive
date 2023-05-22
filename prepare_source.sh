@@ -3,7 +3,7 @@ echo "Что делаем?"
 echo "1) git pull"
 echo "2) nuget restore"
 echo "3) cleanup packages directories"
-echo "4) build Vodovoz.sln (for Linux)"
+echo "4) build Earchive.sln (Debug x86)"
 echo "5) remove obj & bin folders"
 echo "Можно вызывать вместе, например git+nuget=12"
 read case;
