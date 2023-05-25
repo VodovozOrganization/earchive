@@ -5,21 +5,36 @@ using System;
 using System.Collections.Generic;
 using NLog;
 using Grpc.Net.Client;
+using System.Net.Http;
+using Grpc.Net.Client.Web;
 
 namespace UpdGrpcClientService
 {
 	public class UpdServiceClient : IDisposable
 	{
-		private Channel _channel;
+		private GrpcChannel _channel;
 		private EarchiveUpd.EarchiveUpdClient _earchiveUpdClient;
 		private readonly ILogger _logger;
+		private HttpClient _httpClient;
 
-		public bool IsConnectionActive => _channel.State == ChannelState.Ready || _channel.State == ChannelState.Idle;
+		public bool IsConnectionActive => true; // _channel.State == ChannelState.Ready || _channel.State == ChannelState.Idle;
 
 		public UpdServiceClient(string serviceAddress, int servicePort, ILogger logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_channel = new Channel(serviceAddress, servicePort, ChannelCredentials.Insecure);
+			//_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			//_channel = new Channel(serviceAddress, servicePort, ChannelCredentials.Insecure);
+   //         //_channel = new Channel("localhost", 5001, ChannelCredentials.SecureSsl);
+   //         _earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
+
+			var handler = new GrpcWebHandler(new HttpClientHandler());
+			_httpClient = new HttpClient(handler);
+			//_httpClient.DefaultRequestHeaders.Add("ApiKey", apiKey);
+
+			var options = new GrpcChannelOptions();
+			options.HttpClient = _httpClient;
+
+			var channel = GrpcChannel.ForAddress("https://localhost:7101", options);
+			_channel = channel;
 			_earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
 		}
 
