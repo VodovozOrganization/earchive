@@ -209,9 +209,9 @@
       <Project>{6D755374-6EAF-44B6-8C6C-6FE5E5AB3432}</Project>
       <Name>QS.Updater.Gtk</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\UpdGrpcClientService\UpdGrpcClientService.csproj">
-      <Project>{9c3c44ad-4f6a-4ec8-a501-dd4539b8d172}</Project>
-      <Name>UpdGrpcClientService</Name>
+    <ProjectReference Include="..\Services\UpdGrpcClientService.Framework\UpdGrpcClientService.Framework.csproj">
+      <Project>{328c128a-7caf-4b0f-8970-e0d2d1978d39}</Project>
+      <Name>UpdGrpcClientService.Framework</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

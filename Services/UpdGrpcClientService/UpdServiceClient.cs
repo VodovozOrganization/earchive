@@ -21,22 +21,32 @@ namespace UpdGrpcClientService
 
 		public UpdServiceClient(string serviceAddress, int servicePort, ILogger logger)
 		{
-			//_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			//_channel = new Channel(serviceAddress, servicePort, ChannelCredentials.Insecure);
-   //         //_channel = new Channel("localhost", 5001, ChannelCredentials.SecureSsl);
-   //         _earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
+            //_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            //_channel = new Channel(serviceAddress, servicePort, ChannelCredentials.Insecure);
+            //         //_channel = new Channel("localhost", 5001, ChannelCredentials.SecureSsl);
+            //         _earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
 
-			var handler = new GrpcWebHandler(new HttpClientHandler());
-			_httpClient = new HttpClient(handler);
-			//_httpClient.DefaultRequestHeaders.Add("ApiKey", apiKey);
 
-			var options = new GrpcChannelOptions();
-			options.HttpClient = _httpClient;
 
-			var channel = GrpcChannel.ForAddress("https://localhost:7101", options);
-			_channel = channel;
-			_earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
-		}
+
+            //var handler = new GrpcWebHandler(new HttpClientHandler());
+            //_httpClient = new HttpClient(handler);
+            ////_httpClient.DefaultRequestHeaders.Add("ApiKey", apiKey);
+
+            //var options = new GrpcChannelOptions();
+            //options.HttpClient = _httpClient;
+
+            //var channel = GrpcChannel.ForAddress("https://localhost:7101", options);
+            //_channel = channel;
+            //_earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(_channel);
+
+            var channel = GrpcChannel.ForAddress("https://earchive.vod.qsolution.ru:7101", new GrpcChannelOptions
+            {
+                HttpHandler = new GrpcWebHandler(new HttpClientHandler())
+            });
+
+            _earchiveUpdClient = new EarchiveUpd.EarchiveUpdClient(channel);
+        }
 
 		public List<CounterpartyInfo> GetCounterparties(string nameSubstring)
 		{

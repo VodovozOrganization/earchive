@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using UpdGrpcClientService;
+using UpdGrpcClientService.Framework;
 
 namespace earchive
 {
@@ -62,8 +62,8 @@ namespace earchive
 			var serviceHost = 
 			_earchiveUpdServiceClient = new UpdServiceClient(
 				GetUpdServerHostAddress(), 
-				GetUpdServerHostPort(), 
-				logger);
+				GetUpdServerHostPort()/*, 
+				logger*/);
 
 			yentryClient.Completion = new EntryCompletion();
 			yentryClient.Completion.Model = new ListStore(typeof(CounterpartyInfo));
