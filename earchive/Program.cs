@@ -83,7 +83,7 @@ namespace earchive
 			QSMain.ProjectPermission.Add ("edit_db", new UserPermission("edit_db", "Изменение БД",
 			                                                             "Пользователь может изменять структуру базы данных"));
 
-			//ServicesConfig.InteractiveService = new GtkInteractiveService();
+			ServicesConfig.InteractiveService = new GtkInteractiveService();
 		}
 
 		public static void WaitRedraw()
