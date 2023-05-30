@@ -34,7 +34,7 @@ namespace UpdGrpcClientService.Framework
 		{
 			var counterparties = new List<CounterpartyInfo>();
 
-			var response = _earchiveUpdClient.GetCounterparites(new NameSubstring { NamePart = nameSubstring });
+			var response = _earchiveUpdClient.GetCounterparties(new NameSubstring { NamePart = nameSubstring });
 
 			while (response.ResponseStream.MoveNext().Result)
 			{
