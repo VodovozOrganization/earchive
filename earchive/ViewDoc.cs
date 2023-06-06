@@ -7,6 +7,7 @@ using MySql.Data.MySqlClient;
 using QSProjectsLib;
 using QSWidgetLib;
 using NLog;
+using System.Linq;
 
 namespace earchive
 {
@@ -22,7 +23,7 @@ namespace earchive
 
 		public ViewDoc ()
 		{
-			this.Build ();
+			this.Build();
 			Images = new List<DocumentImage>();
 			this.Resize(Convert.ToInt32(Screen.Width * 0.95), Convert.ToInt32(Screen.Height * 0.9));
 			this.Move(Convert.ToInt32(Screen.Width * 0.05 / 2), Convert.ToInt32(Screen.Height * 0.1 / 2));
@@ -30,7 +31,7 @@ namespace earchive
 			dateDoc.IsEditable = QSMain.User.Permissions["can_edit"];
 		}
 
-		public void Fill(int doc_id)
+        public void Fill(int doc_id)
 		{
 			QSMain.CheckConnectionAlive();
 			logger.Info("Запрос документа №" + doc_id +"...");
@@ -72,8 +73,7 @@ namespace earchive
 					{
 						Label NameLable = new Label(field.Name + ":");
 						NameLable.Xalign = 1;
-						tableProperty.Attach(NameLable, 0, 1, Row, Row+1, 
-						                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+						tableProperty.Attach(NameLable, 0, 1, Row, Row+1, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
 						FieldLables.Add(field.ID, NameLable);
 						object ValueWidget;
 						switch (field.Type) {
@@ -85,8 +85,7 @@ namespace earchive
 							ValueWidget = new Label();
 							break;
 						}
-						tableProperty.Attach((Widget)ValueWidget, 1, 2, Row, Row+1, 
-						                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+						tableProperty.Attach((Widget)ValueWidget, 1, 2, Row, Row+1, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
 						FieldWidgets.Add(field.ID, ValueWidget);
 
 						Row++;
@@ -158,6 +157,101 @@ namespace earchive
 			}
 		}
 
+		public void Fill(List<int> docIds, int docTypeId)
+		{
+			logger.Debug(
+				"Получен запрос открытия группы документов: {DocIds}. Общее количество документов: {DocIdsCount} Тип документов id={DocTypeId}.",
+                string.Join(", ", docIds),
+                docIds.Count,
+                docTypeId);
+
+			HideControls();
+
+			DocInfo = new DocumentInformation(docTypeId);
+			this.Title = DocInfo.Name + " выгрузка документов";
+			labelType.LabelProp = DocInfo.Name;
+
+			if(docIds.Count < 1)
+			{
+				return;
+			}
+
+            var docIdsParameterValue = string.Join(",", docIds);
+
+            QSMain.CheckConnectionAlive();
+
+            var sql = "SELECT * FROM images " +
+             "WHERE FIND_IN_SET(doc_id, @docIds) " +
+             "ORDER BY order_num";
+
+            var cmd = new MySqlCommand(sql, QSMain.connectionDB);
+
+            try
+            {
+
+                logger.Debug(
+                    "Выполняется запрос загрузки документов. Список id: ({DocIdsParameterValue}).",
+                    docIdsParameterValue);
+
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@docIds", docIdsParameterValue);
+
+                MySqlDataReader rdr = cmd.ExecuteReader();
+
+                var imagesCounter = 0;
+                // Загружаем изображения
+                while (rdr.Read())
+                {
+                    DocumentImage DocImage = new DocumentImage();
+                    DocImage.Changed = false;
+                    DocImage.id = rdr.GetInt32("id");
+                    DocImage.order = rdr.GetInt32("order_num");
+                    DocImage.size = rdr.GetInt64("size");
+                    DocImage.type = rdr.GetString("type");
+                    DocImage.file = new byte[DocImage.size];
+                    rdr.GetBytes(rdr.GetOrdinal("image"), 0, DocImage.file, 0, (int)DocImage.size);
+                    DocImage.Image = new Pixbuf(DocImage.file);
+
+                    //Добавляем вижет
+                    ImageViewer view = new ImageViewer();
+                    view.VerticalFit = false;
+                    view.HorizontalFit = true;
+                    view.Pixbuf = DocImage.Image;
+                    view.ButtonPressEvent += OnImagesButtonPressEvent;
+                    vboxImages.Add(view);
+                    DocImage.Widget = view;
+                    Images.Add(DocImage);
+                    imagesCounter++;
+                }
+                rdr.Close();
+
+                logger.Debug(
+                    "Загружено {ImagesCounter} документов.",
+                    imagesCounter);
+            }
+            catch (Exception ex)
+            {
+                QSMain.ErrorMessageWithLog(this, "Ошибка получения документа!", logger, ex);
+            }
+            vboxImages.ShowAll();
+        }
+
+		private void HideControls()
+		{
+			label2.Visible = false;
+			label3.Visible = false;
+			label4.Visible = false;
+			label5.Visible = false;
+			label6.Visible = false;
+			labelCreateUser.Visible = false;
+			labelCreateDate.Visible = false;
+			entryNumber.Visible = false;
+			dateDoc.Visible = false;
+			GtkScrolledWindow.Visible = false;
+			buttonCancel.Visible = false;
+			buttonOk.Visible = false;
+		}
+
 		protected void OnImagesButtonPressEvent (object o, ButtonPressEventArgs args)
 		{
 			if((int)args.Event.Button == 3)
@@ -178,14 +272,17 @@ namespace earchive
 
 		protected void OnImagePopupSave(object sender, EventArgs Arg)
 		{
-			FileChooserDialog fc=
-				new FileChooserDialog("Укажите файл для сохранения картинки",
-				                      this,
-				                      FileChooserAction.Save,
-				                      "Отмена",ResponseType.Cancel,
-				                      "Сохранить",ResponseType.Accept);
+			FileChooserDialog fc= new FileChooserDialog(
+				"Укажите файл для сохранения картинки",
+				this,
+				FileChooserAction.Save,
+				"Отмена",ResponseType.Cancel,
+				"Сохранить",ResponseType.Accept);
+
 			//FileFilter filter = new FileFilter();
-			fc.CurrentName = DocInfo.Name + " " + entryNumber.Text + ".jpg";
+			fc.CurrentName = string.IsNullOrEmpty(entryNumber.Text)
+				? DocInfo.Name + " изображение" + ".jpg"
+				: DocInfo.Name + " " + entryNumber.Text + ".jpg";
 			fc.Show(); 
 			if(fc.Run() == (int) ResponseType.Accept)
 			{
@@ -243,8 +340,7 @@ namespace earchive
 						first = false;
 						switch (field.Type) {
 							case "varchar" :
-							cmd.Parameters.AddWithValue(field.DBName, 
-							                            ((Entry)FieldWidgets[field.ID]).Text);
+							cmd.Parameters.AddWithValue(field.DBName, ((Entry)FieldWidgets[field.ID]).Text);
 							break;
 							default :
 							cmd.Parameters.AddWithValue(field.DBName, DBNull.Value);
@@ -285,13 +381,17 @@ namespace earchive
 
 		protected void OnButtonPDFClicked (object sender, EventArgs e)
 		{
-			FileChooserDialog fc=
-				new FileChooserDialog("Укажите файл для сохранения документа",
-				                      this,
-				                      FileChooserAction.Save,
-				                      "Отмена",ResponseType.Cancel,
-				                      "Сохранить",ResponseType.Accept);
-			fc.CurrentName = DocInfo.Name + " " + entryNumber.Text + ".pdf";
+			FileChooserDialog fc= new FileChooserDialog(
+				"Укажите файл для сохранения документа",
+				this,
+				FileChooserAction.Save,
+				"Отмена",ResponseType.Cancel,
+				"Сохранить",ResponseType.Accept);
+
+			fc.CurrentName = string.IsNullOrEmpty(entryNumber.Text)
+				? DocInfo.Name + " выгрузка" + ".pdf"
+				: DocInfo.Name + " " + entryNumber.Text + ".pdf";
+
 			fc.Show(); 
 			if(fc.Run() == (int) ResponseType.Accept)
 			{
@@ -317,7 +417,14 @@ namespace earchive
 				}
 			}
 			fc.Destroy();
-		}
-	}
+        }
+
+        public override void Destroy()
+        {
+            Images?.Clear();
+            vboxImages?.Destroy();
+            base.Destroy();
+        }
+    }
 }
 

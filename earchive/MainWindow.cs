@@ -1,6 +1,8 @@
+using EarchiveApi;
 using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
+using QS.Dialog.GtkUI;
 using QS.Project.Versioning;
 using QS.Project.Versioning.Product;
 using QS.Project.ViewModels;
@@ -9,25 +11,34 @@ using QS.Utilities;
 using QSProjectsLib;
 using QSWidgetLib;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using UpdGrpcClientService.Framework;
 
 namespace earchive
 {
-    public partial class MainWindow : Window
+	public partial class MainWindow : Window
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger _logger = LogManager.GetCurrentClassLogger();
 
-		IApplicationInfo applicationInfo = new ApplicationVersionInfo();
-		ListStore DocsListStore;
-		DocumentInformation CurDocType;
-		int UsedExtraFields;
-		InputDocs InputDocsWin;
+		private IApplicationInfo _applicationInfo = new ApplicationVersionInfo();
+		private ListStore _docsListStore;
+		private DocumentInformation _curDocType;
+		private int _usedExtraFields;
+		private InputDocs _inputDocsWin;
+
+		private int? _selectiedDocumentTypeId;
+		private CounterpartyInfo _selectedCounterparty;
+		private DeliveryPointInfo _selectedDeliveryPoint;
+		private UpdServiceClient _earchiveUpdServiceClient;
 
 		public MainWindow() : base(WindowType.Toplevel)
 		{
 			Build();
 
 			QSMain.StatusBarLabel = labelStatus;
-			this.Title = $"{applicationInfo.ProductTitle} v{applicationInfo.Version} от {applicationInfo.BuildDate:dd.MM.yyyy HH:mm}";
+			this.Title = $"{_applicationInfo.ProductTitle} v{_applicationInfo.Version} от {_applicationInfo.BuildDate:dd.MM.yyyy HH:mm}";
 			QSMain.MakeNewStatusTargetForNlog();
 
 			Reference.RunReferenceItemDlg += OnRunReferenceItemDialog;
@@ -41,7 +52,95 @@ namespace earchive
 			// Создаем главное окно
 			ComboWorks.ComboFillReference(comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
 			selectperiodDocs.ActiveRadio = SelectPeriod.Period.Week;
+
+			SetUpdControls();
 		}
+
+		private void SetUpdControls()
+		{
+			//Настройка контролов поиска кодов УПД
+			var serviceHost = 
+			_earchiveUpdServiceClient = new UpdServiceClient(
+				GetUpdServerHostAddress(),
+				GetUpdServerHostPort());
+
+			yentryClient.Completion = new EntryCompletion();
+			yentryClient.Completion.Model = new ListStore(typeof(CounterpartyInfo));
+			yentryClient.Completion.MinimumKeyLength = 2;
+			yentryClient.Completion.TextColumn = 0;
+			yentryClient.Completion.Complete();
+			var cell = new CellRendererText();
+			yentryClient.Completion.PackStart(cell, true);
+			yentryClient.Completion.SetCellDataFunc(cell, OnCellLayoutDataFunc);
+
+			yentryClient.Completion.MatchSelected += OnCompletionMatchSelected;
+			yentryClient.Completion.MatchFunc = CompletionMatchFunc;
+			yentryClient.Changed += OnYentryClientChanged;
+
+			comboboxAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
+			comboboxAddress.ItemSelected += OnComboboxAddressItemSelected;
+		}
+
+		#region Свойства
+		public int? SelectedDocumentTypeId
+		{
+			get => _selectiedDocumentTypeId;
+			set 
+			{ 
+				if(_selectiedDocumentTypeId != value)
+				{
+					_selectiedDocumentTypeId = value;
+
+					if (_selectiedDocumentTypeId.HasValue)
+					{
+						SetUpdSearchControlsSettings();
+					}
+
+					SelectedCounterparty = null;
+					SelectedDeliveryPoint = null;
+				}
+			}
+		}
+
+		public CounterpartyInfo SelectedCounterparty
+		{
+			get => _selectedCounterparty;
+			set
+			{
+				if(_selectedCounterparty != value)
+				{
+					_selectedCounterparty = value;
+
+					if (_selectedCounterparty != null)
+					{
+						entryDocNumber.Text = string.Empty;
+						GetAllCounterpartyAdresses();
+					}
+					else
+					{
+						ClearComboboxAddresses();
+					}
+				}
+			}
+		}
+
+		public DeliveryPointInfo SelectedDeliveryPoint
+		{
+			get => _selectedDeliveryPoint;
+			set 
+			{
+				if(_selectedDeliveryPoint != value)
+				{
+					_selectedDeliveryPoint = value;
+
+					if (_selectedDeliveryPoint != null)
+					{
+						GetUpdDocs();
+					}
+				}
+			}
+		}
+		#endregion
 
 		protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 		{
@@ -73,13 +172,13 @@ namespace earchive
 
 		void PrepareDocsTable()
 		{
-			UsedExtraFields = 0;
-			if (CurDocType.FieldsList != null)
-				foreach (DocFieldInfo item in CurDocType.FieldsList)
+			_usedExtraFields = 0;
+			if (_curDocType.FieldsList != null)
+				foreach (DocFieldInfo item in _curDocType.FieldsList)
 					if (item.Display || item.Search)
-						UsedExtraFields++;
+						_usedExtraFields++;
 
-			Type[] Types = new Type[4 + UsedExtraFields];
+			Type[] Types = new Type[4 + _usedExtraFields];
 			Types[0] = typeof(int); //0 - id
 			Types[1] = typeof(string); //1 - number
 			Types[2] = typeof(string);//2 - doc date
@@ -87,8 +186,8 @@ namespace earchive
 
 			int i = 4;
 
-			if (CurDocType.FieldsList != null)
-				foreach (DocFieldInfo item in CurDocType.FieldsList) {
+			if (_curDocType.FieldsList != null)
+				foreach (DocFieldInfo item in _curDocType.FieldsList) {
 					if (!item.Display && !item.Search)
 						continue;
 					switch (item.Type) {
@@ -100,7 +199,7 @@ namespace earchive
 					i++;
 				}
 
-			DocsListStore = new ListStore(Types);
+			_docsListStore = new ListStore(Types);
 
 			foreach (TreeViewColumn col in treeviewDocs.Columns) {
 				treeviewDocs.RemoveColumn(col);
@@ -108,8 +207,8 @@ namespace earchive
 
 			treeviewDocs.AppendColumn("Номер", new CellRendererText(), "text", 1);
 			treeviewDocs.AppendColumn("Дата", new CellRendererText(), "text", 2);
-			if (CurDocType.FieldsList != null) {
-				foreach (DocFieldInfo item in CurDocType.FieldsList) {
+			if (_curDocType.FieldsList != null) {
+				foreach (DocFieldInfo item in _curDocType.FieldsList) {
 					if (!item.Display)
 						continue;
 					switch (item.Type) {
@@ -121,7 +220,7 @@ namespace earchive
 			}
 			treeviewDocs.AppendColumn("Создан", new CellRendererText(), "text", 3);
 
-			treeviewDocs.Model = DocsListStore;
+			treeviewDocs.Model = _docsListStore;
 			treeviewDocs.ShowAll();
 			buttonRefresh.Sensitive = true;
 		}
@@ -159,25 +258,392 @@ namespace earchive
 
 		protected void OnComboDocTypeChanged(object sender, EventArgs e)
 		{
-			CurDocType = null;
-			if (comboDocType.GetActiveIter(out TreeIter iter)) {
+			_curDocType = null;
+			if (comboDocType.GetActiveIter(out TreeIter iter)) 
+			{
 				int CurrentTypeId = (int)comboDocType.Model.GetValue(iter, 1);
-				CurDocType = new DocumentInformation(CurrentTypeId);
+				_curDocType = new DocumentInformation(CurrentTypeId);
+				SelectedDocumentTypeId = CurrentTypeId;
 				PrepareDocsTable();
 				UpdateDocs();
 			}
 		}
 
-		void UpdateDocs()
+		#region Поиск УПД
+
+		private string GetUpdServerHostAddress()
 		{
-			if (CurDocType == null)
+			string hostAddress = string.Empty;
+			try
+			{
+				string sql = 
+					@"SELECT str_value FROM base_parameters
+					WHERE name = @parameterName";
+				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
+				cmd.Parameters.AddWithValue("@parameterName", "upd_grpc_address");
+				MySqlDataReader rdr = cmd.ExecuteReader();
+
+				if (!rdr.Read())
+				{
+					return hostAddress;
+				}
+
+				hostAddress = rdr.GetString("str_value");
+
+				rdr.Close();
+			}
+			catch(Exception ex)
+			{
+				hostAddress = string.Empty;
+				_logger.Error(ex, "Ошибка при выполнении запроса адреса хоста сервера поиска кодов УПД");
+			}
+			return hostAddress;
+		}
+
+		private int GetUpdServerHostPort()
+		{
+			string hostPort = string.Empty;
+			try
+			{
+				string sql =
+					@"SELECT str_value FROM base_parameters
+					WHERE name = @parameterName";
+				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
+				cmd.Parameters.AddWithValue("@parameterName", "upd_grpc_port");
+				MySqlDataReader rdr = cmd.ExecuteReader();
+
+				if (!rdr.Read())
+				{
+					return 0;
+				}
+
+				hostPort = rdr.GetString("str_value");
+
+				rdr.Close();
+			}
+			catch (Exception ex)
+			{
+				hostPort = string.Empty;
+				_logger.Error(ex, "Ошибка при выполнении запроса порта хоста сервера поиска кодов УПД");
+			}
+
+			int.TryParse(hostPort, out int hostPortInt);
+			return hostPortInt;
+		}
+
+		private void SetUpdSearchControlsSettings()
+		{
+			yentryClient.Text = string.Empty;
+
+			var selectedUpdDocumentType = SelectedDocumentTypeId == 5;
+
+			if (selectedUpdDocumentType)
+			{
+				yentryClient.Visible = true;
+				yentryClient.Sensitive = true;
+				labelClient.Visible = true;
+
+				comboboxAddress.Visible = true;
+				comboboxAddress.Sensitive = true;
+				labelAddress.Visible = true;
+
 				return;
-			logger.Info("Запрос документов в базе...");
-			DocsListStore.Clear();
+			}
+
+			yentryClient.Visible = false;
+			yentryClient.Sensitive = false;
+			labelClient.Visible = false;
+
+			comboboxAddress.Visible = false;
+			comboboxAddress.Sensitive = false;
+			labelAddress.Visible = false;
+		}
+
+		private void CounterpartyEntryFillAutocomplete()
+		{
+			var completionListStore = new ListStore(typeof(CounterpartyInfo));
+
+			var items = new List<CounterpartyInfo>();
+			var nameSubstring = yentryClient.Text.ToLower();
+
+			try
+			{
+				items = _earchiveUpdServiceClient.GetCounterparties(nameSubstring); 
+				
+				_logger.Debug(
+				"Запрос поиска имени контрагента со значением подстроки {NameSubstring} вернул {CounterpartiesCount} результатов.",
+				nameSubstring,
+				items.Count);
+			}
+
+			catch(Exception ex)
+			{
+				ShowGrpcServiceErrorMessage();
+
+				_logger.Error(
+					ex,
+					"Ошибка при выполнении запрос поиска имени контрагента со значением подстроки {NameSubstring}.",
+					nameSubstring);
+			}
+
+			foreach (var item in items)
+			{
+				if (item.Id < 1 || String.IsNullOrWhiteSpace(item.Name))
+				{
+					continue;
+				}
+				completionListStore.AppendValues(item);
+			}
+
+			yentryClient.Completion.Model = completionListStore;
+
+			if (yentryClient.HasFocus)
+			{
+				yentryClient.Completion.Complete();
+			}
+		}
+
+		private void OnCellLayoutDataFunc(CellLayout cell_layout, CellRenderer cell, TreeModel tree_model, TreeIter iter)
+		{
+			var counterpartyName = ((CounterpartyInfo)tree_model.GetValue(iter, 0)).Name;
+			var pattern = string.Format("\\b{0}", Regex.Escape(yentryClient.Text.ToLower()));
+			counterpartyName = Regex.Replace(counterpartyName, pattern, match => $"<b>{match.Value}</b>", RegexOptions.IgnoreCase);
+
+			((CellRendererText)cell).Markup = counterpartyName;
+		}
+
+		private void OnYentryClientChanged(object sender, EventArgs e)
+		{
+			SelectedCounterparty = null;
+			SelectedDeliveryPoint = null;
+			CounterpartyEntryFillAutocomplete();
+		}
+
+		private bool CompletionMatchFunc(EntryCompletion completion, string key, TreeIter iter)
+		{
+			var value = completion.Model.GetValue(iter, 0).ToString().ToLower();
+			var isMatch = Regex.IsMatch(value, String.Format("\\b{0}.*", Regex.Escape(yentryClient.Text.ToLower())));
+			CompletionFullMatchFunc(completion, key, iter);
+			return isMatch;
+		}
+
+		private bool CompletionFullMatchFunc(EntryCompletion completion, string key, TreeIter iter)
+		{
+			var enteredCounterpartyNameValue = (CounterpartyInfo)completion.Model.GetValue(iter, 0);
+			var value = enteredCounterpartyNameValue.Name.ToLower();
+			bool isMatch = key == value;
+
+			if(isMatch)
+			{
+				SelectedCounterparty = enteredCounterpartyNameValue;
+			}
+
+			return isMatch;
+		}
+
+		[GLib.ConnectBefore]
+		void OnCompletionMatchSelected(object o, MatchSelectedArgs args)
+		{
+			var selectedCounterparty = (CounterpartyInfo)args.Model.GetValue(args.Iter, 0);
+			yentryClient.Text = selectedCounterparty.Name;
+			SelectedCounterparty = selectedCounterparty;
+			args.RetVal = true;
+		}
+
+		private void GetAllCounterpartyAdresses()
+		{
+			comboboxAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
+
+			if(SelectedCounterparty != null)
+			{
+				try
+				{
+					var deliveryPoints = _earchiveUpdServiceClient
+						.GetDeliveryPoints(SelectedCounterparty)
+						.Select(d => d)
+						.ToList();
+
+                    _logger.Debug(
+                        "Запрос поиска точек доставки для контрагента {CounterpartyName} (id = {CounterpartyId}) вернул {DeliveryPointsCount} результатов.",
+                        SelectedCounterparty.Name,
+                        SelectedCounterparty.Id,
+                        deliveryPoints.Count);
+
+                    comboboxAddress.ItemsList = deliveryPoints;
+
+					return;
+				}
+				catch(Exception ex)
+				{
+					ShowGrpcServiceErrorMessage();
+
+					_logger.Error(
+						ex,
+						"Ошибка при выполнении запрос поиска точек доставки для контрагента {CounterpartyName} (id = {CounterpartyId}).",
+						SelectedCounterparty.Id);
+				}
+			}
+			comboboxAddress.ItemsList = null;
+		}
+
+		private void OnComboboxAddressItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			SelectedDeliveryPoint = (DeliveryPointInfo)comboboxAddress.SelectedItem;
+		}
+
+		private bool GetUpdDocs()
+		{
+			if (SelectedDocumentTypeId != 5 || (SelectedCounterparty == null && SelectedDeliveryPoint == null))
+			{
+				return false;
+			}
+
+            if (SelectedCounterparty == null || SelectedDeliveryPoint == null)
+            {
+                return true;
+            }
+
+            var updCodes = new List<long>();
+
+			try
+			{
+				updCodes = _earchiveUpdServiceClient
+					.GetUpdCodes(SelectedCounterparty.Id, SelectedDeliveryPoint.Id, DateTime.Now.AddYears(-30), DateTime.Now)
+					.Select(c => c.Id)
+					.ToList();
+
+				UpdateDocs(updCodes);
+
+				_logger.Debug(
+					   "Запрос поиска кодов УПД для контрагента id = {CounterpartyId} и точки доставки id = {DeliveryPointId} вернул {UpdCodesCount} результатов.",
+					   SelectedCounterparty.Id,
+					   SelectedDeliveryPoint.Id,
+					   updCodes.Count);
+			}
+			catch(Exception ex)
+			{
+				ShowGrpcServiceErrorMessage();
+
+				_logger.Error(
+					ex,
+					"Ошибка при выполнении запрос поиска кодов УПД для контрагента id = {CounterpartyId} и точки доставки id = {DeliveryPointId}",
+					SelectedCounterparty.Id,
+					SelectedDeliveryPoint.Id);
+			}
+
+			return true;
+		}
+
+		private void ClearComboboxAddresses()
+		{
+			comboboxAddress.ItemsList = null;
+		}
+		#endregion
+
+		private void UpdateDocs(List<long> documentsCodes)
+		{
+			if (_curDocType == null || documentsCodes.Count < 1)
+			{
+				return;
+			}
+
+			_logger.Info("Запрос группы документов в базе...");
+
+			_docsListStore.Clear();
 
 			string sqlExtra = "";
-			if (CurDocType.DBTableExsist)
-				sqlExtra = "LEFT JOIN extra_" + CurDocType.DBTableName + " ON extra_" + CurDocType.DBTableName +
+			if (_curDocType.DBTableExsist)
+			{
+				sqlExtra = "LEFT JOIN extra_" 
+							+ _curDocType.DBTableName 
+							+ " ON extra_" 
+							+ _curDocType.DBTableName 
+							+ ".doc_id = docs.id ";
+			}
+			
+			string sql = "SELECT * FROM docs " + sqlExtra + " WHERE docs.type_id = @typeId AND FIND_IN_SET(number, @documentsCodesList) ";
+
+			if (!selectperiodDocs.IsAllTime)
+			{
+				sql += " AND date BETWEEN @startDate AND @endDate";
+			}
+
+			QSMain.CheckConnectionAlive();
+
+			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
+
+			if (comboDocType.GetActiveIter(out TreeIter iter))
+			{
+				cmd.Parameters.AddWithValue("@typeId", comboDocType.Model.GetValue(iter, 1));
+			}
+
+			var documentsCodesParameterValue = string.Join(",", documentsCodes);
+			cmd.Parameters.AddWithValue("@documentsCodesList", documentsCodesParameterValue);
+
+			cmd.Parameters.AddWithValue("@startDate", selectperiodDocs.DateBegin);
+			cmd.Parameters.AddWithValue("@endDate", selectperiodDocs.DateEnd);
+
+			MySqlDataReader rdr = cmd.ExecuteReader();
+
+			while (rdr.Read())
+			{
+				object[] Values = new object[4 + _usedExtraFields];
+				Values[0] = rdr.GetInt32("id");
+				if (rdr["number"] != DBNull.Value)
+					Values[1] = rdr.GetString("number");
+				else
+					Values[1] = "";
+				if (rdr["date"] != DBNull.Value)
+					Values[2] = string.Format("{0:d}", rdr.GetDateTime("date"));
+				else
+					Values[2] = "";
+				Values[3] = string.Format("{0}", rdr.GetDateTime("create_date"));
+
+				if (_curDocType.FieldsList != null)
+				{
+					foreach (DocFieldInfo item in _curDocType.FieldsList)
+					{
+						if (!item.Display && !item.Search)
+							continue;
+						switch (item.Type)
+						{
+							case "varchar":
+								if (rdr[item.DBName] != DBNull.Value)
+									Values[item.ListStoreColumn] = rdr.GetString(item.DBName);
+								else
+									Values[item.ListStoreColumn] = "";
+								break;
+						}
+					}
+				}
+
+				_docsListStore.AppendValues(Values);
+			}
+
+			rdr.Close();
+
+			OnTreeviewDocsCursorChanged(null, null);
+
+			int totaldoc = _docsListStore.IterNChildren();
+
+			_logger.Info(NumberToTextRus.FormatCase(totaldoc,
+				"Получен {0} документ.",
+				"Получено {0} документа.",
+				"Получено {0} документов."));
+
+			ybuttonOpenAll.Sensitive = SelectedDocumentTypeId.HasValue && _docsListStore.IterNChildren() > 0;
+		}
+
+		void UpdateDocs()
+		{
+			if (_curDocType == null)
+				return;
+			_logger.Info("Запрос документов в базе...");
+			_docsListStore.Clear();
+
+			string sqlExtra = "";
+			if (_curDocType.DBTableExsist)
+				sqlExtra = "LEFT JOIN extra_" + _curDocType.DBTableName + " ON extra_" + _curDocType.DBTableName +
 					".doc_id = docs.id ";
 			string sql = "SELECT * FROM docs " + sqlExtra + "WHERE docs.type_id = @type_id";
 			if (!selectperiodDocs.IsAllTime)
@@ -194,7 +660,7 @@ namespace earchive
 			MySqlDataReader rdr = cmd.ExecuteReader();
 
 			while (rdr.Read()) {
-				object[] Values = new object[4 + UsedExtraFields];
+				object[] Values = new object[4 + _usedExtraFields];
 				Values[0] = rdr.GetInt32("id");
 				if (rdr["number"] != DBNull.Value)
 					Values[1] = rdr.GetString("number");
@@ -206,8 +672,8 @@ namespace earchive
 					Values[2] = "";
 				Values[3] = string.Format("{0}", rdr.GetDateTime("create_date"));
 
-				if (CurDocType.FieldsList != null) {
-					foreach (DocFieldInfo item in CurDocType.FieldsList) {
+				if (_curDocType.FieldsList != null) {
+					foreach (DocFieldInfo item in _curDocType.FieldsList) {
 						if (!item.Display && !item.Search)
 							continue;
 						switch (item.Type) {
@@ -221,19 +687,26 @@ namespace earchive
 					}
 				}
 
-				DocsListStore.AppendValues(Values);
+				_docsListStore.AppendValues(Values);
 			}
 			rdr.Close();
 			OnTreeviewDocsCursorChanged(null, null);
-			int totaldoc = DocsListStore.IterNChildren();
-			logger.Info(NumberToTextRus.FormatCase(totaldoc,
+			int totaldoc = _docsListStore.IterNChildren();
+			_logger.Info(NumberToTextRus.FormatCase(totaldoc,
 				"Получен {0} документ.",
 				"Получено {0} документа.",
 				"Получено {0} документов."));
+
+			ybuttonOpenAll.Sensitive = SelectedDocumentTypeId.HasValue && _docsListStore.IterNChildren() > 0;
 		}
 
 		protected void OnSelectperiodDocsDatesChanged(object sender, EventArgs e)
 		{
+			if(GetUpdDocs())
+			{
+				return;
+			}
+
 			if (selectperiodDocs.IsAllTime && entryDocNumber.Text.Length < 2)
 				entryDocNumber.GrabFocus();
 			else
@@ -242,37 +715,90 @@ namespace earchive
 
 		protected void OnButtonInputClicked(object sender, EventArgs e)
 		{
-			if (InputDocsWin == null) {
-				InputDocsWin = new InputDocs();
-				InputDocsWin.DeleteEvent += OnDeleteInputDocsEvent;
+			if (_inputDocsWin == null) {
+				_inputDocsWin = new InputDocs();
+				_inputDocsWin.DeleteEvent += OnDeleteInputDocsEvent;
 				Console.WriteLine("new");
 			}
-			InputDocsWin.Maximize();
-			InputDocsWin.Show();
+			_inputDocsWin.Maximize();
+			_inputDocsWin.Show();
 		}
 
 		protected void OnDeleteInputDocsEvent(object s, DeleteEventArgs arg)
 		{
-			InputDocsWin.Destroy();
-			InputDocsWin = null;
+			_inputDocsWin.Destroy();
+			_inputDocsWin = null;
 		}
 
 		protected void OnButtonOpenClicked(object sender, EventArgs e)
 		{
 			treeviewDocs.Selection.GetSelected(out TreeIter iter);
-			int ItemId = (int)DocsListStore.GetValue(iter, 0);
+			int ItemId = (int)_docsListStore.GetValue(iter, 0);
 			ViewDoc win = new ViewDoc();
 			win.Fill(ItemId);
 			win.Show();
 			if ((ResponseType)win.Run() == ResponseType.Ok)
+			{
+				if (GetUpdDocs())
+				{
+					return;
+				}
 				UpdateDocs();
+			}
 			win.Destroy();
-		}
+            GC.Collect();
+        }
+
+		protected void OnButtonOpenAllClicked(object sender, EventArgs e)
+		{
+			if(_docsListStore.IterNChildren() < 1)
+			{
+				return;
+			}
+
+			var maxDocsCount = 70;
+            if (_docsListStore.IterNChildren() > maxDocsCount)
+            {
+				MessageDialogHelper.RunInfoDialog(
+					$"Слишком большое количество документов. \n" +
+					$"Поддреживается одновременная выгрузка до {maxDocsCount} документов. \n" +
+					$"Измените настройки фильтров и попробуйте снова."
+					);
+
+                return;
+            }
+
+            var docIds = new List<int>();
+
+			foreach(object[] item in _docsListStore)
+			{
+				if(item.Length > 0 && item[0] is int code)
+				{
+					docIds.Add(code);
+				}
+			}
+
+			docIds.Sort();
+			ViewDoc win = new ViewDoc();
+			win.Fill(docIds, SelectedDocumentTypeId.Value);
+			win.Show();
+			if ((ResponseType)win.Run() == ResponseType.Ok)
+			{
+				if(GetUpdDocs())
+				{
+					return;
+				}
+				UpdateDocs();
+			}
+			win.Destroy();
+            GC.Collect();
+        }
 
 		protected void OnTreeviewDocsCursorChanged(object sender, EventArgs e)
 		{
 			bool RowSelected = treeviewDocs.Selection.CountSelectedRows() == 1;
 			buttonOpen.Sensitive = RowSelected;
+			ybuttonOpenAll.Sensitive = true;
 			buttonDelete.Sensitive = RowSelected && QSMain.User.Permissions["can_edit"];
 		}
 
@@ -284,7 +810,7 @@ namespace earchive
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
 			treeviewDocs.Selection.GetSelected(out TreeIter iter);
-			int itemid = (int)DocsListStore.GetValue(iter, 0);
+			int itemid = (int)_docsListStore.GetValue(iter, 0);
 
 			string sql = "DELETE FROM docs WHERE id = @id";
 			QSMain.CheckConnectionAlive();
@@ -296,12 +822,16 @@ namespace earchive
 
 		protected void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
+			if (GetUpdDocs())
+			{
+				return;
+			}
+
 			UpdateDocs();
 		}
 
 		protected void OnAction3Activated(object sender, EventArgs e)
 		{
-			//throw new System.NotImplementedException ();
 			Statistics stat = new Statistics();
 			stat.Show();
 			stat.Run();
@@ -311,7 +841,7 @@ namespace earchive
 		protected void OnAboutActionActivated(object sender, EventArgs e)
 		{			
 			IProductService productService = new ProductService();
-			AboutViewModel aboutViewModel = new AboutViewModel(applicationInfo, productService);
+			AboutViewModel aboutViewModel = new AboutViewModel(_applicationInfo, productService);
 			AboutView aboutView = new AboutView(aboutViewModel);
 			aboutView.Run();
 			aboutView.Destroy();
@@ -324,7 +854,19 @@ namespace earchive
 
 		protected void OnButtonSearchClicked(object sender, EventArgs e)
 		{
+			if(string.IsNullOrEmpty(entryDocNumber.Text))
+			{
+				return;
+			}
+
+			SelectedCounterparty = null;
+			SelectedDeliveryPoint = null;
+
+			yentryClient.Text = string.Empty;
+			ClearComboboxAddresses();
+
 			UpdateDocs();
+
 		}
 
 		protected void OnEntryDocNumberActivated(object sender, EventArgs e)
@@ -341,6 +883,11 @@ namespace earchive
 		{
 			//нужно разобраться как работает новый апдейтер
 			//CheckUpdate.StartCheckUpdateThread (UpdaterFlags.ShowAnyway);
+		}
+
+		private void ShowGrpcServiceErrorMessage()
+		{
+			MessageDialogHelper.RunErrorDialog("Ошбика при выполнении запроса к службе получения УПД кодов");
 		}
 	}
 }
