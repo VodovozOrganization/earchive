@@ -421,9 +421,15 @@ namespace earchive
 
 		private bool CompletionMatchFunc(EntryCompletion completion, string key, TreeIter iter)
 		{
-			var value = completion.Model.GetValue(iter, 0).ToString().ToLower();
-			var isMatch = Regex.IsMatch(value, String.Format("\\b{0}.*", Regex.Escape(yentryClient.Text.ToLower())));
-			CompletionFullMatchFunc(completion, key, iter);
+			bool isMatch = false;
+			if(completion.Model.GetValue(iter, 0) is CounterpartyInfo counterpartyInfo)
+			{
+				var value = counterpartyInfo.Name.ToLower();
+				var valueString = String.Format("{0}", value);
+				var patternString = String.Format(".*{0}.*", yentryClient.Text.ToLower());
+				isMatch = Regex.IsMatch(valueString, patternString);
+				CompletionFullMatchFunc(completion, key, iter);
+			}
 			return isMatch;
 		}
 
@@ -463,13 +469,13 @@ namespace earchive
 						.Select(d => d)
 						.ToList();
 
-                    _logger.Debug(
-                        "Запрос поиска точек доставки для контрагента {CounterpartyName} (id = {CounterpartyId}) вернул {DeliveryPointsCount} результатов.",
-                        SelectedCounterparty.Name,
-                        SelectedCounterparty.Id,
-                        deliveryPoints.Count);
+					_logger.Debug(
+						"Запрос поиска точек доставки для контрагента {CounterpartyName} (id = {CounterpartyId}) вернул {DeliveryPointsCount} результатов.",
+						SelectedCounterparty.Name,
+						SelectedCounterparty.Id,
+						deliveryPoints.Count);
 
-                    comboboxAddress.ItemsList = deliveryPoints;
+					comboboxAddress.ItemsList = deliveryPoints;
 
 					return;
 				}
@@ -498,12 +504,12 @@ namespace earchive
 				return false;
 			}
 
-            if (SelectedCounterparty == null || SelectedDeliveryPoint == null)
-            {
-                return true;
-            }
+			if (SelectedCounterparty == null || SelectedDeliveryPoint == null)
+			{
+				return true;
+			}
 
-            var updCodes = new List<long>();
+			var updCodes = new List<long>();
 
 			try
 			{
@@ -746,8 +752,8 @@ namespace earchive
 				UpdateDocs();
 			}
 			win.Destroy();
-            GC.Collect();
-        }
+			GC.Collect();
+		}
 
 		protected void OnButtonOpenAllClicked(object sender, EventArgs e)
 		{
@@ -757,18 +763,18 @@ namespace earchive
 			}
 
 			var maxDocsCount = 70;
-            if (_docsListStore.IterNChildren() > maxDocsCount)
-            {
+			if (_docsListStore.IterNChildren() > maxDocsCount)
+			{
 				MessageDialogHelper.RunInfoDialog(
 					$"Слишком большое количество документов. \n" +
 					$"Поддреживается одновременная выгрузка до {maxDocsCount} документов. \n" +
 					$"Измените настройки фильтров и попробуйте снова."
 					);
 
-                return;
-            }
+				return;
+			}
 
-            var docIds = new List<int>();
+			var docIds = new List<int>();
 
 			foreach(object[] item in _docsListStore)
 			{
@@ -791,8 +797,8 @@ namespace earchive
 				UpdateDocs();
 			}
 			win.Destroy();
-            GC.Collect();
-        }
+			GC.Collect();
+		}
 
 		protected void OnTreeviewDocsCursorChanged(object sender, EventArgs e)
 		{
