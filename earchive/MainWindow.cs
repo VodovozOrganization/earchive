@@ -115,6 +115,8 @@ namespace earchive
 					{
 						entryDocNumber.Text = string.Empty;
 						GetAllCounterpartyAdresses();
+
+						GetUpdDocs();
 					}
 					else
 					{
@@ -428,7 +430,6 @@ namespace earchive
 				var valueString = String.Format("{0}", value);
 				var patternString = String.Format(".*{0}.*", yentryClient.Text.ToLower());
 				isMatch = Regex.IsMatch(valueString, patternString);
-				CompletionFullMatchFunc(completion, key, iter);
 			}
 			return isMatch;
 		}
@@ -504,26 +505,46 @@ namespace earchive
 				return false;
 			}
 
-			if (SelectedCounterparty == null || SelectedDeliveryPoint == null)
+			if (SelectedCounterparty == null)
 			{
 				return true;
 			}
 
+			if (SelectedDeliveryPoint == null && selectperiodDocs.IsAllTime)
+			{
+				MessageDialogHelper.RunErrorDialog("Нельзя запрашивать документы за не определенный период при отсутствии выбранной точки доставки.\r\nЛибо выберете точку доставки, либо ограничте период");
+				return true;
+			}
+
+			var deliveryPointId =
+				SelectedDeliveryPoint != null
+				? SelectedDeliveryPoint.Id
+				: 0;
+
 			var updCodes = new List<long>();
+
+			var startDate = DateTime.Now.AddYears(-30);
+			var endDate = DateTime.Now;
+
+			if (!selectperiodDocs.IsAllTime
+				|| selectperiodDocs.DateBegin == default(DateTime)
+				|| selectperiodDocs.DateEnd == default(DateTime))
+			{
+				startDate = selectperiodDocs.DateBegin.AddMonths(-1);
+				endDate = selectperiodDocs.DateEnd;
+			}			
 
 			try
 			{
 				updCodes = _earchiveUpdServiceClient
-					.GetUpdCodes(SelectedCounterparty.Id, SelectedDeliveryPoint.Id, DateTime.Now.AddYears(-30), DateTime.Now)
+					.GetUpdCodes(SelectedCounterparty.Id, deliveryPointId, startDate, endDate)
 					.Select(c => c.Id)
 					.ToList();
-
-				UpdateDocs(updCodes);
 
 				_logger.Debug(
 					   "Запрос поиска кодов УПД для контрагента id = {CounterpartyId} и точки доставки id = {DeliveryPointId} вернул {UpdCodesCount} результатов.",
 					   SelectedCounterparty.Id,
-					   SelectedDeliveryPoint.Id,
+					   deliveryPointId,
 					   updCodes.Count);
 			}
 			catch(Exception ex)
@@ -534,8 +555,10 @@ namespace earchive
 					ex,
 					"Ошибка при выполнении запрос поиска кодов УПД для контрагента id = {CounterpartyId} и точки доставки id = {DeliveryPointId}",
 					SelectedCounterparty.Id,
-					SelectedDeliveryPoint.Id);
+					deliveryPointId);
 			}
+
+			UpdateDocs(updCodes);
 
 			return true;
 		}
@@ -557,87 +580,109 @@ namespace earchive
 
 			_docsListStore.Clear();
 
-			string sqlExtra = "";
-			if (_curDocType.DBTableExsist)
+			string sqlExtra = string.Empty;
+			string sql = string.Empty;
+
+
+			try
 			{
-				sqlExtra = "LEFT JOIN extra_" 
-							+ _curDocType.DBTableName 
-							+ " ON extra_" 
-							+ _curDocType.DBTableName 
-							+ ".doc_id = docs.id ";
-			}
-			
-			string sql = "SELECT * FROM docs " + sqlExtra + " WHERE docs.type_id = @typeId AND FIND_IN_SET(number, @documentsCodesList) ";
-
-			if (!selectperiodDocs.IsAllTime)
-			{
-				sql += " AND date BETWEEN @startDate AND @endDate";
-			}
-
-			QSMain.CheckConnectionAlive();
-
-			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
-
-			if (comboDocType.GetActiveIter(out TreeIter iter))
-			{
-				cmd.Parameters.AddWithValue("@typeId", comboDocType.Model.GetValue(iter, 1));
-			}
-
-			var documentsCodesParameterValue = string.Join(",", documentsCodes);
-			cmd.Parameters.AddWithValue("@documentsCodesList", documentsCodesParameterValue);
-
-			cmd.Parameters.AddWithValue("@startDate", selectperiodDocs.DateBegin);
-			cmd.Parameters.AddWithValue("@endDate", selectperiodDocs.DateEnd);
-
-			MySqlDataReader rdr = cmd.ExecuteReader();
-
-			while (rdr.Read())
-			{
-				object[] Values = new object[4 + _usedExtraFields];
-				Values[0] = rdr.GetInt32("id");
-				if (rdr["number"] != DBNull.Value)
-					Values[1] = rdr.GetString("number");
-				else
-					Values[1] = "";
-				if (rdr["date"] != DBNull.Value)
-					Values[2] = string.Format("{0:d}", rdr.GetDateTime("date"));
-				else
-					Values[2] = "";
-				Values[3] = string.Format("{0}", rdr.GetDateTime("create_date"));
-
-				if (_curDocType.FieldsList != null)
+				if (_curDocType.DBTableExsist)
 				{
-					foreach (DocFieldInfo item in _curDocType.FieldsList)
-					{
-						if (!item.Display && !item.Search)
-							continue;
-						switch (item.Type)
-						{
-							case "varchar":
-								if (rdr[item.DBName] != DBNull.Value)
-									Values[item.ListStoreColumn] = rdr.GetString(item.DBName);
-								else
-									Values[item.ListStoreColumn] = "";
-								break;
-						}
-					}
+					sqlExtra = "LEFT JOIN extra_"
+								+ _curDocType.DBTableName
+								+ " ON extra_"
+								+ _curDocType.DBTableName
+								+ ".doc_id = docs.id ";
 				}
 
-				_docsListStore.AppendValues(Values);
+				sql = "SELECT * FROM docs " + sqlExtra + " WHERE docs.type_id = @typeId AND FIND_IN_SET(number, @documentsCodesList) ";
+
+				if (!selectperiodDocs.IsAllTime)
+				{
+					sql += " AND date BETWEEN @startDate AND @endDate";
+				}
+
+				QSMain.CheckConnectionAlive();
+
+				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
+
+				if (comboDocType.GetActiveIter(out TreeIter iter))
+				{
+					cmd.Parameters.AddWithValue("@typeId", comboDocType.Model.GetValue(iter, 1));
+				}
+
+				var documentsCodesParameterValue = string.Join(",", documentsCodes);
+				cmd.Parameters.AddWithValue("@documentsCodesList", documentsCodesParameterValue);
+
+				cmd.Parameters.AddWithValue("@startDate", selectperiodDocs.DateBegin);
+				cmd.Parameters.AddWithValue("@endDate", selectperiodDocs.DateEnd);
+
+				MySqlDataReader rdr = cmd.ExecuteReader();
+
+				while (rdr.Read())
+				{
+					object[] Values = new object[4 + _usedExtraFields];
+					Values[0] = rdr.GetInt32("id");
+					if (rdr["number"] != DBNull.Value)
+						Values[1] = rdr.GetString("number");
+					else
+						Values[1] = "";
+					if (rdr["date"] != DBNull.Value)
+						Values[2] = string.Format("{0:d}", rdr.GetDateTime("date"));
+					else
+						Values[2] = "";
+					Values[3] = string.Format("{0}", rdr.GetDateTime("create_date"));
+
+					if (_curDocType.FieldsList != null)
+					{
+						foreach (DocFieldInfo item in _curDocType.FieldsList)
+						{
+							if (!item.Display && !item.Search)
+								continue;
+							switch (item.Type)
+							{
+								case "varchar":
+									if (rdr[item.DBName] != DBNull.Value)
+										Values[item.ListStoreColumn] = rdr.GetString(item.DBName);
+									else
+										Values[item.ListStoreColumn] = "";
+									break;
+							}
+						}
+					}
+
+					_docsListStore.AppendValues(Values);
+				}
+
+				rdr.Close();
+
+				OnTreeviewDocsCursorChanged(null, null);
+
+				int totaldoc = _docsListStore.IterNChildren();
+
+				_logger.Info(NumberToTextRus.FormatCase(totaldoc,
+					"Получен {0} документ.",
+					"Получено {0} документа.",
+					"Получено {0} документов."));
+			}
+			catch (Exception ex)
+			{
+				_logger.Error(
+					ex,
+					"Ошибка при выполнении запрос получения группы документов в базе. Запрос:\r\n" +
+					"{Query}\r\n" +
+					"Запрашиваемы коды документов: {docCodes}\r\n" +
+					"За период от {StartDate} до {EndDate}",
+					sql,
+					string.Join(", ", documentsCodes),
+					selectperiodDocs.DateBegin,
+					selectperiodDocs.DateEnd
+					);
+				MessageDialogHelper.RunErrorDialog("Ошибка при выполнении запрос получения группы документов в базе");
 			}
 
-			rdr.Close();
-
-			OnTreeviewDocsCursorChanged(null, null);
-
-			int totaldoc = _docsListStore.IterNChildren();
-
-			_logger.Info(NumberToTextRus.FormatCase(totaldoc,
-				"Получен {0} документ.",
-				"Получено {0} документа.",
-				"Получено {0} документов."));
-
 			ybuttonOpenAll.Sensitive = SelectedDocumentTypeId.HasValue && _docsListStore.IterNChildren() > 0;
+
 		}
 
 		void UpdateDocs()
