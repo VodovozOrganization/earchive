@@ -430,7 +430,6 @@ namespace earchive
 				var valueString = String.Format("{0}", value);
 				var patternString = String.Format(".*{0}.*", yentryClient.Text.ToLower());
 				isMatch = Regex.IsMatch(valueString, patternString);
-				CompletionFullMatchFunc(completion, key, iter);
 			}
 			return isMatch;
 		}
