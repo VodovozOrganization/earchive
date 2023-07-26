@@ -115,6 +115,7 @@ namespace earchive
 					{
 						entryDocNumber.Text = string.Empty;
 						GetAllCounterpartyAdresses();
+						GetUpdDocs();
 					}
 					else
 					{
@@ -504,17 +505,22 @@ namespace earchive
 				return false;
 			}
 
-			if (SelectedCounterparty == null || SelectedDeliveryPoint == null)
+			if (SelectedCounterparty == null)
 			{
 				return true;
 			}
+
+			var deliveryPointId =
+				SelectedDeliveryPoint != null
+				? SelectedDeliveryPoint.Id
+				: 0;
 
 			var updCodes = new List<long>();
 
 			try
 			{
 				updCodes = _earchiveUpdServiceClient
-					.GetUpdCodes(SelectedCounterparty.Id, SelectedDeliveryPoint.Id, DateTime.Now.AddYears(-30), DateTime.Now)
+					.GetUpdCodes(SelectedCounterparty.Id, deliveryPointId, DateTime.Now.AddYears(-30), DateTime.Now)
 					.Select(c => c.Id)
 					.ToList();
 
@@ -523,7 +529,7 @@ namespace earchive
 				_logger.Debug(
 					   "Запрос поиска кодов УПД для контрагента id = {CounterpartyId} и точки доставки id = {DeliveryPointId} вернул {UpdCodesCount} результатов.",
 					   SelectedCounterparty.Id,
-					   SelectedDeliveryPoint.Id,
+					   deliveryPointId,
 					   updCodes.Count);
 			}
 			catch(Exception ex)
@@ -534,7 +540,7 @@ namespace earchive
 					ex,
 					"Ошибка при выполнении запрос поиска кодов УПД для контрагента id = {CounterpartyId} и точки доставки id = {DeliveryPointId}",
 					SelectedCounterparty.Id,
-					SelectedDeliveryPoint.Id);
+					deliveryPointId);
 			}
 
 			return true;
