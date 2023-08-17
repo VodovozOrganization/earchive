@@ -2252,12 +2252,11 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Entry" id="entryInn">
+                      <widget class="Gamma.GtkWidgets.yEntry" id="entryInn">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="IsEditable">True</property>
-                        <property name="InvisibleChar">●</property>
-                        <signal name="Changed" handler="OnEntryNumberChanged" />
+                        <property name="InvisibleChar">•</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">4</property>
@@ -2354,9 +2353,9 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Image" id="IconInn">
+                      <widget class="Gamma.GtkWidgets.yImage" id="IconInn">
                         <property name="MemberName" />
-                        <property name="Pixbuf">stock:gtk-dialog-info Button</property>
+                        <property name="Pixbuf">stock:gtk-dialog-info Menu</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">4</property>
@@ -2458,7 +2457,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Label" id="labelInn">
+                      <widget class="Gamma.GtkWidgets.yLabel" id="labelInn">
                         <property name="MemberName" />
                         <property name="Xalign">1</property>
                         <property name="LabelProp" translatable="yes">ИНН&lt;span foreground="red"&gt;*&lt;/span&gt;:</property>

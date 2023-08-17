@@ -60,7 +60,7 @@ namespace earchive
 
 		private global::QSWidgetLib.DatePicker dateDoc;
 
-		private global::Gtk.Entry entryInn;
+		private global::Gamma.GtkWidgets.yEntry entryInn;
 
 		private global::Gtk.Entry entryNumber;
 
@@ -72,7 +72,7 @@ namespace earchive
 
 		private global::Gtk.Image IconNumber;
 
-		private global::Gtk.Image IconInn;
+		private global::Gamma.GtkWidgets.yImage IconInn;
 
 		private global::Gtk.Label label1;
 
@@ -82,7 +82,7 @@ namespace earchive
 
 		private global::Gtk.Label label9;
 
-		private global::Gtk.Label labelInn;
+		private global::Gamma.GtkWidgets.yLabel labelInn;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonApplyToAllScans;
 
@@ -260,11 +260,11 @@ namespace earchive
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
-			this.entryInn = new global::Gtk.Entry();
+			this.entryInn = new global::Gamma.GtkWidgets.yEntry();
 			this.entryInn.CanFocus = true;
 			this.entryInn.Name = "entryInn";
 			this.entryInn.IsEditable = true;
-			this.entryInn.InvisibleChar = '●';
+			this.entryInn.InvisibleChar = '•';
 			this.tableFieldWidgets.Add(this.entryInn);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets[this.entryInn]));
 			w15.TopAttach = ((uint)(4));
@@ -320,9 +320,9 @@ namespace earchive
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
-			this.IconInn = new global::Gtk.Image();
+			this.IconInn = new global::Gamma.GtkWidgets.yImage();
 			this.IconInn.Name = "IconInn";
-			this.IconInn.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-info", global::Gtk.IconSize.Button);
+			this.IconInn.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-dialog-info", global::Gtk.IconSize.Menu);
 			this.tableFieldWidgets.Add(this.IconInn);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets[this.IconInn]));
 			w21.TopAttach = ((uint)(4));
@@ -379,7 +379,7 @@ namespace earchive
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
-			this.labelInn = new global::Gtk.Label();
+			this.labelInn = new global::Gamma.GtkWidgets.yLabel();
 			this.labelInn.Name = "labelInn";
 			this.labelInn.Xalign = 1F;
 			this.labelInn.LabelProp = global::Mono.Unix.Catalog.GetString("ИНН<span foreground=\"red\">*</span>:");
@@ -475,7 +475,6 @@ namespace earchive
 			this.eventboxNumberIcon.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler(this.OnEventboxNumberIconButtonPressEvent);
 			this.eventboxDateIcon.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler(this.OnEventboxDateIconButtonPressEvent);
 			this.entryNumber.Changed += new global::System.EventHandler(this.OnEntryNumberChanged);
-			this.entryInn.Changed += new global::System.EventHandler(this.OnEntryNumberChanged);
 			this.dateDoc.DateChanged += new global::System.EventHandler(this.OnDateDocDateChanged);
 			this.comboType.Changed += new global::System.EventHandler(this.OnComboTypeChanged);
 			this.buttonLog.Clicked += new global::System.EventHandler(this.OnButtonLogClicked);
