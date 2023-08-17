@@ -169,6 +169,23 @@ namespace earchive
 
 		#endregion Settings
 
+		private void UpdateInnFieldsFillingRequirement()
+		{
+			var selectedTypeId = GetSelectedTypeId();
+			IsInnRequired = selectedTypeId == 12;
+		}
+
+		private int GetSelectedTypeId()
+		{
+			TreeIter iter;
+
+			if (comboType.GetActiveIter(out iter))
+			{
+				return (int)comboType.Model.GetValue(iter, 1);
+			}
+
+			return -1;
+		}
 
 		protected void OnOpenActionActivated(object sender, EventArgs e)
 		{
@@ -723,24 +740,6 @@ namespace earchive
 			}
 
 			UpdateInnFieldsFillingRequirement();
-		}
-
-		private void UpdateInnFieldsFillingRequirement()
-		{
-			var selectedTypeId = GetSelectedTypeId();
-			IsInnRequired = selectedTypeId == 12;
-		}
-
-		private int GetSelectedTypeId()
-		{
-			TreeIter iter;
-
-			if(comboType.GetActiveIter(out iter))
-			{
-				return (int)comboType.Model.GetValue(iter, 1);
-			}
-
-			return -1;
 		}
 
 		private void CalculateImages(out int DocCount, out int ImgCount)
