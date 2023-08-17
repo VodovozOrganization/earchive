@@ -35,6 +35,7 @@ namespace earchive
 
 		private bool _isInnRequired;
 		private bool _isApplyDataToAllScans;
+		private string _inn;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -100,11 +101,52 @@ namespace earchive
 				comboScaner.Sensitive = ScanAction.Sensitive = false;
 			}
 
+			#region INN Controls
+
 			UpdateInnFieldsFillingRequirement();
-			ycheckbuttonApplyToAllScans.Binding.AddBinding(this, v => v.IsApplyDataToAllScans, w => w.Active).InitializeFromSource();
+
+			labelInn.Binding
+				.AddSource(this)
+				.AddBinding(v => v.IsInnRequired, w => w.Visible)
+				.InitializeFromSource();
+
+			entryInn.Binding
+				.AddSource(this)
+				.AddBinding(v => v.Inn, w => w.Text)
+				.AddBinding(v => v.IsInnRequired, w => w.Visible)
+				.InitializeFromSource();
+
+			ycheckbuttonApplyToAllScans.Binding
+				.AddSource(this)
+				.AddBinding(v => v.IsApplyDataToAllScans, w => w.Active)
+				.AddBinding(v => v.IsInnRequired, w => w.Visible)
+				.InitializeFromSource();
+
+			IconInn.Binding
+				.AddSource(this)
+				.AddBinding(v => v.IsInnRequired, w => w.Visible)
+				.InitializeFromSource();
+
+			#endregion
 		}
 
 		#region Settings
+		public bool IsInnRequired
+		{
+			get => _isInnRequired;
+			private set
+			{
+				_isInnRequired = value;
+
+				if(!IsInnRequired)
+				{
+					Inn = string.Empty;
+				}
+
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsInnRequired)));
+			}
+		}
+
 		public bool IsApplyDataToAllScans
 		{
 			get => _isApplyDataToAllScans;
@@ -114,6 +156,17 @@ namespace earchive
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsApplyDataToAllScans)));
 			}
 		}
+
+		public string Inn
+		{
+			get => _inn;
+			private set
+			{
+				_inn = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Inn)));
+			}
+		}
+
 		#endregion Settings
 
 
@@ -675,17 +728,7 @@ namespace earchive
 		private void UpdateInnFieldsFillingRequirement()
 		{
 			var selectedTypeId = GetSelectedTypeId();
-			_isInnRequired = selectedTypeId == 12;
-
-			UpdateInnControlsVisibility();
-		}
-
-		private void UpdateInnControlsVisibility()
-		{
-			labelInn.Visible = _isInnRequired;
-			entryInn.Visible = _isInnRequired;
-			IconInn.Visible = _isInnRequired;
-			ycheckbuttonApplyToAllScans.Visible = _isInnRequired;
+			IsInnRequired = selectedTypeId == 12;
 		}
 
 		private int GetSelectedTypeId()
