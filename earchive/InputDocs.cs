@@ -1,16 +1,17 @@
-using System;
-using System.IO;
-using System.Collections.Generic;
-using Gtk;
 using Gdk;
-using QSProjectsLib;
+using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
+using QSProjectsLib;
 using QSScan;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 
 namespace earchive
 {
-	public partial class InputDocs : Gtk.Window
+	public partial class InputDocs : Gtk.Window, INotifyPropertyChanged
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private bool Clearing = false;
@@ -32,68 +33,91 @@ namespace earchive
 		string DocIconAttention = Stock.DialogWarning;
 		string DocIconGood = Stock.Yes;
 
-		public InputDocs () : 
+		private bool _isInnRequired;
+		private bool _isApplyDataToAllScans;
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		public InputDocs() :
 				base(Gtk.WindowType.Toplevel)
 		{
-			this.Build ();
+			this.Build();
 
 			FieldLables = new Dictionary<int, Label>();
 			FieldWidgets = new Dictionary<int, object>();
 			FieldIcons = new Dictionary<int, Gtk.Image>();
-			ComboWorks.ComboFillReference (comboType, "doc_types", ComboWorks.ListMode.OnlyItems, false);
+			ComboWorks.ComboFillReference(comboType, "doc_types", ComboWorks.ListMode.OnlyItems, false);
 			ImageList = new ImageTreeStore(typeof(int), //0 - id
-			                          typeof(string), //1 - Image Name
-			                          typeof(string), //2 - full path
-			                          typeof(Document), //3 - document
-			                          typeof(Pixbuf), //4 - thumbnails
-			                          typeof(Pixbuf), //5 - full image
-			                          typeof(bool), //6 - IsImage
-			                          typeof(string),//7 - Doc name
-			                          typeof(string) //8 - Doc Icon Name
-			                          );
-		
-			TreeViewColumn ImageColumn = new TreeViewColumn();
-			var ImageCell = new ImageListCellRenderer(Pango.FontDescription.FromString ("Tahoma 10"), IconSize.Menu);
-			ImageCell.Xalign = 0;
-			ImageColumn.PackStart (ImageCell, true);
-			ImageColumn.AddAttribute (ImageCell, "pixbuf", 4);
-			ImageColumn.AddAttribute (ImageCell, "text", 7);
-			ImageColumn.AddAttribute (ImageCell, "IsImageRow", 6);
-			ImageColumn.AddAttribute (ImageCell, "IconName", 8);
+									  typeof(string), //1 - Image Name
+									  typeof(string), //2 - full path
+									  typeof(Document), //3 - document
+									  typeof(Pixbuf), //4 - thumbnails
+									  typeof(Pixbuf), //5 - full image
+									  typeof(bool), //6 - IsImage
+									  typeof(string),//7 - Doc name
+									  typeof(string) //8 - Doc Icon Name
+									  );
 
-			treeviewImages.AppendColumn (ImageColumn);
+			TreeViewColumn ImageColumn = new TreeViewColumn();
+			var ImageCell = new ImageListCellRenderer(Pango.FontDescription.FromString("Tahoma 10"), IconSize.Menu);
+			ImageCell.Xalign = 0;
+			ImageColumn.PackStart(ImageCell, true);
+			ImageColumn.AddAttribute(ImageCell, "pixbuf", 4);
+			ImageColumn.AddAttribute(ImageCell, "text", 7);
+			ImageColumn.AddAttribute(ImageCell, "IsImageRow", 6);
+			ImageColumn.AddAttribute(ImageCell, "IconName", 8);
+
+			treeviewImages.AppendColumn(ImageColumn);
 			treeviewImages.Model = ImageList;
 			treeviewImages.Reorderable = true;
 			treeviewImages.TooltipColumn = 1;
-			treeviewImages.ShowAll ();
+			treeviewImages.ShowAll();
 			treeviewImages.Selection.Changed += OnTreeviewImagesSelectionChanged;
 			NextDocNumber = 1;
 
 			//Настраиваем сканирование
 			logger.Debug("Initialaze scan");
 			//scan = new ScanAuxWorks();
-			try 
+			try
 			{
-				scan = new ScanWorks ();
+				scan = new ScanWorks();
 				scan.ScanerSetup = ScanerSetup.Native;
 				scan.Pulse += OnScanWorksPulse;
 				scan.ImageTransfer += OnScanWorksImageTransfer;
 
-				var scanners = scan.GetScannerList ();
-				if (scanners.Length > 0) {
+				var scanners = scan.GetScannerList();
+				if(scanners.Length > 0)
+				{
 					comboScaner.ItemsList = scanners;
 					comboScaner.Active = scan.CurrentScanner;
-				} else
+				}
+				else
 					comboScaner.Sensitive = ScanAction.Sensitive = false;
 			}
 			catch(Exception ex)
 			{
-				logger.Error (ex, "Не удалось инициализировать подсистему сканирования.");
+				logger.Error(ex, "Не удалось инициализировать подсистему сканирования.");
 				comboScaner.Sensitive = ScanAction.Sensitive = false;
 			}
+
+			UpdateInnFieldsFillingRequirement();
+			ycheckbuttonApplyToAllScans.Binding.AddBinding(this, v => v.IsApplyDataToAllScans, w => w.Active).InitializeFromSource();
 		}
 
-		protected void OnOpenActionActivated (object sender, EventArgs e)
+		#region Settings
+		public bool IsApplyDataToAllScans
+		{
+			get => _isApplyDataToAllScans;
+			private set
+			{
+				_isApplyDataToAllScans = value;
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsApplyDataToAllScans)));
+			}
+		}
+		#endregion Settings
+
+
+		protected void OnOpenActionActivated(object sender, EventArgs e)
 		{
 			TreeIter iter;
 			FileChooserDialog Chooser = new FileChooserDialog(
@@ -104,16 +128,17 @@ namespace earchive
 											ResponseType.Cancel,
 											"Открыть",
 											ResponseType.Accept
-										) {
-											SelectMultiple = true
-										};
+										)
+			{
+				SelectMultiple = true
+			};
 
 			FileFilter Filter = new FileFilter();
-			Filter.AddPixbufFormats ();
+			Filter.AddPixbufFormats();
 			Filter.Name = "Все изображения";
 			Chooser.AddFilter(Filter);
 
-			if((ResponseType) Chooser.Run () == ResponseType.Accept)
+			if((ResponseType)Chooser.Run() == ResponseType.Accept)
 			{
 				Chooser.Hide();
 				progresswork.Text = "Загрузка изображений...";
@@ -127,33 +152,33 @@ namespace earchive
 					FileStream fs = new FileStream(File, FileMode.Open, FileAccess.Read);
 					Pixbuf image = new Pixbuf(fs);
 					double ratio = 150f / Math.Max(image.Height, image.Width);
-					Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio),(int)(image.Height * ratio), InterpType.Bilinear);
+					Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio), (int)(image.Height * ratio), InterpType.Bilinear);
 					fs.Close();
 
-					ImageList.AppendValues (iter,
+					ImageList.AppendValues(iter,
 											0,
-					                        System.IO.Path.GetFileName(File),
-					                        File,
-					                        null,
-					                        thumb,
-					                        image,
-					                        true,
-					                        "",
-					                        "");
+											System.IO.Path.GetFileName(File),
+											File,
+											null,
+											thumb,
+											image,
+											true,
+											"",
+											"");
 					progresswork.Adjustment.Value++;
 					MainClass.WaitRedraw();
 				}
-				treeviewImages.ExpandAll ();
+				treeviewImages.ExpandAll();
 				progresswork.Text = "Ок";
 				progresswork.Fraction = 0;
 			}
-			Chooser.Destroy ();
+			Chooser.Destroy();
 		}
 
-		protected void OnTreeviewImagesSelectionChanged (object sender, EventArgs e)
+		protected void OnTreeviewImagesSelectionChanged(object sender, EventArgs e)
 		{
 			TreeIter iter, iterimage, iterdoc;
-			logger.Debug ("OnTreeviewImagesSelectionChanged");
+			logger.Debug("OnTreeviewImagesSelectionChanged");
 			if(treeviewImages.Selection.GetSelected(out iter))
 			{
 				if(ImageList.IterHasChild(iter))
@@ -164,28 +189,28 @@ namespace earchive
 				else
 				{
 					iterimage = iter;
-					ImageList.IterParent (out iterdoc, iter);
+					ImageList.IterParent(out iterdoc, iter);
 				}
-				if(ImageList.GetPath(CurrentDocIter) == null || ImageList.GetPath(iterdoc).Compare(ImageList.GetPath(CurrentDocIter)) != 0 )
+				if(ImageList.GetPath(CurrentDocIter) == null || ImageList.GetPath(iterdoc).Compare(ImageList.GetPath(CurrentDocIter)) != 0)
 				{
 					CurrentDocIter = iterdoc;
-					CurrentDoc = (Document)ImageList.GetValue (iterdoc, 3);
+					CurrentDoc = (Document)ImageList.GetValue(iterdoc, 3);
 					UpdateFieldsWidgets(true);
 				}
-				if(ImageList.GetValue (iterimage, 5) != null)
+				if(ImageList.GetValue(iterimage, 5) != null)
 				{
 					CurrentImage = iterimage;
-					zoomFitAction.Activate ();
+					zoomFitAction.Activate();
 				}
 			}
-			else 
+			else
 			{
-				logger.Debug ("Doc disselect.");
+				logger.Debug("Doc disselect.");
 				CurrentDoc = null;
 				CurrentDocIter = TreeIter.Zero;
 				UpdateFieldsWidgets(true);
 				CurrentImage = TreeIter.Zero;
-				zoomFitAction.Activate ();
+				zoomFitAction.Activate();
 			}
 		}
 
@@ -201,7 +226,7 @@ namespace earchive
 			FieldLables.Clear();
 			foreach(KeyValuePair<int, object> pair in FieldWidgets)
 			{
-				tableFieldWidgets.Remove((Widget) pair.Value);
+				tableFieldWidgets.Remove((Widget)pair.Value);
 				((Widget)pair.Value).Destroy();
 			}
 			FieldWidgets.Clear();
@@ -234,26 +259,27 @@ namespace earchive
 				{
 					Label NameLable = new Label(field.Name + ":");
 					NameLable.Xalign = 1;
-					tableFieldWidgets.Attach(NameLable, 0, 1, Row, Row+1, 
-					                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+					tableFieldWidgets.Attach(NameLable, 0, 1, Row, Row + 1,
+											 AttachOptions.Fill, AttachOptions.Fill, 0, 0);
 					FieldLables.Add(field.ID, NameLable);
 					object ValueWidget;
-					switch (field.Type) {
-					case "varchar" :
-						ValueWidget = new Entry();
-						((Entry)ValueWidget).Changed += OnExtraFieldEntryChanged;
-						break;
-					default :
-						ValueWidget = new Label();
-						break;
+					switch (field.Type)
+					{
+						case "varchar":
+							ValueWidget = new Entry();
+							((Entry)ValueWidget).Changed += OnExtraFieldEntryChanged;
+							break;
+						default:
+							ValueWidget = new Label();
+							break;
 					}
-					tableFieldWidgets.Attach((Widget)ValueWidget, 1, 2, Row, Row+1, 
-					                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+					tableFieldWidgets.Attach((Widget)ValueWidget, 1, 2, Row, Row + 1,
+											 AttachOptions.Fill, AttachOptions.Fill, 0, 0);
 					FieldWidgets.Add(field.ID, ValueWidget);
 
 					Gtk.Image ConfIcon = new Gtk.Image();
-					tableFieldWidgets.Attach(ConfIcon, 2, 3, Row, Row+1, 
-					                         AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+					tableFieldWidgets.Attach(ConfIcon, 2, 3, Row, Row + 1,
+											 AttachOptions.Fill, AttachOptions.Fill, 0, 0);
 					FieldIcons.Add(field.ID, ConfIcon);
 
 					Row++;
@@ -284,13 +310,14 @@ namespace earchive
 					if(CurrentDoc.FieldValues[field.ID] == null)
 						continue;
 
-					switch (field.Type) {
-					case "varchar" :
-						((Entry)FieldWidgets[field.ID]).Text = (string) CurrentDoc.FieldValues[field.ID];
-						break;
-					default:
-						Console.WriteLine("Неизвестный тип поля");
-						break;
+					switch (field.Type)
+					{
+						case "varchar":
+							((Entry)FieldWidgets[field.ID]).Text = (string)CurrentDoc.FieldValues[field.ID];
+							break;
+						default:
+							Console.WriteLine("Неизвестный тип поля");
+							break;
 					}
 
 					SetRecognizeIcon(FieldIcons[field.ID], CurrentDoc.FieldConfidence[field.ID]);
@@ -302,112 +329,112 @@ namespace earchive
 		{
 			if(CurrentDoc != null && !Clearing)
 			{
-				foreach(KeyValuePair <int, object> pair in FieldWidgets)
+				foreach(KeyValuePair<int, object> pair in FieldWidgets)
 				{
 					if(pair.Value == sender)
 					{
-						CurrentDoc.FieldValues[pair.Key] = ((Entry) pair.Value).Text;
+						CurrentDoc.FieldValues[pair.Key] = ((Entry)pair.Value).Text;
 						UpdateCurDocCanSave();
 					}
 				}
 			}
 		}
 
-		protected void OnClearActionActivated (object sender, EventArgs e)
+		protected void OnClearActionActivated(object sender, EventArgs e)
 		{
-			ImageList.Clear ();
-			imageDoc.Clear ();
+			ImageList.Clear();
+			imageDoc.Clear();
 			NextDocNumber = 1;
 		}
 
-		protected void OnZoom100ActionActivated (object sender, EventArgs e)
+		protected void OnZoom100ActionActivated(object sender, EventArgs e)
 		{
-			if(!ImageList.IterIsValid (CurrentImage))
+			if(!ImageList.IterIsValid(CurrentImage))
 				return;
-			Pixbuf pix = (Pixbuf)ImageList.GetValue (CurrentImage, 5);
-			imageDoc.Pixbuf = pix.Copy ();
+			Pixbuf pix = (Pixbuf)ImageList.GetValue(CurrentImage, 5);
+			imageDoc.Pixbuf = pix.Copy();
 		}
 
-		protected void OnZoomFitActionActivated (object sender, EventArgs e)
+		protected void OnZoomFitActionActivated(object sender, EventArgs e)
 		{
-			if(!ImageList.IterIsValid (CurrentImage))
+			if(!ImageList.IterIsValid(CurrentImage))
 				return;
-			Pixbuf pix = (Pixbuf)ImageList.GetValue (CurrentImage, 5);
+			Pixbuf pix = (Pixbuf)ImageList.GetValue(CurrentImage, 5);
 			double vratio = scrolledImage.Vadjustment.PageSize / pix.Height;
 			double hratio = scrolledImage.Hadjustment.PageSize / pix.Width;
 			int Heigth, Width;
 			if(vratio < hratio)
 			{
-				Heigth = (int) scrolledImage.Vadjustment.PageSize;
+				Heigth = (int)scrolledImage.Vadjustment.PageSize;
 				Width = Convert.ToInt32(pix.Width * vratio);
 			}
-			else 
+			else
 			{
 				Heigth = Convert.ToInt32(pix.Height * hratio);
 				Width = (int)scrolledImage.Hadjustment.PageSize;
 			}
-			imageDoc.Pixbuf = pix.ScaleSimple (Width,
-			                                   Heigth,
-			                                   InterpType.Bilinear);
+			imageDoc.Pixbuf = pix.ScaleSimple(Width,
+											   Heigth,
+											   InterpType.Bilinear);
 		}
 
-		protected void OnZoomInActionActivated (object sender, EventArgs e)
+		protected void OnZoomInActionActivated(object sender, EventArgs e)
 		{
-			if(!ImageList.IterIsValid (CurrentImage))
+			if(!ImageList.IterIsValid(CurrentImage))
 				return;
 			if(imageDoc.Pixbuf == null)
 				return;
-			Pixbuf pix = (Pixbuf)ImageList.GetValue (CurrentImage, 5);
+			Pixbuf pix = (Pixbuf)ImageList.GetValue(CurrentImage, 5);
 			double ratio = imageDoc.Pixbuf.Width * 1.2 / pix.Width;
 			int Heigth, Width;
 			Heigth = Convert.ToInt32(pix.Height * ratio);
 			Width = Convert.ToInt32(pix.Width * ratio);
-			imageDoc.Pixbuf = pix.ScaleSimple (Width,
-			                                   Heigth,
-			                                   InterpType.Bilinear);
+			imageDoc.Pixbuf = pix.ScaleSimple(Width,
+											   Heigth,
+											   InterpType.Bilinear);
 		}
 
-		protected void OnZoomOutActionActivated (object sender, EventArgs e)
+		protected void OnZoomOutActionActivated(object sender, EventArgs e)
 		{
-			if(!ImageList.IterIsValid (CurrentImage))
+			if(!ImageList.IterIsValid(CurrentImage))
 				return;
 			if(imageDoc.Pixbuf == null)
 				return;
-			Pixbuf pix = (Pixbuf)ImageList.GetValue (CurrentImage, 5);
+			Pixbuf pix = (Pixbuf)ImageList.GetValue(CurrentImage, 5);
 			double ratio = imageDoc.Pixbuf.Width * 0.8 / pix.Width;
 			int Heigth, Width;
 			Heigth = Convert.ToInt32(pix.Height * ratio);
 			Width = Convert.ToInt32(pix.Width * ratio);
-			imageDoc.Pixbuf = pix.ScaleSimple (Width,
-			                                   Heigth,
-			                                   InterpType.Bilinear);
-		}
-			
-		protected void OnImageDocDragMotion (object o, DragMotionArgs args)
-		{
-			Console.WriteLine ("x={0} y={1}", args.X, args.Y);
+			imageDoc.Pixbuf = pix.ScaleSimple(Width,
+											   Heigth,
+											   InterpType.Bilinear);
 		}
 
-		protected void OnTreeviewImagesButtonReleaseEvent (object o, ButtonReleaseEventArgs args)
+		protected void OnImageDocDragMotion(object o, DragMotionArgs args)
+		{
+			Console.WriteLine("x={0} y={1}", args.X, args.Y);
+		}
+
+		protected void OnTreeviewImagesButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
 		{
 			if((int)args.Event.Button == 3)
-			{       
+			{
 				Gtk.Menu jBox = new Gtk.Menu();
 				Gtk.MenuItem MenuItem1;
-				if(treeviewImages.Selection.CountSelectedRows () == 1)
+				if(treeviewImages.Selection.CountSelectedRows() == 1)
 				{
 					foreach(object[] row in (ListStore)comboType.Model)
 					{
 						MenuItem1 = new MenuItem((string)row[0]);
 						MenuItem1.Activated += OnImageListPopupDocType;
-						jBox.Add(MenuItem1);       
+						jBox.Add(MenuItem1);
 					}
 					MenuItem1 = new SeparatorMenuItem();
 					jBox.Add(MenuItem1);
 
 					TreeIter iter, parentIter;
-					if(treeviewImages.Selection.GetSelected(out iter) 
-						&& (ImageList.IterParent(out parentIter, iter)) 
+					if(treeviewImages.Selection.GetSelected(out iter)
+						&& (ImageList.IterParent(out parentIter, iter))
 						&& (ImageList.IterNChildren(parentIter) > 1))
 					{
 						MenuItem1 = new MenuItem("Добавить в новый док.");
@@ -426,7 +453,7 @@ namespace earchive
 				{
 					MenuItem2 = new MenuItem((string)row[0]);
 					MenuItem2.ButtonPressEvent += OnImageListPopupDocTypeAll;
-					jBox2.Append(MenuItem2);       
+					jBox2.Append(MenuItem2);
 				}
 				jBox.Append(MenuItem1);
 
@@ -452,9 +479,9 @@ namespace earchive
 		protected void OnImageListPopupDelete(object sender, EventArgs Arg)
 		{
 			TreeIter iter;
-			
+
 			treeviewImages.Selection.GetSelected(out iter);
-			ImageList.Remove (ref iter);
+			ImageList.Remove(ref iter);
 		}
 
 		protected void OnImageListPopupNewDoc(object sender, EventArgs Arg)
@@ -475,7 +502,7 @@ namespace earchive
 			if(ImageList.IterDepth(iter) == 1)
 			{
 				TreeIter parent;
-				ImageList.IterParent (out parent, iter);
+				ImageList.IterParent(out parent, iter);
 				iter = parent;
 			}
 			int Typeid = -1;
@@ -516,7 +543,7 @@ namespace earchive
 						ImageList.SetValue(iter, 3, doc);
 						ImageList.SetValue(iter, 7, doc.Name);
 					}
-				}while(ImageList.IterNext(ref iter));
+				} while (ImageList.IterNext(ref iter));
 			}
 		}
 
@@ -544,7 +571,7 @@ namespace earchive
 			progresswork.Text = "Обработка изображений...";
 			int CountDoc, CountImg;
 			CalculateImages(out CountDoc, out CountImg);
-			progresswork.Adjustment.Upper = (double) CountImg;
+			progresswork.Adjustment.Upper = (double)CountImg;
 			MainClass.WaitRedraw();
 			do
 			{
@@ -552,18 +579,18 @@ namespace earchive
 					continue;
 				do
 				{
-					Pixbuf pix = (Pixbuf) ImageList.GetValue(iterimg, 5);
+					Pixbuf pix = (Pixbuf)ImageList.GetValue(iterimg, 5);
 					ImageList.SetValue(iterimg, 5, pix.RotateSimple(Rotate));
 					pix.Dispose();
-					pix = (Pixbuf) ImageList.GetValue(iterimg, 4);
+					pix = (Pixbuf)ImageList.GetValue(iterimg, 4);
 					ImageList.SetValue(iterimg, 4, pix.RotateSimple(Rotate));
 					pix.Dispose();
 
 					progresswork.Adjustment.Value++;
 					MainClass.WaitRedraw();
-				}while(ImageList.IterNext(ref iterimg));
+				} while (ImageList.IterNext(ref iterimg));
 
-			}while(ImageList.IterNext(ref iterdoc));
+			} while (ImageList.IterNext(ref iterdoc));
 
 			OnZoomFitActionActivated(null, null);
 
@@ -571,9 +598,9 @@ namespace earchive
 			progresswork.Fraction = 0;
 		}
 
-		protected void OnDateDocDateChanged (object sender, EventArgs e)
+		protected void OnDateDocDateChanged(object sender, EventArgs e)
 		{
-			if(CurrentDoc != null && !Clearing )
+			if(CurrentDoc != null && !Clearing)
 			{
 				CurrentDoc.DocDate = dateDoc.Date;
 				if(!dateDoc.IsEmpty)
@@ -585,14 +612,14 @@ namespace earchive
 			}
 		}
 
-		protected void OnEntryNumberChanged (object sender, EventArgs e)
+		protected void OnEntryNumberChanged(object sender, EventArgs e)
 		{
 			if(CurrentDoc != null && !Clearing)
 			{
 				CurrentDoc.DocNumber = entryNumber.Text;
 				if(CurrentDoc.DocNumber != "")
 					CurrentDoc.DocNumberConfidence = 2;
-				else 
+				else
 					CurrentDoc.DocNumberConfidence = -2;
 				SetRecognizeIcon(IconNumber, CurrentDoc.DocNumberConfidence);
 				UpdateCurDocCanSave();
@@ -609,25 +636,29 @@ namespace earchive
 
 		private string GetDocIconByState(DocState state)
 		{
-			switch (state) {
-			case DocState.Good:
-				return DocIconGood;
-			case DocState.New:
-				return DocIconNew;
-			case DocState.Bad:
-				return DocIconBad;
-			case DocState.Attention:
-				return DocIconAttention;
-			default:
-				return "";
+			switch (state)
+			{
+				case DocState.Good:
+					return DocIconGood;
+				case DocState.New:
+					return DocIconNew;
+				case DocState.Bad:
+					return DocIconBad;
+				case DocState.Attention:
+					return DocIconAttention;
+				default:
+					return "";
 			}
 		}
 
-		protected void OnComboTypeChanged (object sender, EventArgs e)
+		protected void OnComboTypeChanged(object sender, EventArgs e)
 		{
 			TreeIter iter;
 			if(!ImageList.IterIsValid(CurrentDocIter))
+			{
+				UpdateInnFieldsFillingRequirement();
 				return;
+			}
 			if(!Clearing && comboType.GetActiveIter(out iter))
 			{
 				int Type = (int)comboType.Model.GetValue(iter, 1);
@@ -637,9 +668,39 @@ namespace earchive
 				CurrentDoc = doc;
 				UpdateFieldsWidgets(false);
 			}
+
+			UpdateInnFieldsFillingRequirement();
 		}
 
-		private void CalculateImages( out int DocCount, out int ImgCount)
+		private void UpdateInnFieldsFillingRequirement()
+		{
+			var selectedTypeId = GetSelectedTypeId();
+			_isInnRequired = selectedTypeId == 12;
+
+			UpdateInnControlsVisibility();
+		}
+
+		private void UpdateInnControlsVisibility()
+		{
+			labelInn.Visible = _isInnRequired;
+			entryInn.Visible = _isInnRequired;
+			IconInn.Visible = _isInnRequired;
+			ycheckbuttonApplyToAllScans.Visible = _isInnRequired;
+		}
+
+		private int GetSelectedTypeId()
+		{
+			TreeIter iter;
+
+			if(comboType.GetActiveIter(out iter))
+			{
+				return (int)comboType.Model.GetValue(iter, 1);
+			}
+
+			return -1;
+		}
+
+		private void CalculateImages(out int DocCount, out int ImgCount)
 		{
 			TreeIter iter;
 			DocCount = 0;
@@ -652,17 +713,17 @@ namespace earchive
 				ImgCount += ImageList.IterNChildren(iter);
 				DocCount++;
 			}
-			while(ImageList.IterNext(ref iter));
+			while (ImageList.IterNext(ref iter));
 
 		}
 
-		protected void OnSaveActionActivated (object sender, EventArgs e)
+		protected void OnSaveActionActivated(object sender, EventArgs e)
 		{
 			try
 			{
-				SaveAllDocs ();
+				SaveAllDocs();
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				QSMain.ErrorMessageWithLog(this, "Ошибка в обработке документов", logger, ex);
 			}
@@ -671,46 +732,46 @@ namespace earchive
 		void SaveAllDocs()
 		{
 			TreeIter iter, imageiter;
-			bool HasIncomplete = false;;
+			bool HasIncomplete = false; ;
 			int CountDoc = 0;
 
 			if(!ImageList.GetIterFirst(out iter))
 				return;
 			do
 			{
-				if((string) ImageList.GetValue(iter, 8) != DocIconGood)
+				if((string)ImageList.GetValue(iter, 8) != DocIconGood)
 					HasIncomplete = true;
 				CountDoc++;
 			}
-			while(ImageList.IterNext(ref iter));
-			
+			while (ImageList.IterNext(ref iter));
+
 			if(HasIncomplete)
 			{
 				string Message = "Не во всех документах полностью заполнены необходимые поля. В базе будут сохранены только готовые к записи документы.";
-				MessageDialog md = new MessageDialog ( this, DialogFlags.DestroyWithParent,
-				                                      MessageType.Info, 
-				                                      ButtonsType.OkCancel,
-				                                      Message);
-				ResponseType result = (ResponseType)md.Run ();
+				MessageDialog md = new MessageDialog(this, DialogFlags.DestroyWithParent,
+													  MessageType.Info,
+													  ButtonsType.OkCancel,
+													  Message);
+				ResponseType result = (ResponseType)md.Run();
 				md.Destroy();
 				if(result == ResponseType.Cancel)
 					return;
 			}
 
-			logger.Info ("Проверяем на уникальность номера...");
+			logger.Info("Проверяем на уникальность номера...");
 			QSMain.CheckConnectionAlive();
-			MySqlCommand cmd = QSMain.connectionDB.CreateCommand ();
-			DBWorks.SQLHelper sqlhelp = 
+			MySqlCommand cmd = QSMain.connectionDB.CreateCommand();
+			DBWorks.SQLHelper sqlhelp =
 				new DBWorks.SQLHelper("SELECT number, date, create_date, type_id FROM docs WHERE YEAR(date) = YEAR(CURDATE()) AND number IN (");
 			int ix = 0;
-			ImageList.Foreach( delegate(TreeModel model, TreePath path, TreeIter iter2) 
+			ImageList.Foreach(delegate (TreeModel model, TreePath path, TreeIter iter2)
 			{
 				Document TempDoc = (Document)model.GetValue(iter2, 3);
 				if(TempDoc != null)
 				{
-					string paramName = String.Format ("@num{0}", ix);
+					string paramName = String.Format("@num{0}", ix);
 					sqlhelp.AddAsList(paramName);
-					cmd.Parameters.AddWithValue (paramName, TempDoc.DocNumber);
+					cmd.Parameters.AddWithValue(paramName, TempDoc.DocNumber);
 					ix++;
 				}
 
@@ -718,16 +779,16 @@ namespace earchive
 			});
 			sqlhelp.Add(")");
 			cmd.CommandText = sqlhelp.Text;
-			logger.Debug ("SQL: " + sqlhelp.Text);
+			logger.Debug("SQL: " + sqlhelp.Text);
 			using (MySqlDataReader rdr = cmd.ExecuteReader())
 			{
 				string conflicts = "";
-				while(rdr.Read())
+				while (rdr.Read())
 				{
 					string number = rdr["number"].ToString();
 					int type_id = rdr.GetInt32("type_id");
 
-					ImageList.Foreach( delegate(TreeModel model, TreePath path, TreeIter iter2) 
+					ImageList.Foreach(delegate (TreeModel model, TreePath path, TreeIter iter2)
 					{
 						Document TempDoc = (Document)model.GetValue(iter2, 3);
 						if(TempDoc != null && TempDoc.DocNumber == number && TempDoc.TypeId == type_id)
@@ -742,11 +803,11 @@ namespace earchive
 				{
 					string Message = String.Format("Документы со следующими номерами уже существуют в базе:\n{0}" +
 						"Все равно записать документы?", conflicts);
-					MessageDialog md = new MessageDialog ( this, DialogFlags.DestroyWithParent,
-						MessageType.Warning, 
+					MessageDialog md = new MessageDialog(this, DialogFlags.DestroyWithParent,
+						MessageType.Warning,
 						ButtonsType.YesNo,
 						Message);
-					ResponseType result = (ResponseType)md.Run ();
+					ResponseType result = (ResponseType)md.Run();
 					md.Destroy();
 					if(result == ResponseType.No)
 						return;
@@ -760,7 +821,7 @@ namespace earchive
 			ImageList.GetIterFirst(out iter);
 			do
 			{
-				if((string) ImageList.GetValue(iter, 8) != DocIconGood)
+				if((string)ImageList.GetValue(iter, 8) != DocIconGood)
 					continue;
 
 				Document doc = (Document)ImageList.GetValue(iter, 3);
@@ -809,28 +870,28 @@ namespace earchive
 						cmd.Parameters.AddWithValue("@doc_id", docid);
 						cmd.Parameters.AddWithValue("@order_num", order);
 						cmd.Parameters.AddWithValue("@type", "jpg");
-						Pixbuf pix = (Pixbuf) ImageList.GetValue(imageiter, 5);
-						byte[] rawdata = pix.SaveToBuffer("jpeg", new string[] {"quality"}, new string[] {"10"});
+						Pixbuf pix = (Pixbuf)ImageList.GetValue(imageiter, 5);
+						byte[] rawdata = pix.SaveToBuffer("jpeg", new string[] { "quality" }, new string[] { "10" });
 						cmd.Parameters.AddWithValue("@size", rawdata.LongLength);
 						cmd.Parameters.AddWithValue("@image", rawdata);
 						cmd.ExecuteNonQuery();
 					}
-					while(ImageList.IterNext(ref imageiter));
+					while (ImageList.IterNext(ref imageiter));
 
-					trans.Commit ();
+					trans.Commit();
 					progresswork.Adjustment.Value++;
 					MainClass.WaitRedraw();
 					ForRemove.Add(iter);
 					logger.Info("Ok");
 				}
-				catch (Exception ex)
+				catch(Exception ex)
 				{
-					trans.Rollback ();
+					trans.Rollback();
 					QSMain.ErrorMessageWithLog(this, "Ошибка сохранения документов!", logger, ex);
 					return;
 				}
 			}
-			while(ImageList.IterNext(ref iter));
+			while (ImageList.IterNext(ref iter));
 			//удаляем записаное
 			foreach(TreeIter rowiter in ForRemove)
 			{
@@ -841,45 +902,45 @@ namespace earchive
 			progresswork.Fraction = 0;
 		}
 
-		protected void OnRotate90ActionActivated (object sender, EventArgs e)
+		protected void OnRotate90ActionActivated(object sender, EventArgs e)
 		{
 			if(!ImageList.IterIsValid(CurrentImage))
 				return;
-			Pixbuf pix = (Pixbuf) ImageList.GetValue(CurrentImage, 5);
+			Pixbuf pix = (Pixbuf)ImageList.GetValue(CurrentImage, 5);
 			ImageList.SetValue(CurrentImage, 5, pix.RotateSimple(PixbufRotation.Clockwise));
-			pix = (Pixbuf) ImageList.GetValue(CurrentImage, 4);
+			pix = (Pixbuf)ImageList.GetValue(CurrentImage, 4);
 			ImageList.SetValue(CurrentImage, 4, pix.RotateSimple(PixbufRotation.Clockwise));
 			OnZoomFitActionActivated(null, null);
 		}
 
-		protected void OnRotate180ActionActivated (object sender, EventArgs e)
+		protected void OnRotate180ActionActivated(object sender, EventArgs e)
 		{
 			if(!ImageList.IterIsValid(CurrentImage))
 				return;
-			Pixbuf pix = (Pixbuf) ImageList.GetValue(CurrentImage, 5);
+			Pixbuf pix = (Pixbuf)ImageList.GetValue(CurrentImage, 5);
 			ImageList.SetValue(CurrentImage, 5, pix.RotateSimple(PixbufRotation.Upsidedown));
-			pix = (Pixbuf) ImageList.GetValue(CurrentImage, 4);
+			pix = (Pixbuf)ImageList.GetValue(CurrentImage, 4);
 			ImageList.SetValue(CurrentImage, 4, pix.RotateSimple(PixbufRotation.Upsidedown));
 			OnZoomFitActionActivated(null, null);
 		}
 
-		protected void OnRotate270ActionActivated (object sender, EventArgs e)
+		protected void OnRotate270ActionActivated(object sender, EventArgs e)
 		{
 			if(!ImageList.IterIsValid(CurrentImage))
 				return;
-			Pixbuf pix = (Pixbuf) ImageList.GetValue(CurrentImage, 5);
+			Pixbuf pix = (Pixbuf)ImageList.GetValue(CurrentImage, 5);
 			ImageList.SetValue(CurrentImage, 5, pix.RotateSimple(PixbufRotation.Counterclockwise));
-			pix = (Pixbuf) ImageList.GetValue(CurrentImage, 4);
+			pix = (Pixbuf)ImageList.GetValue(CurrentImage, 4);
 			ImageList.SetValue(CurrentImage, 4, pix.RotateSimple(PixbufRotation.Counterclockwise));
 			OnZoomFitActionActivated(null, null);
 		}
 
-		protected void OnActionRecognizeActivated (object sender, EventArgs e)
+		protected void OnActionRecognizeActivated(object sender, EventArgs e)
 		{
 			TreeIter iter, imageiter;
 
 			//Создаем новый лог
-			if (RecognizeLog == null)
+			if(RecognizeLog == null)
 			{
 				NLog.Config.LoggingConfiguration config = LogManager.Configuration;
 				RecognizeLog = new NLog.Targets.MemoryTarget();
@@ -908,61 +969,70 @@ namespace earchive
 			{
 				if(ImageList.IterDepth(iter) == 0)
 				{
-					logger.Info((string) ImageList.GetValue(iter, 1));
+					logger.Info((string)ImageList.GetValue(iter, 1));
 					//Получаем список изображений документа
-					int ImagesCount = ImageList.IterNChildren (iter);
-					Pixbuf[] Images = new Pixbuf [ImagesCount];
+					int ImagesCount = ImageList.IterNChildren(iter);
+					Pixbuf[] Images = new Pixbuf[ImagesCount];
 					int i = 0;
-					ImageList.IterChildren (out imageiter, iter);
-					do {
-						Images [i] = (Pixbuf)ImageList.GetValue (imageiter, 5);
+					ImageList.IterChildren(out imageiter, iter);
+					do
+					{
+						Images[i] = (Pixbuf)ImageList.GetValue(imageiter, 5);
 						i++;
-					} while (ImageList.IterNext (ref imageiter));
+					} while (ImageList.IterNext(ref imageiter));
 
-					Document doc = (Document)ImageList.GetValue (iter, 3);
+					Document doc = (Document)ImageList.GetValue(iter, 3);
 
 					//Распознание QR кода с распознаванием типа документа
 					var qrResult = QRCodeRecognizer.TryParse(Images, ref doc);
 
 					//Если QR кода нет или не распознан попытка распознать другими способами
-					if (!qrResult) {
-						logger.Warn ("QR код не распознан или не указан в документе. Пытаемся распознать другими способами...");
-						if (doc == null) {
-							logger.Warn ("Тип не определён. Переходим к следующему...");
+					if(!qrResult)
+					{
+						logger.Warn("QR код не распознан или не указан в документе. Пытаемся распознать другими способами...");
+						if(doc == null)
+						{
+							logger.Warn("Тип не определён. Переходим к следующему...");
 							continue;
 						}
-						if (doc.Template == null) {
-							logger.Warn ("Шаблон распознования не указан. Переходим к следующему...");
+						if(doc.Template == null)
+						{
+							logger.Warn("Шаблон распознования не указан. Переходим к следующему...");
 							continue;
 						}
 
-						logger.Info ("Тип: {0}", doc.Name);
-						logger.Info ("Количество страниц: {0}", ImagesCount);
-						logger.Info ("Инициализация движка...");
-						RecognizeDoc tess = new RecognizeDoc (doc, Images);
+						logger.Info("Тип: {0}", doc.Name);
+						logger.Info("Количество страниц: {0}", ImagesCount);
+						logger.Info("Инициализация движка...");
+						RecognizeDoc tess = new RecognizeDoc(doc, Images);
 						tess.DiagnosticMode = checkDiagnostic.Active;
 						//FIXME Для теста
 						tess.parent = this;
-						try {
-							tess.Recognize ();
-						} catch (Exception ex) {
-							QSMain.ErrorMessageWithLog (this, "Ошибка в модуле распознования!", logger, ex);
-							ShowLog ();
+						try
+						{
+							tess.Recognize();
 						}
-					}else {
-						ImageList.SetValue (iter, 7, doc.Name);
-						ImageList.SetValue (iter, 3, doc);
+						catch(Exception ex)
+						{
+							QSMain.ErrorMessageWithLog(this, "Ошибка в модуле распознования!", logger, ex);
+							ShowLog();
+						}
 					}
-					ImageList.SetValue (iter, 8, GetDocIconByState (doc.State));
+					else
+					{
+						ImageList.SetValue(iter, 7, doc.Name);
+						ImageList.SetValue(iter, 3, doc);
+					}
+					ImageList.SetValue(iter, 8, GetDocIconByState(doc.State));
 				}
 				progresswork.Adjustment.Value++;
 				MainClass.WaitRedraw();
 
-			}while(ImageList.IterNext(ref iter));
+			} while (ImageList.IterNext(ref iter));
 			logger.Info("Выполнено");
 			progresswork.Text = "Выполнено";
 			progresswork.Fraction = 0;
-			CurrentDoc = (Document)ImageList.GetValue (CurrentDocIter, 3);
+			CurrentDoc = (Document)ImageList.GetValue(CurrentDocIter, 3);
 			UpdateFieldsWidgets(true);
 		}
 
@@ -971,33 +1041,33 @@ namespace earchive
 			if(confidence == 2) //Исправлено пользователем.
 			{
 				img.Pixbuf = img.RenderIcon(Stock.Apply, IconSize.Button, "");
-				img.TooltipText =  String.Format("Исправлено.");
+				img.TooltipText = String.Format("Исправлено.");
 			}
 			else if(confidence > 0.8)
 			{
 				img.Pixbuf = img.RenderIcon(Stock.Yes, IconSize.Button, "");
-				img.TooltipText =  String.Format("ОК. Доверие: {0}", confidence);
+				img.TooltipText = String.Format("ОК. Доверие: {0}", confidence);
 			}
 			else if(confidence == -1) //Распознования не проводилось
 			{
 				img.Pixbuf = img.RenderIcon(Stock.DialogQuestion, IconSize.Button, "");
-				img.TooltipText =  String.Format("Распознование не проводилось.");
+				img.TooltipText = String.Format("Распознование не проводилось.");
 			}
 			else if(confidence == -2) //Результат не прошел проверку.
 			{
 				img.Pixbuf = img.RenderIcon(Stock.No, IconSize.Button, "");
-				img.TooltipText =  String.Format("Результат не прошёл проверку.");
+				img.TooltipText = String.Format("Результат не прошёл проверку.");
 			}
 			else
 			{
 				img.Pixbuf = img.RenderIcon(Stock.DialogWarning, IconSize.Button, "");
-				img.TooltipText =  String.Format("Не точно. Доверие: {0}", confidence);
+				img.TooltipText = String.Format("Не точно. Доверие: {0}", confidence);
 			}
 		}
 
 		void ShowLog()
 		{
-			if (RecognizeLog == null)
+			if(RecognizeLog == null)
 				return;
 			string text = "";
 			foreach(string str in RecognizeLog.Logs)
@@ -1007,7 +1077,7 @@ namespace earchive
 
 			Dialog HistoryDialog = new Dialog("Лог работы модуля распознования.", this, Gtk.DialogFlags.DestroyWithParent);
 			HistoryDialog.Modal = true;
-			HistoryDialog.AddButton ("Закрыть", ResponseType.Close);
+			HistoryDialog.AddButton("Закрыть", ResponseType.Close);
 
 			TextView HistoryTextView = new TextView();
 			HistoryTextView.WidthRequest = 700;
@@ -1016,15 +1086,15 @@ namespace earchive
 			HistoryTextView.Buffer.Text = text;
 			Gtk.ScrolledWindow ScrollW = new ScrolledWindow();
 			ScrollW.HeightRequest = 500;
-			ScrollW.Add (HistoryTextView);
-			HistoryDialog.VBox.Add (ScrollW);
+			ScrollW.Add(HistoryTextView);
+			HistoryDialog.VBox.Add(ScrollW);
 
-			HistoryDialog.ShowAll ();
-			HistoryDialog.Run ();
-			HistoryDialog.Destroy ();
+			HistoryDialog.ShowAll();
+			HistoryDialog.Run();
+			HistoryDialog.Destroy();
 		}
 
-		protected void OnButtonLogClicked (object sender, EventArgs e)
+		protected void OnButtonLogClicked(object sender, EventArgs e)
 		{
 			ShowLog();
 		}
@@ -1032,21 +1102,21 @@ namespace earchive
 		private TreeIter ImageListNewDoc()
 		{
 			TreeIter result;
-			result = ImageList.AppendValues (0,
-				String.Format ("Документ {0}", NextDocNumber),
+			result = ImageList.AppendValues(0,
+				String.Format("Документ {0}", NextDocNumber),
 				"",
 				null,
-				null ,
+				null,
 				null,
 				false,
-				String.Format ("Тип неопределён"),
+				String.Format("Тип неопределён"),
 				DocIconNew
 			);
 			NextDocNumber++;
 			return result;
 		}
 
-		protected void OnScanActionActivated (object sender, EventArgs e)
+		protected void OnScanActionActivated(object sender, EventArgs e)
 		{
 			try
 			{
@@ -1055,17 +1125,17 @@ namespace earchive
 
 				scan.GetImages();
 
-				treeviewImages.ExpandAll ();
+				treeviewImages.ExpandAll();
 				progresswork.Text = "Ок";
 				progresswork.Fraction = 0;
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				QSMain.ErrorMessageWithLog(this, "Ошибка в работе со сканером!", logger, ex);
 			}
 		}
 
-		void OnScanWorksImageTransfer (object s, ImageTransferEventArgs arg) 
+		void OnScanWorksImageTransfer(object s, ImageTransferEventArgs arg)
 		{
 			TreeIter iter;
 			progresswork.Text = "Завершаем загрузку...";
@@ -1075,9 +1145,9 @@ namespace earchive
 
 			Pixbuf image = arg.Image;
 			double ratio = 150f / Math.Max(image.Height, image.Width);
-			Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio),(int)(image.Height * ratio), InterpType.Bilinear);
+			Pixbuf thumb = image.ScaleSimple((int)(image.Width * ratio), (int)(image.Height * ratio), InterpType.Bilinear);
 
-			ImageList.AppendValues (iter,
+			ImageList.AppendValues(iter,
 				0,
 				null,
 				null,
@@ -1093,30 +1163,30 @@ namespace earchive
 
 		}
 
-		void OnScanWorksPulse (object sender, ScanWorksPulseEventArgs e)
+		void OnScanWorksPulse(object sender, ScanWorksPulseEventArgs e)
 		{
 			progresswork.Text = e.ProgressText;
 			progresswork.Adjustment.Upper = e.ImageByteSize;
 			progresswork.Adjustment.Value = e.LoadedByteSize;
 			MainClass.WaitRedraw();
 		}
-	
+
 		protected void OnEventboxNumberIconButtonPressEvent(object o, ButtonPressEventArgs args)
 		{
-			OnEntryNumberChanged (eventboxNumberIcon, EventArgs.Empty);
+			OnEntryNumberChanged(eventboxNumberIcon, EventArgs.Empty);
 		}
 
 		protected void OnEventboxDateIconButtonPressEvent(object o, ButtonPressEventArgs args)
 		{
-			OnDateDocDateChanged (eventboxDateIcon, EventArgs.Empty);
+			OnDateDocDateChanged(eventboxDateIcon, EventArgs.Empty);
 		}
 
-		public override void Destroy ()
+		public override void Destroy()
 		{
 			if(scan != null)
-				scan.Close ();
-			
-			base.Destroy ();
+				scan.Close();
+
+			base.Destroy();
 		}
 
 		protected void OnComboScanerChanged(object sender, EventArgs e)
