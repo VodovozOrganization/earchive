@@ -510,12 +510,6 @@ namespace earchive
 				return true;
 			}
 
-			if (SelectedDeliveryPoint == null && selectperiodDocs.IsAllTime)
-			{
-				MessageDialogHelper.RunErrorDialog("Нельзя запрашивать документы за не определенный период при отсутствии выбранной точки доставки.\r\nЛибо выберете точку доставки, либо ограничте период");
-				return true;
-			}
-
 			var deliveryPointId =
 				SelectedDeliveryPoint != null
 				? SelectedDeliveryPoint.Id
@@ -523,16 +517,21 @@ namespace earchive
 
 			var updCodes = new List<long>();
 
-			var startDate = DateTime.Now.AddYears(-30);
+			var startDate = default(DateTime);
 			var endDate = DateTime.Now;
 
-			if (!selectperiodDocs.IsAllTime
-				|| selectperiodDocs.DateBegin == default(DateTime)
-				|| selectperiodDocs.DateEnd == default(DateTime))
+			if (!selectperiodDocs.IsAllTime)
 			{
-				startDate = selectperiodDocs.DateBegin.AddMonths(-1);
-				endDate = selectperiodDocs.DateEnd;
-			}			
+				if(selectperiodDocs.DateBegin > default(DateTime).AddMonths(1))
+				{
+					startDate = selectperiodDocs.DateBegin.AddMonths(-1);
+				}
+
+				if(selectperiodDocs.DateEnd != default(DateTime))
+				{
+					endDate = selectperiodDocs.DateEnd;
+				}
+			}
 
 			try
 			{
@@ -615,7 +614,11 @@ namespace earchive
 				cmd.Parameters.AddWithValue("@documentsCodesList", documentsCodesParameterValue);
 
 				cmd.Parameters.AddWithValue("@startDate", selectperiodDocs.DateBegin);
-				cmd.Parameters.AddWithValue("@endDate", selectperiodDocs.DateEnd);
+				cmd.Parameters.AddWithValue(
+					"@endDate", 
+					selectperiodDocs.DateEnd == default(DateTime)
+					? DateTime.Now
+					: selectperiodDocs.DateEnd);
 
 				MySqlDataReader rdr = cmd.ExecuteReader();
 
