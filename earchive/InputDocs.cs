@@ -33,6 +33,7 @@ namespace earchive
 		string DocIconAttention = Stock.DialogWarning;
 		string DocIconGood = Stock.Yes;
 
+		private int _contractDocumentTypeId = 12;
 		private bool _isInnRequired;
 		private bool _isApplyDataToAllScans;
 		private string _inn;
@@ -163,7 +164,28 @@ namespace earchive
 			private set
 			{
 				_inn = value;
+				UpdateInnFieldsFillingStatus();
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Inn)));
+			}
+		}
+
+		private void UpdateInnFieldsFillingStatus()
+		{
+			if (CurrentDoc != null && !Clearing)
+			{
+				CurrentDoc.INN = entryInn.Text;
+				CurrentDoc.INNConfidence = 2;
+
+				if (IsInnRequired)
+				{
+					if(string.IsNullOrWhiteSpace(CurrentDoc.INN))
+					{
+						CurrentDoc.INNConfidence = -2;
+					}
+				}
+
+				SetRecognizeIcon(IconInn, CurrentDoc.INNConfidence);
+				UpdateCurDocCanSave();
 			}
 		}
 
@@ -172,7 +194,7 @@ namespace earchive
 		private void UpdateInnFieldsFillingRequirement()
 		{
 			var selectedTypeId = GetSelectedTypeId();
-			IsInnRequired = selectedTypeId == 12;
+			IsInnRequired = selectedTypeId == _contractDocumentTypeId;
 		}
 
 		private int GetSelectedTypeId()
@@ -871,14 +893,15 @@ namespace earchive
 				MySqlTransaction trans = QSMain.connectionDB.BeginTransaction();
 				try
 				{
-					string sql = "INSERT INTO docs(number, date, create_date, user_id, type_id) " +
-						"VALUES(@number, @date, @create_date, @user_id, @type_id)";
+					string sql = "INSERT INTO docs(number, date, create_date, user_id, type_id, inn) " +
+						"VALUES(@number, @date, @create_date, @user_id, @type_id, @inn)";
 					cmd = new MySqlCommand(sql, QSMain.connectionDB, trans);
 					cmd.Parameters.AddWithValue("@number", doc.DocNumber);
 					cmd.Parameters.AddWithValue("@date", doc.DocDate);
 					cmd.Parameters.AddWithValue("@create_date", DateTime.Now);
 					cmd.Parameters.AddWithValue("@user_id", QSMain.User.Id);
 					cmd.Parameters.AddWithValue("@type_id", doc.TypeId);
+					cmd.Parameters.AddWithValue("@inn", doc.INN);
 					cmd.ExecuteNonQuery();
 					long docid = cmd.LastInsertedId;
 					if(doc.CountExtraFields > 0)
