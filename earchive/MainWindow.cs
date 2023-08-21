@@ -571,9 +571,13 @@ namespace earchive
 		private void UpdateDocs(List<long> documentsCodes)
 		{
 			if (_curDocType == null || documentsCodes.Count < 1)
-			{
-				return;
-			}
+            {
+                _docsListStore.Clear();
+
+                _logger.Info("Получено 0 документов.");
+
+                return;
+            }
 
 			_logger.Info("Запрос группы документов в базе...");
 
