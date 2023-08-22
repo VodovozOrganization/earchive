@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using BaseParametersService;
 using MySql.Data.MySqlClient;
 using QSProjectsLib;
@@ -173,6 +174,9 @@ namespace earchive
 
 	public class Document : DocumentInformation
 	{
+		private const string _legalInnRegEx = @"^[0-9]{10}$";
+		private const string _naturalInnRegEx = @"^[0-9]{12}$";
+
 		private static IBaseParametersProvider _baseParametersProvider = new BaseParametersProvider();
 
 		public Dictionary<int, object> FieldValues;
@@ -260,12 +264,20 @@ namespace earchive
 		get{
 				bool numberIsOk = DocNumber != "";
 				bool dateIsOk = DocDate.Year != 1;
-				bool innIsOk =
+				bool innIsOk = 
 					TypeId != _contractDocumentTypeId
-					|| DocInn != "";
+					|| InnIsValid();
 
 				return numberIsOk && dateIsOk && innIsOk;
 			}
+		}
+
+		public bool InnIsValid()
+		{
+			bool isValid = Regex.IsMatch(DocInn, _legalInnRegEx)
+				|| Regex.IsMatch(DocInn, _naturalInnRegEx);
+
+			return isValid;
 		}
 
 		public DocState State{

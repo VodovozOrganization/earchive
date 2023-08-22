@@ -177,7 +177,7 @@ namespace earchive
 
 				if (IsInnRequired)
 				{
-					if (string.IsNullOrWhiteSpace(CurrentDoc.DocInn))
+					if (string.IsNullOrWhiteSpace(CurrentDoc.DocInn) || !CurrentDoc.InnIsValid())
 					{
 						CurrentDoc.DocInnConfidence = -2;
 					}
