@@ -178,8 +178,8 @@ namespace earchive
 		public float DocNumberConfidence;
 		public DateTime DocDate;
 		public float DocDateConfidence;
-		public string INN;
-		public float INNConfidence;
+		public string Inn;
+		public float DocInnConfidence;
 
 		public Document (string typeName) : base (typeName)
 		{
@@ -198,8 +198,8 @@ namespace earchive
 			DocNumber = "";
 			DocNumberConfidence = -1;
 			DocDateConfidence = -1;
-			INN = "";
-			INNConfidence = -1;
+			Inn = "";
+			DocInnConfidence = -1;
 			if (DBTableExsist) {
 				//FIXME Возможно в этом случае объекты выше не надо создавать
 				foreach (DocFieldInfo Field in FieldsList) {
@@ -223,7 +223,7 @@ namespace earchive
 
 				float[] Conf =
 					TypeId == 12 
-					? new float[] { DocNumberConfidence, DocDateConfidence, INNConfidence }
+					? new float[] { DocNumberConfidence, DocDateConfidence, DocInnConfidence }
 					: new float[] {DocNumberConfidence, DocDateConfidence };
 				//FIXME Добавить в обработку значения дополнительных полей.
 				float Min = 5;

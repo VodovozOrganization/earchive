@@ -122,6 +122,7 @@ namespace earchive
 				.AddBinding(v => v.IsApplyDataToAllScans, w => w.Active)
 				.AddBinding(v => v.IsInnRequired, w => w.Visible)
 				.InitializeFromSource();
+			ycheckbuttonApplyToAllScans.Clicked += (s, e) => CopyFieldsToAllDocuments();
 
 			IconInn.Binding
 				.AddSource(this)
@@ -169,32 +170,67 @@ namespace earchive
 			}
 		}
 
+		#endregion Settings
+
 		private void UpdateInnFieldsFillingStatus()
 		{
 			if (CurrentDoc != null && !Clearing)
 			{
-				CurrentDoc.INN = entryInn.Text;
-				CurrentDoc.INNConfidence = 2;
+				CurrentDoc.Inn = entryInn.Text;
+				CurrentDoc.DocInnConfidence = 2;
 
 				if (IsInnRequired)
 				{
-					if(string.IsNullOrWhiteSpace(CurrentDoc.INN))
+					if (string.IsNullOrWhiteSpace(CurrentDoc.Inn))
 					{
-						CurrentDoc.INNConfidence = -2;
+						CurrentDoc.DocInnConfidence = -2;
 					}
 				}
 
-				SetRecognizeIcon(IconInn, CurrentDoc.INNConfidence);
+				SetRecognizeIcon(IconInn, CurrentDoc.DocInnConfidence);
 				UpdateCurDocCanSave();
 			}
 		}
-
-		#endregion Settings
 
 		private void UpdateInnFieldsFillingRequirement()
 		{
 			var selectedTypeId = GetSelectedTypeId();
 			IsInnRequired = selectedTypeId == _contractDocumentTypeId;
+		}
+
+		private void CopyFieldsToAllDocuments()
+		{
+			var docTypeId = CurrentDoc.TypeId;
+			var docNumber = CurrentDoc.DocNumber;
+			var docNumberConfidence = CurrentDoc.DocNumberConfidence;
+			var docDate = CurrentDoc.DocDate;
+			var docDateConfidence = CurrentDoc.DocDateConfidence;
+			var docInn = CurrentDoc.Inn;
+			var docInnConfidence = CurrentDoc.DocInnConfidence;
+
+			if (docTypeId > 0)
+			{
+				TreeIter iter;
+				if (!ImageList.GetIterFirst(out iter))
+					return;
+				do
+				{
+					if (ImageList.IterDepth(iter) == 0)
+					{
+						Document doc = new Document(docTypeId);
+						doc.DocNumber = docNumber;
+						doc.DocNumberConfidence = docNumberConfidence;
+						doc.DocDate = docDate;
+						doc.DocDateConfidence = docDateConfidence;
+						doc.Inn = docInn;
+						doc.DocInnConfidence = docInnConfidence;
+
+						ImageList.SetValue(iter, 3, doc);
+						ImageList.SetValue(iter, 7, doc.Name);
+						ImageList.SetValue(iter, 8, GetDocIconByState(doc.State));
+					}
+				} while (ImageList.IterNext(ref iter));
+			}
 		}
 
 		private int GetSelectedTypeId()
@@ -393,6 +429,13 @@ namespace earchive
 			dateDoc.Date = CurrentDoc.DocDate;
 			dateDoc.Sensitive = true;
 			SetRecognizeIcon(IconDate, CurrentDoc.DocDateConfidence);
+
+			if(CurrentDoc.TypeId == _contractDocumentTypeId)
+			{
+				entryInn.Text = CurrentDoc.Inn;
+				SetRecognizeIcon(IconInn, CurrentDoc.DocInnConfidence);
+			}
+
 			Clearing = false;
 
 			if(CurrentDoc.FieldsList != null)
@@ -901,7 +944,7 @@ namespace earchive
 					cmd.Parameters.AddWithValue("@create_date", DateTime.Now);
 					cmd.Parameters.AddWithValue("@user_id", QSMain.User.Id);
 					cmd.Parameters.AddWithValue("@type_id", doc.TypeId);
-					cmd.Parameters.AddWithValue("@inn", doc.INN);
+					cmd.Parameters.AddWithValue("@inn", doc.Inn);
 					cmd.ExecuteNonQuery();
 					long docid = cmd.LastInsertedId;
 					if(doc.CountExtraFields > 0)
