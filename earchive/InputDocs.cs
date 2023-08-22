@@ -35,7 +35,6 @@ namespace earchive
 
 		private int _contractDocumentTypeId = 12;
 		private bool _isInnRequired;
-		private bool _isApplyDataToAllScans;
 		private string _inn;
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -117,12 +116,11 @@ namespace earchive
 				.AddBinding(v => v.IsInnRequired, w => w.Visible)
 				.InitializeFromSource();
 
-			//ycheckbuttonApplyToAllScans.Binding
-			//	.AddSource(this)
-			//	.AddBinding(v => v.IsApplyDataToAllScans, w => w.Active)
-			//	.AddBinding(v => v.IsInnRequired, w => w.Visible)
-			//	.InitializeFromSource();
-			//ycheckbuttonApplyToAllScans.Clicked += (s, e) => CopyFieldsToAllDocuments();
+			ybuttonApplyToAllScans.Binding
+				.AddSource(this)
+				.AddFuncBinding(v => v.IsInnRequired && CurrentDoc != null, w => w.Visible)
+				.InitializeFromSource();
+			ybuttonApplyToAllScans.Clicked += (s, e) => CopyFieldsToAllDocuments();
 
 			IconInn.Binding
 				.AddSource(this)
@@ -146,16 +144,6 @@ namespace earchive
 				}
 
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsInnRequired)));
-			}
-		}
-
-		public bool IsApplyDataToAllScans
-		{
-			get => _isApplyDataToAllScans;
-			private set
-			{
-				_isApplyDataToAllScans = value;
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsApplyDataToAllScans)));
 			}
 		}
 
