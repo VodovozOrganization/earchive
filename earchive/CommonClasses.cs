@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BaseParametersService;
 using MySql.Data.MySqlClient;
 using QSProjectsLib;
 using QSWidgetLib;
@@ -172,14 +173,18 @@ namespace earchive
 
 	public class Document : DocumentInformation
 	{
+		private static IBaseParametersProvider _baseParametersProvider = new BaseParametersProvider();
+
 		public Dictionary<int, object> FieldValues;
 		public Dictionary<int, float> FieldConfidence;
-		public string DocNumber;
-		public float DocNumberConfidence;
-		public DateTime DocDate;
-		public float DocDateConfidence;
-		public string Inn;
-		public float DocInnConfidence;
+
+		private string _docNumber;
+		private float _docNumberConfidence;
+		private DateTime _docDate;
+		private float _docDateConfidence;
+		private string _docInn;
+		private float _docInnConfidence;
+		private int _contractDocumentTypeId;
 
 		public Document (string typeName) : base (typeName)
 		{
@@ -191,6 +196,45 @@ namespace earchive
 			Init();
 		}
 
+		#region Свойства
+
+		public string DocNumber
+		{
+			get => _docNumber;
+			set => _docNumber = value;
+		}
+
+		public float DocNumberConfidence
+		{
+			get => _docNumberConfidence;
+			set => _docNumberConfidence = value;
+		}
+
+		public DateTime DocDate
+		{
+			get => _docDate;
+			set => _docDate = value;
+		}
+		public float DocDateConfidence
+		{
+			get => _docDateConfidence;
+			set => _docDateConfidence = value;
+		}
+
+		public string DocInn
+		{
+			get => _docInn;
+			set => _docInn = value;
+		}
+
+		public float DocInnConfidence
+		{
+			get => _docInnConfidence;
+			set => _docInnConfidence = value;
+		}
+
+		#endregion Свойства
+
 		private void Init()
 		{
 			FieldValues = new Dictionary<int, object> ();
@@ -198,8 +242,11 @@ namespace earchive
 			DocNumber = "";
 			DocNumberConfidence = -1;
 			DocDateConfidence = -1;
-			Inn = "";
+			DocInn = "";
 			DocInnConfidence = -1;
+
+			_contractDocumentTypeId = _baseParametersProvider.ContractDocTypeId;
+
 			if (DBTableExsist) {
 				//FIXME Возможно в этом случае объекты выше не надо создавать
 				foreach (DocFieldInfo Field in FieldsList) {
@@ -211,9 +258,13 @@ namespace earchive
 
 		public bool CanSave{
 		get{
-				bool Numberok = DocNumber != "";
-				bool Dateok = DocDate.Year != 1;
-				return Numberok && Dateok;
+				bool numberIsOk = DocNumber != "";
+				bool dateIsOk = DocDate.Year != 1;
+				bool innIsOk =
+					TypeId != _contractDocumentTypeId
+					|| DocInn != "";
+
+				return numberIsOk && dateIsOk && innIsOk;
 			}
 		}
 
@@ -222,7 +273,7 @@ namespace earchive
 				DocState temp;
 
 				float[] Conf =
-					TypeId == 12 
+					TypeId == _contractDocumentTypeId
 					? new float[] { DocNumberConfidence, DocDateConfidence, DocInnConfidence }
 					: new float[] {DocNumberConfidence, DocDateConfidence };
 				//FIXME Добавить в обработку значения дополнительных полей.

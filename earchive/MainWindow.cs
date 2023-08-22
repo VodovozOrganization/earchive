@@ -1,3 +1,4 @@
+using BaseParametersService;
 using EarchiveApi;
 using Gtk;
 using MySql.Data.MySqlClient;
@@ -22,7 +23,7 @@ namespace earchive
 	public partial class MainWindow : Window
 	{
 		private static Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly ParametersService _parametersService = new ParametersService(QSMain.ConnectionDB);
+		private readonly static IBaseParametersProvider _baseParametersProvider = new BaseParametersProvider();
 
 		private IApplicationInfo _applicationInfo = new ApplicationVersionInfo();
 		private ListStore _docsListStore;
@@ -56,30 +57,9 @@ namespace earchive
 			ComboWorks.ComboFillReference(comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
 			selectperiodDocs.ActiveRadio = SelectPeriod.Period.Week;
 
-			_contractDocumentTypeId = GetContractDocTypeId();
+			_contractDocumentTypeId = _baseParametersProvider.ContractDocTypeId;
 
 			SetUpdControls();
-		}
-
-		private int GetContractDocTypeId()
-		{
-			var contractDocTypeIdKey = "contract_doc_type_id";
-
-			var dbParameters = _parametersService.All;
-
-			if(dbParameters == null || !dbParameters.ContainsKey(contractDocTypeIdKey))
-			{
-				MessageDialogHelper.RunErrorDialog("Не найден параметр базы данных, устанавливающий значения Id типа документов \"Договор\"");
-				return -1;
-			}
-
-			if (int.TryParse(dbParameters[contractDocTypeIdKey], out int id))
-			{
-				return id;
-			}
-
-			MessageDialogHelper.RunErrorDialog("В таблице параметров БД значения Id типа документов \"Договор\" установлено в неверном формате");
-			return -1;
 		}
 
 		private void SetUpdControls()
@@ -817,7 +797,7 @@ namespace earchive
 		protected void OnButtonInputClicked(object sender, EventArgs e)
 		{
 			if (_inputDocsWin == null) {
-				_inputDocsWin = new InputDocs();
+				_inputDocsWin = new InputDocs(_baseParametersProvider);
 				_inputDocsWin.DeleteEvent += OnDeleteInputDocsEvent;
 				Console.WriteLine("new");
 			}

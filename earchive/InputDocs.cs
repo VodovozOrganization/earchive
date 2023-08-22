@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using BaseParametersService;
 
 namespace earchive
 {
@@ -33,16 +34,21 @@ namespace earchive
 		string DocIconAttention = Stock.DialogWarning;
 		string DocIconGood = Stock.Yes;
 
-		private int _contractDocumentTypeId = 12;
+		private int _contractDocumentTypeId;
 		private bool _isInnRequired;
 		private string _inn;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		public InputDocs() :
+		public InputDocs(IBaseParametersProvider baseParametersProvider) :
 				base(Gtk.WindowType.Toplevel)
 		{
-			this.Build();
+            if (baseParametersProvider is null)
+            {
+                throw new ArgumentNullException(nameof(baseParametersProvider));
+            }
+
+            this.Build();
 
 			FieldLables = new Dictionary<int, Label>();
 			FieldWidgets = new Dictionary<int, object>();
@@ -128,6 +134,8 @@ namespace earchive
 				.InitializeFromSource();
 
 			#endregion
+
+			_contractDocumentTypeId = baseParametersProvider.ContractDocTypeId;
 		}
 
 		#region Settings
@@ -142,7 +150,7 @@ namespace earchive
 				{
 					Inn = string.Empty;
 				}
-
+				
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsInnRequired)));
 			}
 		}
@@ -164,12 +172,12 @@ namespace earchive
 		{
 			if (CurrentDoc != null && !Clearing)
 			{
-				CurrentDoc.Inn = entryInn.Text;
+				CurrentDoc.DocInn = entryInn.Text;
 				CurrentDoc.DocInnConfidence = 2;
 
 				if (IsInnRequired)
 				{
-					if (string.IsNullOrWhiteSpace(CurrentDoc.Inn))
+					if (string.IsNullOrWhiteSpace(CurrentDoc.DocInn))
 					{
 						CurrentDoc.DocInnConfidence = -2;
 					}
@@ -193,7 +201,7 @@ namespace earchive
 			var docNumberConfidence = CurrentDoc.DocNumberConfidence;
 			var docDate = CurrentDoc.DocDate;
 			var docDateConfidence = CurrentDoc.DocDateConfidence;
-			var docInn = CurrentDoc.Inn;
+			var docInn = CurrentDoc.DocInn;
 			var docInnConfidence = CurrentDoc.DocInnConfidence;
 
 			if (docTypeId > 0)
@@ -210,7 +218,7 @@ namespace earchive
 						doc.DocNumberConfidence = docNumberConfidence;
 						doc.DocDate = docDate;
 						doc.DocDateConfidence = docDateConfidence;
-						doc.Inn = docInn;
+						doc.DocInn = docInn;
 						doc.DocInnConfidence = docInnConfidence;
 
 						ImageList.SetValue(iter, 3, doc);
@@ -420,7 +428,7 @@ namespace earchive
 
 			if(CurrentDoc.TypeId == _contractDocumentTypeId)
 			{
-				entryInn.Text = CurrentDoc.Inn;
+				entryInn.Text = CurrentDoc.DocInn;
 				SetRecognizeIcon(IconInn, CurrentDoc.DocInnConfidence);
 			}
 
@@ -932,7 +940,7 @@ namespace earchive
 					cmd.Parameters.AddWithValue("@create_date", DateTime.Now);
 					cmd.Parameters.AddWithValue("@user_id", QSMain.User.Id);
 					cmd.Parameters.AddWithValue("@type_id", doc.TypeId);
-					cmd.Parameters.AddWithValue("@inn", doc.Inn);
+					cmd.Parameters.AddWithValue("@inn", doc.DocInn);
 					cmd.ExecuteNonQuery();
 					long docid = cmd.LastInsertedId;
 					if(doc.CountExtraFields > 0)

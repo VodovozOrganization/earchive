@@ -205,6 +205,10 @@
       <Project>{6D755374-6EAF-44B6-8C6C-6FE5E5AB3432}</Project>
       <Name>QS.Updater.Gtk</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Services\BaseParametersService\BaseParametersService\BaseParametersService.csproj">
+      <Project>{ccb8c244-4444-4593-b07d-5e5901e688f7}</Project>
+      <Name>BaseParametersService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Services\UpdGrpcClientService.Framework\UpdGrpcClientService.Framework.csproj">
       <Project>{328c128a-7caf-4b0f-8970-e0d2d1978d39}</Project>
       <Name>UpdGrpcClientService.Framework</Name>
