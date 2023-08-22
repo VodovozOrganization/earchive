@@ -43,12 +43,12 @@ namespace earchive
 		public InputDocs(IBaseParametersProvider baseParametersProvider) :
 				base(Gtk.WindowType.Toplevel)
 		{
-            if (baseParametersProvider is null)
-            {
-                throw new ArgumentNullException(nameof(baseParametersProvider));
-            }
+			if (baseParametersProvider is null)
+			{
+				throw new ArgumentNullException(nameof(baseParametersProvider));
+			}
 
-            this.Build();
+			this.Build();
 
 			FieldLables = new Dictionary<int, Label>();
 			FieldWidgets = new Dictionary<int, object>();
@@ -244,18 +244,19 @@ namespace earchive
 		protected void OnOpenActionActivated(object sender, EventArgs e)
 		{
 			TreeIter iter;
-			FileChooserDialog Chooser = new FileChooserDialog(
-											"Выберите изображения для загрузки...",
-											this,
-											FileChooserAction.Open,
-											"Отмена",
-											ResponseType.Cancel,
-											"Открыть",
-											ResponseType.Accept
-										)
-			{
-				SelectMultiple = true
-			};
+			FileChooserDialog Chooser = 
+				new FileChooserDialog(
+					"Выберите изображения для загрузки...",
+					this,
+					FileChooserAction.Open,
+					"Отмена",
+					ResponseType.Cancel,
+					"Открыть",
+					ResponseType.Accept
+					)
+				{
+					SelectMultiple = true
+				};
 
 			FileFilter Filter = new FileFilter();
 			Filter.AddPixbufFormats();
