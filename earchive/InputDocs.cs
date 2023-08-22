@@ -117,12 +117,12 @@ namespace earchive
 				.AddBinding(v => v.IsInnRequired, w => w.Visible)
 				.InitializeFromSource();
 
-			ycheckbuttonApplyToAllScans.Binding
-				.AddSource(this)
-				.AddBinding(v => v.IsApplyDataToAllScans, w => w.Active)
-				.AddBinding(v => v.IsInnRequired, w => w.Visible)
-				.InitializeFromSource();
-			ycheckbuttonApplyToAllScans.Clicked += (s, e) => CopyFieldsToAllDocuments();
+			//ycheckbuttonApplyToAllScans.Binding
+			//	.AddSource(this)
+			//	.AddBinding(v => v.IsApplyDataToAllScans, w => w.Active)
+			//	.AddBinding(v => v.IsInnRequired, w => w.Visible)
+			//	.InitializeFromSource();
+			//ycheckbuttonApplyToAllScans.Clicked += (s, e) => CopyFieldsToAllDocuments();
 
 			IconInn.Binding
 				.AddSource(this)
