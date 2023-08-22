@@ -84,7 +84,7 @@ namespace earchive
 
 		private global::Gamma.GtkWidgets.yLabel labelInn;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonApplyToAllScans;
+		private global::Gamma.GtkWidgets.yButton ybuttonApplyToAllScans;
 
 		private global::Gtk.CheckButton checkDiagnostic;
 
@@ -391,18 +391,18 @@ namespace earchive
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFieldWidgets.Gtk.Table+TableChild
-			this.ycheckbuttonApplyToAllScans = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonApplyToAllScans.CanFocus = true;
-			this.ycheckbuttonApplyToAllScans.Name = "ycheckbuttonApplyToAllScans";
-			this.ycheckbuttonApplyToAllScans.Label = global::Mono.Unix.Catalog.GetString("Применить ко всем изображениям");
-			this.ycheckbuttonApplyToAllScans.DrawIndicator = true;
-			this.ycheckbuttonApplyToAllScans.UseUnderline = true;
-			this.tableFieldWidgets.Add(this.ycheckbuttonApplyToAllScans);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets[this.ycheckbuttonApplyToAllScans]));
+			this.ybuttonApplyToAllScans = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonApplyToAllScans.CanFocus = true;
+			this.ybuttonApplyToAllScans.Name = "ybuttonApplyToAllScans";
+			this.ybuttonApplyToAllScans.UseUnderline = true;
+			this.ybuttonApplyToAllScans.Label = global::Mono.Unix.Catalog.GetString("Применить ко всем\n      изображениям");
+			this.tableFieldWidgets.Add(this.ybuttonApplyToAllScans);
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.tableFieldWidgets[this.ybuttonApplyToAllScans]));
 			w27.TopAttach = ((uint)(5));
 			w27.BottomAttach = ((uint)(6));
 			w27.LeftAttach = ((uint)(1));
-			w27.RightAttach = ((uint)(3));
+			w27.RightAttach = ((uint)(2));
+			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox3.Add(this.tableFieldWidgets);
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.tableFieldWidgets]));
