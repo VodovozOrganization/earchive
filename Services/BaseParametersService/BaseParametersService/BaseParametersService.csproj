@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.BaseParameters\QS.BaseParameters.csproj" />
+    <ProjectReference Include="..\..\..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
+  </ItemGroup>
+
+</Project>

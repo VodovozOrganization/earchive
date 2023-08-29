@@ -187,11 +187,16 @@ namespace earchive
 					else
 					{
 						logger.Debug ("By after market detection: {0}", CurRule.AfterTextMarkerValue);
-						if (DateTime.TryParse (CurRule.AfterTextMarkerValue, out Doc.DocDate)) {
+						if (DateTime.TryParse (CurRule.AfterTextMarkerValue, out DateTime docDate)) 
+						{
+							Doc.DocDate = docDate;
 							logger.Debug ("Date parsed:{0}", Doc.DocDate);
 							Doc.DocDateConfidence = CurRule.AfterTextMarkerConfidence;
-						} else
+						} 
+						else
+						{
 							Doc.DocDateConfidence = -2;
+						}
 					}
 				}
 
@@ -243,59 +248,6 @@ namespace earchive
 				zone.RelativeHeigth = 1;
 		}
 
-		/*
-		int LookingTextMarker(RecognazeRule Rule, Page page, out ResultIterator BestLineIter, out int word)
-		{
-			word = -1;
-			BestLineIter = null;
-			int BestDistance = 10000;
-
-			ResultIterator LineIter = page.GetIterator();
-			string[] Words = Rule.TextMarker.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-			int NumberOfWords = Words.Length;
-			LineIter.Begin();
-			do
-			{
-				int CurrentWordNumber = -1;
-				int CurrentBestDistance = 10000;
-				string Line = LineIter.GetText(PageIteratorLevel.TextLine);
-				if(Line == null)
-					continue;
-				string[] WordsOfLine = Line.Split(new char[] {' '}, StringSplitOptions.None);
-				if(WordsOfLine.Length < NumberOfWords)
-					continue;
-
-				for(int shift = 0; shift <= WordsOfLine.Length - NumberOfWords; shift++)
-				{
-					int PassDistance = 0;
-					for(int i = 0; i < NumberOfWords; i++)
-					{
-						PassDistance += FuzzyStringComparer.GetDistanceLevenshtein(WordsOfLine[shift + i],
-						                                                              Words[i],
-						                                                              StringComparison.CurrentCultureIgnoreCase);
-					}
-					if(PassDistance < CurrentBestDistance)
-					{
-						CurrentBestDistance = PassDistance;
-						CurrentWordNumber = shift + 1;
-					}
-				}
-				if(CurrentBestDistance < BestDistance)
-				{
-					AddToLog ("new best");
-					AddToLog (LineIter.GetText(PageIteratorLevel.Word));
-					word = CurrentWordNumber;
-					if(BestLineIter != null)
-						BestLineIter.Dispose();
-					BestLineIter = LineIter.Clone();
-					AddToLog (BestLineIter.GetText(PageIteratorLevel.TextLine));
-					BestDistance = CurrentBestDistance;
-				}
-			} while( LineIter.Next(PageIteratorLevel.TextLine));
-			LineIter.Dispose();
-			return BestDistance;
-		} */
-
 		int GetTextPosition(string Text, Page page, out int PosX, out int PosY, out double AngleRad, RecognazeRule[] AfterMarkerRules)
 		{
 			int BestDistance = 10000;
@@ -329,7 +281,7 @@ namespace earchive
 
 						int PassDistance = FuzzyStringComparer.GetDistanceLevenshtein(passString,
 							Text,
-						    StringComparison.CurrentCultureIgnoreCase);
+							StringComparison.CurrentCultureIgnoreCase);
 						if(PassDistance < CurrentBestDistance)
 						{
 							CurrentBestDistance = PassDistance;

@@ -1,7 +1,9 @@
+using BaseParametersService;
 using EarchiveApi;
 using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
+using QS.BaseParameters;
 using QS.Dialog.GtkUI;
 using QS.Project.Versioning;
 using QS.Project.Versioning.Product;
@@ -21,6 +23,7 @@ namespace earchive
 	public partial class MainWindow : Window
 	{
 		private static Logger _logger = LogManager.GetCurrentClassLogger();
+		private readonly static IBaseParametersProvider _baseParametersProvider = new BaseParametersProvider();
 
 		private IApplicationInfo _applicationInfo = new ApplicationVersionInfo();
 		private ListStore _docsListStore;
@@ -32,6 +35,7 @@ namespace earchive
 		private CounterpartyInfo _selectedCounterparty;
 		private DeliveryPointInfo _selectedDeliveryPoint;
 		private UpdServiceClient _earchiveUpdServiceClient;
+		private int _contractDocumentTypeId;
 
 		public MainWindow() : base(WindowType.Toplevel)
 		{
@@ -52,6 +56,8 @@ namespace earchive
 			// Создаем главное окно
 			ComboWorks.ComboFillReference(comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
 			selectperiodDocs.ActiveRadio = SelectPeriod.Period.Week;
+
+			_contractDocumentTypeId = _baseParametersProvider.ContractDocTypeId;
 
 			SetUpdControls();
 		}
@@ -266,6 +272,14 @@ namespace earchive
 				int CurrentTypeId = (int)comboDocType.Model.GetValue(iter, 1);
 				_curDocType = new DocumentInformation(CurrentTypeId);
 				SelectedDocumentTypeId = CurrentTypeId;
+
+				labelNumber.Text = "Номер:";
+
+				if (CurrentTypeId == _contractDocumentTypeId)
+				{
+					labelNumber.Text = "ИНН:";
+				}
+
 				PrepareDocsTable();
 				UpdateDocs();
 			}
@@ -571,13 +585,13 @@ namespace earchive
 		private void UpdateDocs(List<long> documentsCodes)
 		{
 			if (_curDocType == null || documentsCodes.Count < 1)
-            {
-                _docsListStore.Clear();
+			{
+				_docsListStore.Clear();
 
-                _logger.Info("Получено 0 документов.");
+				_logger.Info("Получено 0 документов.");
 
-                return;
-            }
+				return;
+			}
 
 			_logger.Info("Запрос группы документов в базе...");
 
@@ -707,7 +721,16 @@ namespace earchive
 			if (!selectperiodDocs.IsAllTime)
 				sql += " AND date BETWEEN @startdate AND @enddate";
 			if (entryDocNumber.Text.Length > 0)
-				sql += string.Format(" AND number LIKE '%{0}%' ", entryDocNumber.Text);
+			{
+				if(_curDocType.TypeId == _contractDocumentTypeId)
+				{
+					sql += string.Format(" AND inn LIKE '%{0}%' ", entryDocNumber.Text);
+				}
+				else
+				{
+					sql += string.Format(" AND number LIKE '%{0}%' ", entryDocNumber.Text);
+				}
+			}
 			QSMain.CheckConnectionAlive();
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			if (comboDocType.GetActiveIter(out TreeIter iter)) {
@@ -774,7 +797,7 @@ namespace earchive
 		protected void OnButtonInputClicked(object sender, EventArgs e)
 		{
 			if (_inputDocsWin == null) {
-				_inputDocsWin = new InputDocs();
+				_inputDocsWin = new InputDocs(_baseParametersProvider);
 				_inputDocsWin.DeleteEvent += OnDeleteInputDocsEvent;
 				Console.WriteLine("new");
 			}
