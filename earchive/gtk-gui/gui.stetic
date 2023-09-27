@@ -1915,6 +1915,7 @@
             <property name="Label" translatable="yes">Печать</property>
             <property name="UseUnderline">True</property>
             <property name="ResponseId">0</property>
+            <signal name="Clicked" handler="OnButtonPrintClicked" />
           </widget>
           <packing>
             <property name="Expand">False</property>

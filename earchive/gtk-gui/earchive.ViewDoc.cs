@@ -334,6 +334,7 @@ namespace earchive
 			this.Show();
 			this.entryNumber.Changed += new global::System.EventHandler(this.OnEntryNumberChanged);
 			this.dateDoc.DateChanged += new global::System.EventHandler(this.OnDateDocDateChanged);
+			this.buttonPrint.Clicked += new global::System.EventHandler(this.OnButtonPrintClicked);
 			this.buttonPDF.Clicked += new global::System.EventHandler(this.OnButtonPDFClicked);
 			this.buttonOk.Clicked += new global::System.EventHandler(this.OnButtonOkClicked);
 		}
