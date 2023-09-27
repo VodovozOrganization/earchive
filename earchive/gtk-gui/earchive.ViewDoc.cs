@@ -44,6 +44,8 @@ namespace earchive
 
 		private global::Gtk.TextView textviewComments;
 
+		private global::Gtk.Button buttonPrint;
+
 		private global::Gtk.Button buttonPDF;
 
 		private global::Gtk.Button buttonCancel;
@@ -267,18 +269,32 @@ namespace earchive
 			w24.BorderWidth = ((uint)(5));
 			w24.LayoutStyle = ((global::Gtk.ButtonBoxStyle)(4));
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
+			this.buttonPrint = new global::Gtk.Button();
+			this.buttonPrint.CanFocus = true;
+			this.buttonPrint.Name = "buttonPrint";
+			this.buttonPrint.UseUnderline = true;
+			this.buttonPrint.Label = global::Mono.Unix.Catalog.GetString("Печать");
+			global::Gtk.Image w25 = new global::Gtk.Image();
+			w25.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
+			this.buttonPrint.Image = w25;
+			this.AddActionWidget(this.buttonPrint, 0);
+			global::Gtk.ButtonBox.ButtonBoxChild w26 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24[this.buttonPrint]));
+			w26.Expand = false;
+			w26.Fill = false;
+			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonPDF = new global::Gtk.Button();
 			this.buttonPDF.CanFocus = true;
 			this.buttonPDF.Name = "buttonPDF";
 			this.buttonPDF.UseUnderline = true;
 			this.buttonPDF.Label = global::Mono.Unix.Catalog.GetString("Сохранить в PDF");
-			global::Gtk.Image w25 = new global::Gtk.Image();
-			w25.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("earchive.icons.page_pdf.ico");
-			this.buttonPDF.Image = w25;
+			global::Gtk.Image w27 = new global::Gtk.Image();
+			w27.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("earchive.icons.page_pdf.ico");
+			this.buttonPDF.Image = w27;
 			w24.Add(this.buttonPDF);
-			global::Gtk.ButtonBox.ButtonBoxChild w26 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24[this.buttonPDF]));
-			w26.Expand = false;
-			w26.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w28 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24[this.buttonPDF]));
+			w28.Position = 1;
+			w28.Expand = false;
+			w28.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonCancel = new global::Gtk.Button();
 			this.buttonCancel.CanDefault = true;
@@ -286,14 +302,14 @@ namespace earchive
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("О_тменить");
-			global::Gtk.Image w27 = new global::Gtk.Image();
-			w27.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w27;
+			global::Gtk.Image w29 = new global::Gtk.Image();
+			w29.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Image = w29;
 			this.AddActionWidget(this.buttonCancel, -6);
-			global::Gtk.ButtonBox.ButtonBoxChild w28 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24[this.buttonCancel]));
-			w28.Position = 1;
-			w28.Expand = false;
-			w28.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w30 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24[this.buttonCancel]));
+			w30.Position = 2;
+			w30.Expand = false;
+			w30.Fill = false;
 			// Container child dialog1_ActionArea.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonOk = new global::Gtk.Button();
 			this.buttonOk.CanDefault = true;
@@ -301,14 +317,14 @@ namespace earchive
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.UseUnderline = true;
 			this.buttonOk.Label = global::Mono.Unix.Catalog.GetString("_OK");
-			global::Gtk.Image w29 = new global::Gtk.Image();
-			w29.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-ok", global::Gtk.IconSize.Menu);
-			this.buttonOk.Image = w29;
+			global::Gtk.Image w31 = new global::Gtk.Image();
+			w31.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-ok", global::Gtk.IconSize.Menu);
+			this.buttonOk.Image = w31;
 			this.AddActionWidget(this.buttonOk, -5);
-			global::Gtk.ButtonBox.ButtonBoxChild w30 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24[this.buttonOk]));
-			w30.Position = 2;
-			w30.Expand = false;
-			w30.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w32 = ((global::Gtk.ButtonBox.ButtonBoxChild)(w24[this.buttonOk]));
+			w32.Position = 3;
+			w32.Expand = false;
+			w32.Fill = false;
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

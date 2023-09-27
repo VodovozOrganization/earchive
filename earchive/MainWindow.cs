@@ -878,9 +878,15 @@ namespace earchive
 			}
 			win.Destroy();
 			GC.Collect();
-		}
+        }
 
-		protected void OnTreeviewDocsCursorChanged(object sender, EventArgs e)
+        protected void OnButtonPrintClicked(object sender, EventArgs e)
+        {
+
+        }
+
+
+        protected void OnTreeviewDocsCursorChanged(object sender, EventArgs e)
 		{
 			bool RowSelected = treeviewDocs.Selection.CountSelectedRows() == 1;
 			buttonOpen.Sensitive = RowSelected;

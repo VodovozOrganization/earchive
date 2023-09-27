@@ -412,9 +412,14 @@ namespace earchive
 		protected void OnDateDocDateChanged (object sender, EventArgs e)
 		{
 			TestCanSave();
-		}
+        }
 
-		protected void OnButtonPDFClicked (object sender, EventArgs e)
+        protected void OnButtonPrintClicked(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void OnButtonPDFClicked (object sender, EventArgs e)
         {
             var settingsOperation = new PrintOperation();
             settingsOperation.Run(PrintOperationAction.PrintDialog, this);
