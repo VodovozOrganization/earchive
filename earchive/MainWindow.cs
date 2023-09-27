@@ -1,10 +1,13 @@
 using BaseParametersService;
+using earchive.Loaders;
 using EarchiveApi;
 using Gtk;
 using MySql.Data.MySqlClient;
+using NHibernate.Impl;
 using NLog;
 using QS.BaseParameters;
 using QS.Dialog.GtkUI;
+using QS.Print;
 using QS.Project.Versioning;
 using QS.Project.Versioning.Product;
 using QS.Project.ViewModels;
@@ -14,6 +17,7 @@ using QSProjectsLib;
 using QSWidgetLib;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UpdGrpcClientService.Framework;
@@ -24,6 +28,7 @@ namespace earchive
 	{
 		private static Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly static IBaseParametersProvider _baseParametersProvider = new BaseParametersProvider();
+		private readonly static ImageLoader _imageLoader = new ImageLoader(_logger);
 
 		private IApplicationInfo _applicationInfo = new ApplicationVersionInfo();
 		private ListStore _docsListStore;
@@ -816,7 +821,7 @@ namespace earchive
 			treeviewDocs.Selection.GetSelected(out TreeIter iter);
 			int ItemId = (int)_docsListStore.GetValue(iter, 0);
 			ViewDoc win = new ViewDoc();
-			win.Fill(ItemId);
+			win.Fill(ItemId, _imageLoader);
 			win.Show();
 			if ((ResponseType)win.Run() == ResponseType.Ok)
 			{
@@ -861,7 +866,7 @@ namespace earchive
 
 			docIds.Sort();
 			ViewDoc win = new ViewDoc();
-			win.Fill(docIds, SelectedDocumentTypeId.Value);
+			win.Fill(docIds, SelectedDocumentTypeId.Value, _imageLoader);
 			win.Show();
 			if ((ResponseType)win.Run() == ResponseType.Ok)
 			{

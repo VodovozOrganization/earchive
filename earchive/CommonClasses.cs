@@ -320,7 +320,7 @@ namespace earchive
 		Bad,
 		Attention};
 
-	class DocumentImage
+	public class DocumentImage
 	{
 		public int id;
 		public Gdk.Pixbuf Image;

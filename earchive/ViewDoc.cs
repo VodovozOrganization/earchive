@@ -1,17 +1,19 @@
-using System;
-using System.IO;
-using System.Collections.Generic;
-using Gtk;
+using earchive.Loaders;
+using earchive.Print;
 using Gdk;
+using Gtk;
 using MySql.Data.MySqlClient;
+using NLog;
+using QS.Print;
 using QSProjectsLib;
 using QSWidgetLib;
-using NLog;
-using System.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace earchive
 {
-	public partial class ViewDoc : Gtk.Dialog
+    public partial class ViewDoc : Gtk.Dialog
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private DocumentInformation DocInfo;
@@ -31,7 +33,7 @@ namespace earchive
 			dateDoc.IsEditable = QSMain.User.Permissions["can_edit"];
 		}
 
-        public void Fill(int doc_id)
+        public void Fill(int doc_id, ImageLoader imageLoader)
 		{
 			QSMain.CheckConnectionAlive();
 			logger.Info("Запрос документа №" + doc_id +"...");
@@ -117,37 +119,52 @@ namespace earchive
 					}
 					rdr.Close();
 				}
-				// Загружаем изображения
-				sql = "SELECT * FROM images " +
-					"WHERE doc_id = @doc_id " +
-					"ORDER BY order_num";
-				cmd = new MySqlCommand(sql, QSMain.connectionDB);
-				cmd.Parameters.AddWithValue("@doc_id", DocId);
-				rdr = cmd.ExecuteReader();
 
-				while( rdr.Read())
-				{
-					DocumentImage DocImage = new DocumentImage();
-					DocImage.Changed = false;
-					DocImage.id = rdr.GetInt32("id");
-					DocImage.order = rdr.GetInt32("order_num");
-					DocImage.size = rdr.GetInt64("size");
-					DocImage.type = rdr.GetString("type");
-					DocImage.file = new byte[DocImage.size];
-					rdr.GetBytes(rdr.GetOrdinal("image"), 0, DocImage.file, 0, (int) DocImage.size);
-					DocImage.Image = new Pixbuf(DocImage.file);
+                // Загружаем изображения
+                var docImage = imageLoader.LoadImage(DocId, QSMain.connectionDB);
 
-					//Добавляем вижет
-					ImageViewer view = new ImageViewer();
-					view.VerticalFit = false;
-					view.HorizontalFit = true;
-					view.Pixbuf = DocImage.Image;
-					view.ButtonPressEvent += OnImagesButtonPressEvent;
-					vboxImages.Add(view);
-					DocImage.Widget = view;
-					Images.Add(DocImage);
-				}
-				rdr.Close();
+                //Добавляем вижет
+                ImageViewer view = new ImageViewer();
+                view.VerticalFit = false;
+                view.HorizontalFit = true;
+                view.Pixbuf = docImage.Image;
+                view.ButtonPressEvent += OnImagesButtonPressEvent;
+                vboxImages.Add(view);
+                docImage.Widget = view;
+
+				Images.Clear();
+                Images.Add(docImage);
+
+    //            sql = "SELECT * FROM images " +
+				//	"WHERE doc_id = @doc_id " +
+				//	"ORDER BY order_num";
+				//cmd = new MySqlCommand(sql, QSMain.connectionDB);
+				//cmd.Parameters.AddWithValue("@doc_id", DocId);
+				//rdr = cmd.ExecuteReader();
+
+				//while( rdr.Read())
+				//{
+				//	DocumentImage DocImage = new DocumentImage();
+				//	DocImage.Changed = false;
+				//	DocImage.id = rdr.GetInt32("id");
+				//	DocImage.order = rdr.GetInt32("order_num");
+				//	DocImage.size = rdr.GetInt64("size");
+				//	DocImage.type = rdr.GetString("type");
+				//	DocImage.file = new byte[DocImage.size];
+				//	rdr.GetBytes(rdr.GetOrdinal("image"), 0, DocImage.file, 0, (int) DocImage.size);
+				//	DocImage.Image = new Pixbuf(DocImage.file);
+
+				//	//Добавляем вижет
+				//	ImageViewer view = new ImageViewer();
+				//	view.VerticalFit = false;
+				//	view.HorizontalFit = true;
+				//	view.Pixbuf = DocImage.Image;
+				//	view.ButtonPressEvent += OnImagesButtonPressEvent;
+				//	vboxImages.Add(view);
+				//	DocImage.Widget = view;
+				//	Images.Add(DocImage);
+				//}
+				//rdr.Close();
 				vboxImages.ShowAll();
 				logger.Info("Ok");
 			}
@@ -157,7 +174,7 @@ namespace earchive
 			}
 		}
 
-		public void Fill(List<int> docIds, int docTypeId)
+		public void Fill(List<int> docIds, int docTypeId, ImageLoader imageLoader)
 		{
 			logger.Debug(
 				"Получен запрос открытия группы документов: {DocIds}. Общее количество документов: {DocIdsCount} Тип документов id={DocTypeId}.",
@@ -176,58 +193,76 @@ namespace earchive
 				return;
 			}
 
-            var docIdsParameterValue = string.Join(",", docIds);
+            //var docIdsParameterValue = string.Join(",", docIds);
 
-            QSMain.CheckConnectionAlive();
+            //QSMain.CheckConnectionAlive();
 
-            var sql = "SELECT * FROM images " +
-             "WHERE FIND_IN_SET(doc_id, @docIds) " +
-             "ORDER BY order_num";
+            //var sql = "SELECT * FROM images " +
+            // "WHERE FIND_IN_SET(doc_id, @docIds) " +
+            // "ORDER BY order_num";
 
-            var cmd = new MySqlCommand(sql, QSMain.connectionDB);
+            //var cmd = new MySqlCommand(sql, QSMain.connectionDB);
 
             try
             {
+                QSMain.CheckConnectionAlive();
 
-                logger.Debug(
-                    "Выполняется запрос загрузки документов. Список id: ({DocIdsParameterValue}).",
-                    docIdsParameterValue);
+                var docImages = imageLoader.LoadImages(docIds, QSMain.connectionDB);					
 
-                cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@docIds", docIdsParameterValue);
-
-                MySqlDataReader rdr = cmd.ExecuteReader();
-
-                var imagesCounter = 0;
-                // Загружаем изображения
-                while (rdr.Read())
-                {
-                    DocumentImage DocImage = new DocumentImage();
-                    DocImage.Changed = false;
-                    DocImage.id = rdr.GetInt32("id");
-                    DocImage.order = rdr.GetInt32("order_num");
-                    DocImage.size = rdr.GetInt64("size");
-                    DocImage.type = rdr.GetString("type");
-                    DocImage.file = new byte[DocImage.size];
-                    rdr.GetBytes(rdr.GetOrdinal("image"), 0, DocImage.file, 0, (int)DocImage.size);
-                    DocImage.Image = new Pixbuf(DocImage.file);
-
+				foreach (var docImage in docImages)
+				{
                     //Добавляем вижет
                     ImageViewer view = new ImageViewer();
                     view.VerticalFit = false;
                     view.HorizontalFit = true;
-                    view.Pixbuf = DocImage.Image;
+                    view.Pixbuf = docImage.Image;
                     view.ButtonPressEvent += OnImagesButtonPressEvent;
                     vboxImages.Add(view);
-                    DocImage.Widget = view;
-                    Images.Add(DocImage);
-                    imagesCounter++;
+                    docImage.Widget = view;
                 }
-                rdr.Close();
 
-                logger.Debug(
-                    "Загружено {ImagesCounter} документов.",
-                    imagesCounter);
+				Images.Clear();
+                Images = docImages;
+
+                ////logger.Debug(
+                ////    "Выполняется запрос загрузки документов. Список id: ({DocIdsParameterValue}).",
+                ////    docIdsParameterValue);
+
+                ////cmd.Parameters.Clear();
+                ////cmd.Parameters.AddWithValue("@docIds", docIdsParameterValue);
+
+                ////MySqlDataReader rdr = cmd.ExecuteReader();
+
+                ////var imagesCounter = 0;
+                ////// Загружаем изображения
+                ////while (rdr.Read())
+                ////{
+                ////    DocumentImage DocImage = new DocumentImage();
+                ////    DocImage.Changed = false;
+                ////    DocImage.id = rdr.GetInt32("id");
+                ////    DocImage.order = rdr.GetInt32("order_num");
+                ////    DocImage.size = rdr.GetInt64("size");
+                ////    DocImage.type = rdr.GetString("type");
+                ////    DocImage.file = new byte[DocImage.size];
+                ////    rdr.GetBytes(rdr.GetOrdinal("image"), 0, DocImage.file, 0, (int)DocImage.size);
+                ////    DocImage.Image = new Pixbuf(DocImage.file);
+
+                ////    //Добавляем вижет
+                ////    ImageViewer view = new ImageViewer();
+                ////    view.VerticalFit = false;
+                ////    view.HorizontalFit = true;
+                ////    view.Pixbuf = DocImage.Image;
+                ////    view.ButtonPressEvent += OnImagesButtonPressEvent;
+                ////    vboxImages.Add(view);
+                ////    DocImage.Widget = view;
+                ////    Images.Add(DocImage);
+                ////    imagesCounter++;
+                ////}
+                ////rdr.Close();
+
+                ////logger.Debug(
+                ////    "Загружено {ImagesCounter} документов.",
+                ////    imagesCounter);
             }
             catch (Exception ex)
             {
@@ -380,8 +415,24 @@ namespace earchive
 		}
 
 		protected void OnButtonPDFClicked (object sender, EventArgs e)
-		{
-			FileChooserDialog fc= new FileChooserDialog(
+        {
+            var settingsOperation = new PrintOperation();
+            settingsOperation.Run(PrintOperationAction.PrintDialog, this);
+            var printerSettings = settingsOperation.PrintSettings;
+			var imagesToPrint = new List<IPrintableDocument>();
+
+            foreach (DocumentImage img in Images)
+            {
+				imagesToPrint.Clear();
+
+                var printableImage = new PrintableImage(img.Image);
+				imagesToPrint.Add(printableImage);
+
+                DocumentPrinters.ImagePrinter?.Print(imagesToPrint.ToArray(), printerSettings);
+            }
+			return;
+
+            FileChooserDialog fc= new FileChooserDialog(
 				"Укажите файл для сохранения документа",
 				this,
 				FileChooserAction.Save,

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Gtk;
 using QS.BaseParameters;
 using QS.Dialog;
+using QS.Print;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
 using QS.Project.Versioning;
@@ -37,7 +38,9 @@ namespace earchive
 
 			LoginDialog.Destroy ();
 
-			IApplicationInfo applicationInfo = new ApplicationVersionInfo();
+            InitPrinters();
+
+            IApplicationInfo applicationInfo = new ApplicationVersionInfo();
 			var baseVersionChecker = new CheckBaseVersion(applicationInfo, new ParametersService(QSMain.ConnectionDB));
 			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => QSMain.User.Id;
 			if(baseVersionChecker.Check())
@@ -85,6 +88,11 @@ namespace earchive
 
 			ServicesConfig.InteractiveService = new GtkInteractiveService();
 		}
+
+		private static void InitPrinters()
+		{
+            ImagePrinter.InitPrinter();
+        }
 
 		public static void WaitRedraw()
 		{

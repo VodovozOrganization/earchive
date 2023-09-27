@@ -57,7 +57,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamma.Utilities.Gtk", "..\Q
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.Updater.Desktop", "..\QSProjects\QS.Updater.Desktop\QS.Updater.Desktop.csproj", "{9ED68A8A-25EE-4B6A-A483-A386BFC2F12B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseParametersService", "Services\BaseParametersService\BaseParametersService\BaseParametersService.csproj", "{CCB8C244-4444-4593-B07D-5E5901E688F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseParametersService", "Services\BaseParametersService\BaseParametersService\BaseParametersService.csproj", "{CCB8C244-4444-4593-B07D-5E5901E688F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
