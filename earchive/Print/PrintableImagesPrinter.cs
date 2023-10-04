@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace earchive.Print
 {
-	public class PrintableImagesPrinter
+	public class PrintableImagesPrinter : IDisposable
 	{
 		private bool _cancelPrinting = false;
 
@@ -74,6 +74,11 @@ namespace earchive.Print
 			{
 				PrintingCanceled?.Invoke(this, new EventArgs());
 			}
+		}
+
+		public void Dispose()
+		{
+			ImagePrinter.PrintingCanceled -= OnImagePrinterPrintingCanceled;
 		}
 	}
 }
