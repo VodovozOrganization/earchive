@@ -919,10 +919,6 @@ namespace earchive
 			document.Name = docImage.Order.ToString();
 
 			var printer = new PrintableImagesPrinter();
-			printer.PrintableImagePrinted += (s, e) =>
-			{
-				MessageDialogHelper.RunErrorDialog($"Документ распечатан! {s.Name}");
-			};
 
 			printer.AddImageToPrintList(document);
 
