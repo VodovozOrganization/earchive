@@ -4,6 +4,7 @@ using Gdk;
 using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
+using QS.Dialog.GtkUI;
 using QS.Print;
 using QSProjectsLib;
 using QSWidgetLib;
@@ -215,7 +216,7 @@ namespace earchive
 				foreach(DocumentImage img in Images)
 				{
 					if(o == img.Widget)
-						PopupImageId = img.id;
+						PopupImageId = img.Id;
 				}
 				Gtk.Menu jBox = new Gtk.Menu();
 				Gtk.MenuItem MenuItem1 = new MenuItem("Сохранить");
@@ -244,10 +245,10 @@ namespace earchive
 				fc.Hide();
 				foreach(DocumentImage img in Images)
 				{
-					if(img.id == PopupImageId)
+					if(img.Id == PopupImageId)
 					{
 						FileStream fs = new FileStream(fc.Filename, FileMode.Create, FileAccess.Write);
-						fs.Write(img.file, 0, (int)img.size);
+						fs.Write(img.File, 0, (int)img.Size);
 						fs.Close();
 					}
 				}
@@ -336,7 +337,7 @@ namespace earchive
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			var documentsToPrint = new List<SelectablePrintDocument>();
+			var documentsToPrint = new List<IPrintableImage>();
 
 			foreach (var docImage in Images)
 			{
@@ -345,13 +346,18 @@ namespace earchive
 					continue;
 				}
 
-				var document = new SelectablePrintDocument(new PrintableImage(docImage.Image));
-				document.Selected = true;
+				var document = new PrintableImage(docImage.Image);
+				document.Name = docImage.Order.ToString();
 
 				documentsToPrint.Add(document);
 			}
 
 			var printer = new DocumentsPrinter();
+			printer.DocumentsPrinted += (s, ev) =>
+			{
+				MessageDialogHelper.RunErrorDialog($"Документ распечатан! {s.Name}");
+			};
+
 			printer.SetDocumentsToPrint(documentsToPrint);
 
 			try
@@ -396,7 +402,7 @@ namespace earchive
 						else 
 							document.SetPageSize(iTextSharp.text.PageSize.A4);
 						document.NewPage();
-						var image = iTextSharp.text.Image.GetInstance(img.file);
+						var image = iTextSharp.text.Image.GetInstance(img.File);
 						image.SetAbsolutePosition(0,0);
 						image.ScaleToFit(document.PageSize.Width, document.PageSize.Height);
 						document.Add(image);

@@ -22,7 +22,7 @@ using UpdGrpcClientService.Framework;
 
 namespace earchive
 {
-    public partial class MainWindow : Window
+	public partial class MainWindow : Window
 	{
 		private static Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly static IBaseParametersProvider _baseParametersProvider = new BaseParametersProvider();
@@ -883,7 +883,7 @@ namespace earchive
 			treeviewDocs.Selection.GetSelected(out TreeIter iter);
 			int docId = (int)_docsListStore.GetValue(iter, 0);
 
-			var docImage = new DocumentImage();
+            var docImage = new DocumentImage();
 
 			QSMain.CheckConnectionAlive();
 
@@ -915,10 +915,15 @@ namespace earchive
 
 		private void PrintImage(DocumentImage docImage)
 		{
-			var document = new SelectablePrintDocument(new PrintableImage(docImage.Image));
-			document.Selected = true;
+			var document = new PrintableImage(docImage.Image);
+			document.Name = docImage.Order.ToString();
 
 			var printer = new DocumentsPrinter();
+			printer.DocumentsPrinted += (s, e) =>
+			{
+				MessageDialogHelper.RunErrorDialog($"Документ распечатан! {s.Name}");
+			};
+
 			printer.AddDocumentToPrint(document);
 
 			try

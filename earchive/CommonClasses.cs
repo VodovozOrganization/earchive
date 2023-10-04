@@ -322,14 +322,14 @@ namespace earchive
 
 	public class DocumentImage
 	{
-		public int id;
-		public Gdk.Pixbuf Image;
-		public int order;
-		public string type;
-		public long size;
-		public byte[] file;
-		public bool Changed;
-		public ImageViewer Widget;
+		public int Id { get; set; }
+		public Gdk.Pixbuf Image { get; set; }
+		public int Order { get; set; }
+		public string Type { get; set; }
+		public long Size { get; set; }
+		public byte[] File { get; set; }
+		public bool IsChanged { get; set; }
+		public ImageViewer Widget { get; set; }
 	}
 	
 }

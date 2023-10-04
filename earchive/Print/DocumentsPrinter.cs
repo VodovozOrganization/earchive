@@ -1,9 +1,8 @@
 ﻿using Gtk;
 using QS.Print;
-using QSReport;
 using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 
 namespace earchive.Print
 {
@@ -11,65 +10,63 @@ namespace earchive.Print
 	{
 		private bool _cancelPrinting = false;
 
-		public event EventHandler DocumentsPrinted;
+		public delegate void DocumentPrintedHandler(IPrintableImage sender, EventArgs eventArgs);
+
+		public event DocumentPrintedHandler DocumentsPrinted;
 		public event EventHandler PrintingCanceled;
 
-		public DocumentsPrinter()
+		private List<IPrintableImage> _documentsToPrint;
+
+		public DocumentsPrinter(IList<IPrintableImage> documentsToPrint = null)
 		{
-			DocPrinterInit();
+			_documentsToPrint = documentsToPrint != null ? documentsToPrint.ToList() : new List<IPrintableImage>(); ;
+
+			ImagePrinter.PrintingCanceled += OnImagePrinterPrintingCanceled;
 		}
 
-		public void SetDocumentsToPrint(IList<SelectablePrintDocument> documentsToPrint)
+		public List<IPrintableImage> DocumentsToPrint => _documentsToPrint;
+
+		public PrintSettings PrinterSettings { get; set; }
+
+		private void OnImagePrinterPrintingCanceled(object sender, EventArgs e)
 		{
-			MultiDocPrinter.PrintableDocuments = new GenericObservableList<SelectablePrintDocument>(documentsToPrint);
-        }
+			_cancelPrinting = true;
 
-        public void AddDocumentToPrint(SelectablePrintDocument documentsToPrint)
-        {
-            MultiDocPrinter.PrintableDocuments.Add(documentsToPrint);
-        }
+			PrintingCanceled?.Invoke(sender, e);
+		}
 
-        private MultipleDocumentPrinter MultiDocPrinter { get; set; }
-		public static PrintSettings PrinterSettings { get; set; }
-		public IList<SelectablePrintDocument> MultiDocPrinterPrintableDocuments => MultiDocPrinter.PrintableDocuments;
-
-		private void DocPrinterInit()
+		public void SetDocumentsToPrint(IList<IPrintableImage> documentsToPrint)
 		{
-			MultiDocPrinter = new MultipleDocumentPrinter();
-			MultiDocPrinter.PrintableDocuments = new GenericObservableList<SelectablePrintDocument>();
+			_documentsToPrint.Clear();
+			_documentsToPrint.AddRange(documentsToPrint);
+		}
 
-            MultiDocPrinter.DocumentsPrinted += (o, args) => DocumentsPrinted?.Invoke(o, args);
+		public void AddDocumentsToPrint(IList<IPrintableImage> documentsToPrint)
+		{
+			_documentsToPrint.AddRange(documentsToPrint);
+		}
+
+		public void AddDocumentToPrint(IPrintableImage documentToPrint)
+		{
+			_documentsToPrint.Add(documentToPrint);
 		}
 
 		public void Print()
 		{
 			if (!_cancelPrinting)
 			{
-				MultiDocPrinter.PrinterSettings = PrinterSettings;
-
-				foreach(var document in MultiDocPrinter.PrintableDocuments)
+				foreach (var document in _documentsToPrint)
 				{
-					MultiDocPrinter.PrintDocument(document);
+					DocumentPrinters.ImagePrinter?.Print(new IPrintableImage[] { document }, PrinterSettings);
+					DocumentsPrinted?.Invoke(document, EventArgs.Empty);
 
-					PrinterSettings = MultiDocPrinter.PrinterSettings;
+					PrinterSettings = ImagePrinter.PrintSettings;
 				}
 			}
 			else
 			{
 				PrintingCanceled?.Invoke(this, new EventArgs());
 			}
-        }
-
-        public void Print(bool manyImages)
-        {
-            if (!_cancelPrinting)
-            {
-				MultiDocPrinter.PrintSelectedDocuments();
-            }
-            else
-            {
-                PrintingCanceled?.Invoke(this, new EventArgs());
-            }
-        }
-    }
+		}
+	}
 }

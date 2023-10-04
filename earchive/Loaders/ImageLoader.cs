@@ -34,14 +34,14 @@ namespace earchive.Loaders
 				{
 					while (rdr.Read())
 					{
-						docImage.Changed = false;
-						docImage.id = rdr.GetInt32("id");
-						docImage.order = rdr.GetInt32("order_num");
-						docImage.size = rdr.GetInt64("size");
-						docImage.type = rdr.GetString("type");
-						docImage.file = new byte[docImage.size];
-						rdr.GetBytes(rdr.GetOrdinal("image"), 0, docImage.file, 0, (int)docImage.size);
-						docImage.Image = new Pixbuf(docImage.file);
+						docImage.IsChanged = false;
+						docImage.Id = rdr.GetInt32("id");
+						docImage.Order = rdr.GetInt32("order_num");
+						docImage.Size = rdr.GetInt64("size");
+						docImage.Type = rdr.GetString("type");
+						docImage.File = new byte[docImage.Size];
+						rdr.GetBytes(rdr.GetOrdinal("image"), 0, docImage.File, 0, (int)docImage.Size);
+						docImage.Image = new Pixbuf(docImage.File);
 					}
 					rdr.Close();
 				}                    
@@ -77,14 +77,14 @@ namespace earchive.Loaders
 					while (rdr.Read())
 					{
 						DocumentImage docImage = new DocumentImage();
-						docImage.Changed = false;
-						docImage.id = rdr.GetInt32("id");
-						docImage.order = rdr.GetInt32("order_num");
-						docImage.size = rdr.GetInt64("size");
-						docImage.type = rdr.GetString("type");
-						docImage.file = new byte[docImage.size];
-						rdr.GetBytes(rdr.GetOrdinal("image"), 0, docImage.file, 0, (int)docImage.size);
-						docImage.Image = new Pixbuf(docImage.file);
+						docImage.IsChanged = false;
+						docImage.Id = rdr.GetInt32("id");
+						docImage.Order = rdr.GetInt32("order_num");
+						docImage.Size = rdr.GetInt64("size");
+						docImage.Type = rdr.GetString("type");
+						docImage.File = new byte[docImage.Size];
+						rdr.GetBytes(rdr.GetOrdinal("image"), 0, docImage.File, 0, (int)docImage.Size);
+						docImage.Image = new Pixbuf(docImage.File);
 
 						images.Add(docImage);
 					}
