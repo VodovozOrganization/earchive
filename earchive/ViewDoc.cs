@@ -352,10 +352,17 @@ namespace earchive
 				documentsToPrint.Add(document);
 			}
 
+			if (documentsToPrint.Count < 1)
+			{
+				return;
+			}
+
+			ConfigureProgresBar(documentsToPrint.Count);
+
 			var printer = new PrintableImagesPrinter();
 			printer.PrintableImagePrinted += (s, ev) =>
 			{
-				MessageDialogHelper.RunErrorDialog($"Документ распечатан! {s.Name}");
+				UpdateProgressBarValue();
 			};
 
 			printer.SetImagesPrintList(documentsToPrint);
@@ -370,6 +377,26 @@ namespace earchive
 					"Ошибка печати изображения",
 					logger,
 					ex);
+			}
+		}
+
+		private void ConfigureProgresBar(int imagesCount)
+		{
+			yprogressbarPrint.Adjustment = new Adjustment(0, 0, imagesCount, 1, 100, 0);
+
+            yprogressbarPrint.Adjustment.Upper = imagesCount;
+			yprogressbarPrint.Text = string.Empty;
+			yprogressbarPrint.Visible = true;
+		}
+
+		private void UpdateProgressBarValue()
+		{
+			yprogressbarPrint.Adjustment.Value++;
+			yprogressbarPrint.Text = $"Распечатано {yprogressbarPrint.Adjustment.Value} из {yprogressbarPrint.Adjustment.Upper}";
+
+			if(yprogressbarPrint.Adjustment.Value == yprogressbarPrint.Adjustment.Upper)
+			{
+				yprogressbarPrint.Text = "Печать завершена!";
 			}
 		}
 
