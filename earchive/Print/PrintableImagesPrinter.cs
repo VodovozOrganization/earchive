@@ -51,10 +51,17 @@ namespace earchive.Print
 			_imagesToPrint.Add(imageToPrint);
 		}
 
-		public void Print()
+		public void Print(bool clearPrintSettings = true)
 		{
 			if (!_cancelPrinting)
 			{
+				if(clearPrintSettings)
+				{
+					ImagePrinter.PrintSettings = null;
+					PrinterSettings = null;
+
+				}
+
 				foreach (var document in _imagesToPrint)
 				{
 					DocumentPrinters.ImagePrinter?.Print(new IPrintableImage[] { document }, PrinterSettings);
