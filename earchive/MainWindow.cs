@@ -883,7 +883,7 @@ namespace earchive
 			treeviewDocs.Selection.GetSelected(out TreeIter iter);
 			int docId = (int)_docsListStore.GetValue(iter, 0);
 
-            var docImage = new DocumentImage();
+			var docImage = new DocumentImage();
 
 			QSMain.CheckConnectionAlive();
 
@@ -918,13 +918,13 @@ namespace earchive
 			var document = new PrintableImage(docImage.Image);
 			document.Name = docImage.Order.ToString();
 
-			var printer = new DocumentsPrinter();
-			printer.DocumentsPrinted += (s, e) =>
+			var printer = new PrintableImagesPrinter();
+			printer.PrintableImagePrinted += (s, e) =>
 			{
 				MessageDialogHelper.RunErrorDialog($"Документ распечатан! {s.Name}");
 			};
 
-			printer.AddDocumentToPrint(document);
+			printer.AddImageToPrintList(document);
 
 			try
 			{

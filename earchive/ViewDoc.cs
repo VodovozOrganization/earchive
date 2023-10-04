@@ -352,13 +352,13 @@ namespace earchive
 				documentsToPrint.Add(document);
 			}
 
-			var printer = new DocumentsPrinter();
-			printer.DocumentsPrinted += (s, ev) =>
+			var printer = new PrintableImagesPrinter();
+			printer.PrintableImagePrinted += (s, ev) =>
 			{
 				MessageDialogHelper.RunErrorDialog($"Документ распечатан! {s.Name}");
 			};
 
-			printer.SetDocumentsToPrint(documentsToPrint);
+			printer.SetImagesPrintList(documentsToPrint);
 
 			try
 			{
