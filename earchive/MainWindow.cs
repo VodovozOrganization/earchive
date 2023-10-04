@@ -1,11 +1,10 @@
 using BaseParametersService;
 using earchive.Loaders;
+using earchive.Print;
 using EarchiveApi;
 using Gtk;
 using MySql.Data.MySqlClient;
-using NHibernate.Impl;
 using NLog;
-using QS.BaseParameters;
 using QS.Dialog.GtkUI;
 using QS.Print;
 using QS.Project.Versioning;
@@ -17,14 +16,13 @@ using QSProjectsLib;
 using QSWidgetLib;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Printing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UpdGrpcClientService.Framework;
 
 namespace earchive
 {
-	public partial class MainWindow : Window
+    public partial class MainWindow : Window
 	{
 		private static Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly static IBaseParametersProvider _baseParametersProvider = new BaseParametersProvider();
@@ -878,19 +876,70 @@ namespace earchive
 			}
 			win.Destroy();
 			GC.Collect();
-        }
+		}
 
-        protected void OnButtonPrintClicked(object sender, EventArgs e)
-        {
+		protected void OnButtonPrintClicked(object sender, EventArgs e)
+		{
+			treeviewDocs.Selection.GetSelected(out TreeIter iter);
+			int docId = (int)_docsListStore.GetValue(iter, 0);
 
-        }
+			var docImage = new DocumentImage();
 
+			QSMain.CheckConnectionAlive();
 
-        protected void OnTreeviewDocsCursorChanged(object sender, EventArgs e)
+			try
+			{
+				docImage = _imageLoader.LoadImage(docId, QSMain.connectionDB);
+			}
+			catch(Exception ex)
+			{
+				QSMain.ErrorMessageWithLog(
+					"Ошибка получения документа из базы", 
+					_logger, 
+					ex);
+				return;
+			}
+
+			if(docImage.Image == null)
+			{
+				QSMain.ErrorMessageWithLog(
+					"Полученный документ не содержит изображения", 
+					_logger, 
+					new ArgumentException());
+				return;
+			}
+
+			_logger.Debug("Печать документа. id = ({DocId}).", docId);
+			PrintImage(docImage);
+		}
+
+		private void PrintImage(DocumentImage docImage)
+		{
+			var document = new SelectablePrintDocument(new PrintableImage(docImage.Image));
+			document.Selected = true;
+
+			var printer = new DocumentsPrinter();
+			printer.AddDocumentToPrint(document);
+
+			try
+			{
+				printer.Print();
+			}
+			catch(Exception ex)
+			{
+				QSMain.ErrorMessageWithLog(
+					"Ошибка печати изображения",
+					_logger,
+					ex);
+			}
+		}
+
+		protected void OnTreeviewDocsCursorChanged(object sender, EventArgs e)
 		{
 			bool RowSelected = treeviewDocs.Selection.CountSelectedRows() == 1;
 			buttonOpen.Sensitive = RowSelected;
 			ybuttonOpenAll.Sensitive = true;
+			ybuttonPrint.Sensitive = RowSelected;
 			buttonDelete.Sensitive = RowSelected && QSMain.User.Permissions["can_edit"];
 		}
 

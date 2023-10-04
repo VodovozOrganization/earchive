@@ -115,6 +115,7 @@
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Loaders\ImageLoader.cs" />
     <Compile Include="MainWindow.cs" />
+    <Compile Include="Print\DocumentsPrinter.cs" />
     <Compile Include="Print\PrintableImage.cs" />
     <Compile Include="ProductService.cs" />
     <Compile Include="Program.cs" />
@@ -147,6 +148,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <ProjectReference Include="..\..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
+      <Project>{54F958F5-7E58-4C89-9A04-8835E63B97C3}</Project>
+      <Name>System.Data.Bindings</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
       <Project>{190cea0d-ea23-4c91-8030-203a5afed7b7}</Project>
       <Name>Gamma.Binding</Name>
@@ -182,6 +187,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj">
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSReport\QSReport.csproj">
+      <Project>{9c0363d4-ee69-45b8-ba45-bda24ce35a06}</Project>
+      <Name>QSReport</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSSaaS\QSSaaS.csproj">
       <Project>{4b502fe5-d419-4b5c-9276-0a25ef2f508a}</Project>
