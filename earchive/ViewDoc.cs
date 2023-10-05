@@ -384,7 +384,7 @@ namespace earchive
 		{
 			yprogressbarPrint.Adjustment = new Adjustment(0, 0, imagesCount, 1, 100, 0);
 
-            yprogressbarPrint.Adjustment.Upper = imagesCount;
+			yprogressbarPrint.Adjustment.Upper = imagesCount;
 			yprogressbarPrint.Text = string.Empty;
 			yprogressbarPrint.Visible = true;
 		}
@@ -392,11 +392,11 @@ namespace earchive
 		private void UpdateProgressBarValue()
 		{
 			yprogressbarPrint.Adjustment.Value++;
-			yprogressbarPrint.Text = $"Распечатано {yprogressbarPrint.Adjustment.Value} из {yprogressbarPrint.Adjustment.Upper}";
+			yprogressbarPrint.Text = $"Отправлено {yprogressbarPrint.Adjustment.Value} из {yprogressbarPrint.Adjustment.Upper}";
 
 			if(yprogressbarPrint.Adjustment.Value == yprogressbarPrint.Adjustment.Upper)
 			{
-				yprogressbarPrint.Text = "Печать завершена!";
+				yprogressbarPrint.Text = "Отправка на печать завершена!";
 			}
 		}
 
