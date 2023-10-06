@@ -8,9 +8,9 @@ namespace earchive.Loaders
 {
 	public class ImageLoader
 	{
-		private readonly Logger _logger;
+		private readonly ILogger _logger;
 
-		public ImageLoader(Logger logger)
+		public ImageLoader(ILogger logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
@@ -50,7 +50,7 @@ namespace earchive.Loaders
 			return docImage;
 		}
 
-		public List<DocumentImage> LoadImages(List<int> docIds, MySqlConnection connection)
+		public IList<DocumentImage> LoadImages(IList<int> docIds, MySqlConnection connection)
 		{
 			var docIdsParameterValue = string.Join(",", docIds);
 			var images = new List<DocumentImage>();

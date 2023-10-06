@@ -4,13 +4,13 @@ using Gdk;
 using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
-using QS.Dialog.GtkUI;
 using QS.Print;
 using QSProjectsLib;
 using QSWidgetLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace earchive
 {
@@ -23,7 +23,6 @@ namespace earchive
 		private List<DocumentImage> Images;
 		private int DocId;
 		private int PopupImageId;
-		private PrintSettings _printSettings;
 
 		public ViewDoc ()
 		{
@@ -146,7 +145,7 @@ namespace earchive
 			}
 		}
 
-		public void Fill(List<int> docIds, int docTypeId, ImageLoader imageLoader)
+		public void Fill(IList<int> docIds, int docTypeId, ImageLoader imageLoader)
 		{
 			logger.Debug(
 				"Получен запрос открытия группы документов: {DocIds}. Общее количество документов: {DocIdsCount} Тип документов id={DocTypeId}.",
@@ -184,7 +183,7 @@ namespace earchive
 				}
 
 				Images.Clear();
-				Images = docImages;
+				Images = docImages.ToList();
 			}
 			catch (Exception ex)
 			{
@@ -216,7 +215,9 @@ namespace earchive
 				foreach(DocumentImage img in Images)
 				{
 					if(o == img.Widget)
+					{
 						PopupImageId = img.Id;
+					}
 				}
 				Gtk.Menu jBox = new Gtk.Menu();
 				Gtk.MenuItem MenuItem1 = new MenuItem("Сохранить");

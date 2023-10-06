@@ -6,7 +6,6 @@ using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
 using QS.Dialog.GtkUI;
-using QS.Print;
 using QS.Project.Versioning;
 using QS.Project.Versioning.Product;
 using QS.Project.ViewModels;
