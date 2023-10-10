@@ -1,0 +1,9 @@
+[submodule "https://github.com/QualitySolution/QSProjects.git"]
+	path = https://github.com/QualitySolution/QSProjects.git
+	url = QSProjects
+[submodule "Libraries/External/QSProjects"]
+	path = Libraries/External/QSProjects
+	url = https://github.com/QualitySolution/QSProjects.git
+[submodule "Libraries/External/Gtk.DataBindings"]
+	path = Libraries/External/Gtk.DataBindings
+	url = https://github.com/QualitySolution/Gtk.DataBindings.git
