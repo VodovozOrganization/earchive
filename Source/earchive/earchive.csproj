@@ -230,6 +230,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Google.Protobuf">
+      <Version>3.21.7</Version>
+    </PackageReference>
     <PackageReference Include="MySql.Data">
       <Version>8.0.28</Version>
     </PackageReference>
