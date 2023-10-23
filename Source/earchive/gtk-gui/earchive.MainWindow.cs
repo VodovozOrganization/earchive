@@ -76,6 +76,8 @@ namespace earchive
 
 		private global::Gtk.Button buttonRefresh;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonPrint;
+
 		private global::Gtk.Statusbar statusbarBottom;
 
 		private global::Gtk.Label labelUser;
@@ -401,11 +403,26 @@ namespace earchive
 			w29.Position = 3;
 			w29.Expand = false;
 			w29.Fill = false;
+			// Container child hboxBottomButtons.Gtk.Box+BoxChild
+			this.ybuttonPrint = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonPrint.Sensitive = false;
+			this.ybuttonPrint.CanFocus = true;
+			this.ybuttonPrint.Name = "ybuttonPrint";
+			this.ybuttonPrint.UseUnderline = true;
+			this.ybuttonPrint.Label = global::Mono.Unix.Catalog.GetString("Печать");
+			global::Gtk.Image w30 = new global::Gtk.Image();
+			w30.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
+			this.ybuttonPrint.Image = w30;
+			this.hboxBottomButtons.Add(this.ybuttonPrint);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hboxBottomButtons[this.ybuttonPrint]));
+			w31.Position = 4;
+			w31.Expand = false;
+			w31.Fill = false;
 			this.vboxMain1.Add(this.hboxBottomButtons);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxMain1[this.hboxBottomButtons]));
-			w30.Position = 3;
-			w30.Expand = false;
-			w30.Fill = false;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vboxMain1[this.hboxBottomButtons]));
+			w32.Position = 3;
+			w32.Expand = false;
+			w32.Fill = false;
 			// Container child vboxMain1.Gtk.Box+BoxChild
 			this.statusbarBottom = new global::Gtk.Statusbar();
 			this.statusbarBottom.Name = "statusbarBottom";
@@ -415,25 +432,25 @@ namespace earchive
 			this.labelUser.Name = "labelUser";
 			this.labelUser.LabelProp = global::Mono.Unix.Catalog.GetString("Пользователь");
 			this.statusbarBottom.Add(this.labelUser);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.statusbarBottom[this.labelUser]));
-			w31.Position = 0;
-			w31.Expand = false;
-			w31.Fill = false;
-			w31.Padding = ((uint)(4));
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.statusbarBottom[this.labelUser]));
+			w33.Position = 0;
+			w33.Expand = false;
+			w33.Fill = false;
+			w33.Padding = ((uint)(4));
 			// Container child statusbarBottom.Gtk.Box+BoxChild
 			this.labelStatus = new global::Gtk.Label();
 			this.labelStatus.Name = "labelStatus";
 			this.labelStatus.LabelProp = global::Mono.Unix.Catalog.GetString("OK");
 			this.statusbarBottom.Add(this.labelStatus);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.statusbarBottom[this.labelStatus]));
-			w32.Position = 3;
-			w32.Expand = false;
-			w32.Fill = false;
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.statusbarBottom[this.labelStatus]));
+			w34.Position = 3;
+			w34.Expand = false;
+			w34.Fill = false;
 			this.vboxMain1.Add(this.statusbarBottom);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vboxMain1[this.statusbarBottom]));
-			w33.Position = 4;
-			w33.Expand = false;
-			w33.Fill = false;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vboxMain1[this.statusbarBottom]));
+			w35.Position = 4;
+			w35.Expand = false;
+			w35.Fill = false;
 			this.Add(this.vboxMain1);
 			if ((this.Child != null))
 			{
@@ -466,6 +483,7 @@ namespace earchive
 			this.ybuttonOpenAll.Clicked += new global::System.EventHandler(this.OnButtonOpenAllClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
 			this.buttonRefresh.Clicked += new global::System.EventHandler(this.OnButtonRefreshClicked);
+			this.ybuttonPrint.Clicked += new global::System.EventHandler(this.OnButtonPrintClicked);
 		}
 	}
 }

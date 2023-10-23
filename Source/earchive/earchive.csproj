@@ -140,7 +140,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
+    <Compile Include="Loaders\ImageLoader.cs" />
     <Compile Include="MainWindow.cs" />
+    <Compile Include="Print\PrintableImage.cs" />
+    <Compile Include="Print\PrintableImagesPrinter.cs" />
     <Compile Include="ProductService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
