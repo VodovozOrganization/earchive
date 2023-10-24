@@ -2,7 +2,7 @@ using earchive.Loaders;
 using earchive.Print;
 using Gdk;
 using Gtk;
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using NLog;
 using QS.Print;
 using QSProjectsLib;

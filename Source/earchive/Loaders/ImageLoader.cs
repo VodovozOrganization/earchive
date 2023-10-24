@@ -1,5 +1,5 @@
 ﻿using Gdk;
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using NLog;
 using System;
 using System.Collections.Generic;

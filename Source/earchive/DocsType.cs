@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using Gtk;
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using QSProjectsLib;
 
 namespace earchive

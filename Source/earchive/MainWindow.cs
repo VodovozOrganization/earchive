@@ -3,7 +3,7 @@ using earchive.Loaders;
 using earchive.Print;
 using EarchiveApi;
 using Gtk;
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.Project.Versioning;

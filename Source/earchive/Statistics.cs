@@ -1,5 +1,5 @@
 using Gtk;
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using QSProjectsLib;
 using System;
 

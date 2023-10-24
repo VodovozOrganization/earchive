@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using BaseParametersService;
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using QSProjectsLib;
 using QSWidgetLib;
 

@@ -1,6 +1,6 @@
 using Gdk;
 using Gtk;
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using NLog;
 using QSProjectsLib;
 using QSScan;
