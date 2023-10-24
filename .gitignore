@@ -6,6 +6,6 @@
 #Mono Project Files
 bin/
 obj/
-packages/*
+source/packages/*
 
 .vs/
