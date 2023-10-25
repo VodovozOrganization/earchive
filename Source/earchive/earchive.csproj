@@ -140,7 +140,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
+    <Compile Include="Loaders\ImageLoader.cs" />
     <Compile Include="MainWindow.cs" />
+    <Compile Include="Print\PrintableImage.cs" />
+    <Compile Include="Print\PrintableImagesPrinter.cs" />
     <Compile Include="ProductService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -179,14 +182,6 @@
     <ProjectReference Include="..\..\Libraries\External\QSProjects\QS.BaseParameters\QS.BaseParameters.csproj">
       <Project>{A869EC36-67D2-4A36-95E9-0B1E7350928F}</Project>
       <Name>QS.BaseParameters</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\External\QSProjects\QS.Configuration\QS.Configuration.csproj">
-      <Project>{5D124360-C8FB-4779-958B-0DA5D6B90C29}</Project>
-      <Name>QS.Configuration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\External\QSProjects\QS.Project.Abstract\QS.Project.Abstract.csproj">
-      <Project>{e95be5dc-a197-4657-87dc-a2d677eadb76}</Project>
-      <Name>QS.Project.Abstract</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{C01AE5A4-3CFF-4C7B-884D-45B07ACDE761}</Project>
@@ -230,20 +225,20 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf">
-      <Version>3.21.7</Version>
-    </PackageReference>
     <PackageReference Include="MySql.Data">
       <Version>8.0.28</Version>
     </PackageReference>
     <PackageReference Include="NLog">
-      <Version>5.0.0</Version>
+      <Version>4.7.10</Version>
+    </PackageReference>
+    <PackageReference Include="System.Buffers">
+      <Version>4.4.0</Version>
     </PackageReference>
     <PackageReference Include="System.ComponentModel.Annotations">
-      <Version>4.4.1</Version>
+      <Version>4.4.0</Version>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource">
-      <Version>6.0.0</Version>
+      <Version>4.5.1</Version>
     </PackageReference>
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
       <Version>4.5.2</Version>

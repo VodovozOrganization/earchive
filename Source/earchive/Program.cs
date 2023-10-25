@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Gtk;
 using QS.BaseParameters;
-using QS.Configuration;
 using QS.Dialog;
+using QS.Print;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
 using QS.Project.Versioning;
 using QSProjectsLib;
+using System;
+using System.Collections.Generic;
 
 namespace earchive
 {
@@ -24,21 +23,24 @@ namespace earchive
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			CreateProjectParam();
 
-            var configurationFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "earchive.ini");
-
-            var configuration = new IniFileConfiguration(configurationFile);
-
-            // Создаем окно входа
-            Login LoginDialog = new QSProjectsLib.Login(configuration);
-			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource ("earchive.icons.logo.png");
-			LoginDialog.UpdateFromGConf ();
+			// Создаем окно входа
+			Login LoginDialog = new QSProjectsLib.Login();
+			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource("earchive.icons.logo.png");
+			LoginDialog.SetDefaultNames("earchive");
+			LoginDialog.DefaultLogin = "admin";
+			LoginDialog.DefaultServer = "localhost";
+			LoginDialog.UpdateFromGConf();
 
 			ResponseType LoginResult;
-			LoginResult = (ResponseType) LoginDialog.Run();
+			LoginResult = (ResponseType)LoginDialog.Run();
 			if (LoginResult == ResponseType.DeleteEvent || LoginResult == ResponseType.Cancel)
 				return;
 
+			LoginDialog.Destroy();
+
 			LoginDialog.Destroy ();
+
+			InitPrinters();
 
 			IApplicationInfo applicationInfo = new ApplicationVersionInfo();
 			var baseVersionChecker = new CheckBaseVersion(applicationInfo, new ParametersService(QSMain.ConnectionDB));
@@ -82,9 +84,9 @@ namespace earchive
 		{
 			QSMain.ProjectPermission = new Dictionary<string, UserPermission>();
 			QSMain.ProjectPermission.Add ("can_edit", new UserPermission("can_edit", "Изменение документов",
-			                                                      "Пользователь может изменять и добавлять документы"));
+																  "Пользователь может изменять и добавлять документы"));
 			QSMain.ProjectPermission.Add ("edit_db", new UserPermission("edit_db", "Изменение БД",
-			                                                             "Пользователь может изменять структуру базы данных"));
+																		 "Пользователь может изменять структуру базы данных"));
 
 			ServicesConfig.InteractiveService = new GtkInteractiveService();
 		}
@@ -95,6 +97,11 @@ namespace earchive
 			{
 				Gtk.Main.Iteration ();
 			}
+		}
+
+		private static void InitPrinters()
+		{
+			ImagePrinter.InitPrinter();
 		}
 	}
 }

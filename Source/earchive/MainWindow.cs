@@ -1,10 +1,12 @@
 using BaseParametersService;
+using earchive.Loaders;
+using earchive.Print;
 using EarchiveApi;
 using Gtk;
-using MySqlConnector;
+using MySql.Data.MySqlClient;
 using NLog;
-using QS.BaseParameters;
 using QS.Dialog.GtkUI;
+using QS.Print;
 using QS.Project.Versioning;
 using QS.Project.Versioning.Product;
 using QS.Project.ViewModels;
@@ -24,6 +26,7 @@ namespace earchive
 	{
 		private static Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly static IBaseParametersProvider _baseParametersProvider = new BaseParametersProvider();
+		private readonly static ImageLoader _imageLoader = new ImageLoader(_logger);
 
 		private IApplicationInfo _applicationInfo = new ApplicationVersionInfo();
 		private ListStore _docsListStore;
@@ -65,7 +68,7 @@ namespace earchive
 		private void SetUpdControls()
 		{
 			//Настройка контролов поиска кодов УПД
-			var serviceHost = 
+			var serviceHost =
 			_earchiveUpdServiceClient = new UpdServiceClient(
 				GetUpdServerHostAddress(),
 				GetUpdServerHostPort());
@@ -91,9 +94,9 @@ namespace earchive
 		public int? SelectedDocumentTypeId
 		{
 			get => _selectiedDocumentTypeId;
-			set 
-			{ 
-				if(_selectiedDocumentTypeId != value)
+			set
+			{
+				if (_selectiedDocumentTypeId != value)
 				{
 					_selectiedDocumentTypeId = value;
 
@@ -113,7 +116,7 @@ namespace earchive
 			get => _selectedCounterparty;
 			set
 			{
-				if(_selectedCounterparty != value)
+				if (_selectedCounterparty != value)
 				{
 					_selectedCounterparty = value;
 
@@ -135,9 +138,9 @@ namespace earchive
 		public DeliveryPointInfo SelectedDeliveryPoint
 		{
 			get => _selectedDeliveryPoint;
-			set 
+			set
 			{
-				if(_selectedDeliveryPoint != value)
+				if (_selectedDeliveryPoint != value)
 				{
 					_selectedDeliveryPoint = value;
 
@@ -158,7 +161,8 @@ namespace earchive
 
 		protected void OnReferenceUpdate(object sender, QSMain.ReferenceUpdatedEventArgs e)
 		{
-			switch (e.ReferenceTable) {
+			switch (e.ReferenceTable)
+			{
 				case "doc_types":
 					ComboWorks.ComboFillReference(comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
 					break;
@@ -195,10 +199,12 @@ namespace earchive
 			int i = 4;
 
 			if (_curDocType.FieldsList != null)
-				foreach (DocFieldInfo item in _curDocType.FieldsList) {
+				foreach (DocFieldInfo item in _curDocType.FieldsList)
+				{
 					if (!item.Display && !item.Search)
 						continue;
-					switch (item.Type) {
+					switch (item.Type)
+					{
 						case "varchar":
 							Types[i] = typeof(string);
 							item.ListStoreColumn = i;
@@ -209,17 +215,21 @@ namespace earchive
 
 			_docsListStore = new ListStore(Types);
 
-			foreach (TreeViewColumn col in treeviewDocs.Columns) {
+			foreach (TreeViewColumn col in treeviewDocs.Columns)
+			{
 				treeviewDocs.RemoveColumn(col);
 			}
 
 			treeviewDocs.AppendColumn("Номер", new CellRendererText(), "text", 1);
 			treeviewDocs.AppendColumn("Дата", new CellRendererText(), "text", 2);
-			if (_curDocType.FieldsList != null) {
-				foreach (DocFieldInfo item in _curDocType.FieldsList) {
+			if (_curDocType.FieldsList != null)
+			{
+				foreach (DocFieldInfo item in _curDocType.FieldsList)
+				{
 					if (!item.Display)
 						continue;
-					switch (item.Type) {
+					switch (item.Type)
+					{
 						case "varchar":
 							treeviewDocs.AppendColumn(item.Name, new CellRendererText(), "text", item.ListStoreColumn);
 							break;
@@ -246,7 +256,8 @@ namespace earchive
 		protected void OnRunReferenceItemDialog(object sender, Reference.RunReferenceItemDlgEventArgs e)
 		{
 			ResponseType Result;
-			switch (e.TableName) {
+			switch (e.TableName)
+			{
 				case "doc_types":
 					DocsType DocTypeEdit = new DocsType();
 					if (e.NewItem)
@@ -267,7 +278,7 @@ namespace earchive
 		protected void OnComboDocTypeChanged(object sender, EventArgs e)
 		{
 			_curDocType = null;
-			if (comboDocType.GetActiveIter(out TreeIter iter)) 
+			if (comboDocType.GetActiveIter(out TreeIter iter))
 			{
 				int CurrentTypeId = (int)comboDocType.Model.GetValue(iter, 1);
 				_curDocType = new DocumentInformation(CurrentTypeId);
@@ -292,7 +303,7 @@ namespace earchive
 			string hostAddress = string.Empty;
 			try
 			{
-				string sql = 
+				string sql =
 					@"SELECT str_value FROM base_parameters
 					WHERE name = @parameterName";
 				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
@@ -308,7 +319,7 @@ namespace earchive
 
 				rdr.Close();
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				hostAddress = string.Empty;
 				_logger.Error(ex, "Ошибка при выполнении запроса адреса хоста сервера поиска кодов УПД");
@@ -384,15 +395,15 @@ namespace earchive
 
 			try
 			{
-				items = _earchiveUpdServiceClient.GetCounterparties(nameSubstring); 
-				
+				items = _earchiveUpdServiceClient.GetCounterparties(nameSubstring);
+
 				_logger.Debug(
 				"Запрос поиска имени контрагента со значением подстроки {NameSubstring} вернул {CounterpartiesCount} результатов.",
 				nameSubstring,
 				items.Count);
 			}
 
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				ShowGrpcServiceErrorMessage();
 
@@ -438,7 +449,7 @@ namespace earchive
 		private bool CompletionMatchFunc(EntryCompletion completion, string key, TreeIter iter)
 		{
 			bool isMatch = false;
-			if(completion.Model.GetValue(iter, 0) is CounterpartyInfo counterpartyInfo)
+			if (completion.Model.GetValue(iter, 0) is CounterpartyInfo counterpartyInfo)
 			{
 				var value = counterpartyInfo.Name.ToLower();
 				var valueString = String.Format("{0}", value);
@@ -454,7 +465,7 @@ namespace earchive
 			var value = enteredCounterpartyNameValue.Name.ToLower();
 			bool isMatch = key == value;
 
-			if(isMatch)
+			if (isMatch)
 			{
 				SelectedCounterparty = enteredCounterpartyNameValue;
 			}
@@ -475,7 +486,7 @@ namespace earchive
 		{
 			comboboxAddress.SetRenderTextFunc<DeliveryPointInfo>(d => d.Address);
 
-			if(SelectedCounterparty != null)
+			if (SelectedCounterparty != null)
 			{
 				try
 				{
@@ -494,7 +505,7 @@ namespace earchive
 
 					return;
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					ShowGrpcServiceErrorMessage();
 
@@ -536,12 +547,12 @@ namespace earchive
 
 			if (!selectperiodDocs.IsAllTime)
 			{
-				if(selectperiodDocs.DateBegin > default(DateTime).AddMonths(1))
+				if (selectperiodDocs.DateBegin > default(DateTime).AddMonths(1))
 				{
 					startDate = selectperiodDocs.DateBegin.AddMonths(-1);
 				}
 
-				if(selectperiodDocs.DateEnd != default(DateTime))
+				if (selectperiodDocs.DateEnd != default(DateTime))
 				{
 					endDate = selectperiodDocs.DateEnd;
 				}
@@ -560,7 +571,7 @@ namespace earchive
 					   deliveryPointId,
 					   updCodes.Count);
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				ShowGrpcServiceErrorMessage();
 
@@ -633,7 +644,7 @@ namespace earchive
 
 				cmd.Parameters.AddWithValue("@startDate", selectperiodDocs.DateBegin);
 				cmd.Parameters.AddWithValue(
-					"@endDate", 
+					"@endDate",
 					selectperiodDocs.DateEnd == default(DateTime)
 					? DateTime.Now
 					: selectperiodDocs.DateEnd);
@@ -722,7 +733,7 @@ namespace earchive
 				sql += " AND date BETWEEN @startdate AND @enddate";
 			if (entryDocNumber.Text.Length > 0)
 			{
-				if(_curDocType.TypeId == _contractDocumentTypeId)
+				if (_curDocType.TypeId == _contractDocumentTypeId)
 				{
 					sql += string.Format(" AND inn LIKE '%{0}%' ", entryDocNumber.Text);
 				}
@@ -733,14 +744,16 @@ namespace earchive
 			}
 			QSMain.CheckConnectionAlive();
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
-			if (comboDocType.GetActiveIter(out TreeIter iter)) {
+			if (comboDocType.GetActiveIter(out TreeIter iter))
+			{
 				cmd.Parameters.AddWithValue("@type_id", comboDocType.Model.GetValue(iter, 1));
 			}
 			cmd.Parameters.AddWithValue("@startdate", selectperiodDocs.DateBegin);
 			cmd.Parameters.AddWithValue("@enddate", selectperiodDocs.DateEnd);
 			MySqlDataReader rdr = cmd.ExecuteReader();
 
-			while (rdr.Read()) {
+			while (rdr.Read())
+			{
 				object[] Values = new object[4 + _usedExtraFields];
 				Values[0] = rdr.GetInt32("id");
 				if (rdr["number"] != DBNull.Value)
@@ -753,11 +766,14 @@ namespace earchive
 					Values[2] = "";
 				Values[3] = string.Format("{0}", rdr.GetDateTime("create_date"));
 
-				if (_curDocType.FieldsList != null) {
-					foreach (DocFieldInfo item in _curDocType.FieldsList) {
+				if (_curDocType.FieldsList != null)
+				{
+					foreach (DocFieldInfo item in _curDocType.FieldsList)
+					{
 						if (!item.Display && !item.Search)
 							continue;
-						switch (item.Type) {
+						switch (item.Type)
+						{
 							case "varchar":
 								if (rdr[item.DBName] != DBNull.Value)
 									Values[item.ListStoreColumn] = rdr.GetString(item.DBName);
@@ -783,7 +799,7 @@ namespace earchive
 
 		protected void OnSelectperiodDocsDatesChanged(object sender, EventArgs e)
 		{
-			if(GetUpdDocs())
+			if (GetUpdDocs())
 			{
 				return;
 			}
@@ -796,7 +812,8 @@ namespace earchive
 
 		protected void OnButtonInputClicked(object sender, EventArgs e)
 		{
-			if (_inputDocsWin == null) {
+			if (_inputDocsWin == null)
+			{
 				_inputDocsWin = new InputDocs(_baseParametersProvider);
 				_inputDocsWin.DeleteEvent += OnDeleteInputDocsEvent;
 				Console.WriteLine("new");
@@ -816,7 +833,7 @@ namespace earchive
 			treeviewDocs.Selection.GetSelected(out TreeIter iter);
 			int ItemId = (int)_docsListStore.GetValue(iter, 0);
 			ViewDoc win = new ViewDoc();
-			win.Fill(ItemId);
+			win.Fill(ItemId, _imageLoader);
 			win.Show();
 			if ((ResponseType)win.Run() == ResponseType.Ok)
 			{
@@ -832,7 +849,7 @@ namespace earchive
 
 		protected void OnButtonOpenAllClicked(object sender, EventArgs e)
 		{
-			if(_docsListStore.IterNChildren() < 1)
+			if (_docsListStore.IterNChildren() < 1)
 			{
 				return;
 			}
@@ -851,9 +868,9 @@ namespace earchive
 
 			var docIds = new List<int>();
 
-			foreach(object[] item in _docsListStore)
+			foreach (object[] item in _docsListStore)
 			{
-				if(item.Length > 0 && item[0] is int code)
+				if (item.Length > 0 && item[0] is int code)
 				{
 					docIds.Add(code);
 				}
@@ -861,11 +878,11 @@ namespace earchive
 
 			docIds.Sort();
 			ViewDoc win = new ViewDoc();
-			win.Fill(docIds, SelectedDocumentTypeId.Value);
+			win.Fill(docIds, SelectedDocumentTypeId.Value, _imageLoader);
 			win.Show();
 			if ((ResponseType)win.Run() == ResponseType.Ok)
 			{
-				if(GetUpdDocs())
+				if (GetUpdDocs())
 				{
 					return;
 				}
@@ -875,11 +892,85 @@ namespace earchive
 			GC.Collect();
 		}
 
+		protected void OnButtonPrintClicked(object sender, EventArgs e)
+		{
+			treeviewDocs.Selection.GetSelected(out TreeIter iter);
+			int docId = (int)_docsListStore.GetValue(iter, 0);
+
+			IList<DocumentImage> docImages;
+
+			QSMain.CheckConnectionAlive();
+
+			try
+			{
+				docImages = _imageLoader.LoadImages(docId, QSMain.connectionDB);
+			}
+			catch (Exception ex)
+			{
+				QSMain.ErrorMessageWithLog(
+					"Ошибка получения документа из базы",
+					_logger,
+					ex);
+				return;
+			}
+
+			if (docImages == null)
+			{
+				QSMain.ErrorMessageWithLog(
+					"Полученный документ не содержит изображения",
+					_logger,
+					new ArgumentException());
+				return;
+			}
+
+			_logger.Debug("Печать документа. id = ({DocId}).", docId);
+			PrintImages(docImages);
+		}
+
+		private void PrintImages(IList<DocumentImage> docImages)
+		{
+			var documentsToPrint = new List<IPrintableImage>();
+
+			foreach (var docImage in docImages)
+			{
+				if (docImage.Image == null)
+				{
+					continue;
+				}
+
+				var document = new PrintableImage(docImage.Image);
+				document.Name = docImage.Order.ToString();
+
+				documentsToPrint.Add(document);
+			}
+
+			if (documentsToPrint.Count < 1)
+			{
+				return;
+			}
+
+			var printer = new PrintableImagesPrinter();
+			printer.SetImagesPrintList(documentsToPrint);
+
+			try
+			{
+				printer.Print();
+			}
+			catch (Exception ex)
+			{
+				QSMain.ErrorMessageWithLog(
+					"Ошибка печати изображения",
+					_logger,
+					ex);
+			}
+		}
+
 		protected void OnTreeviewDocsCursorChanged(object sender, EventArgs e)
 		{
 			bool RowSelected = treeviewDocs.Selection.CountSelectedRows() == 1;
 			buttonOpen.Sensitive = RowSelected;
 			ybuttonOpenAll.Sensitive = true;
+			ybuttonPrint.Sensitive = RowSelected;
 			buttonDelete.Sensitive = RowSelected && QSMain.User.Permissions["can_edit"];
 		}
 
@@ -920,7 +1011,7 @@ namespace earchive
 		}
 
 		protected void OnAboutActionActivated(object sender, EventArgs e)
-		{			
+		{
 			IProductService productService = new ProductService();
 			AboutViewModel aboutViewModel = new AboutViewModel(_applicationInfo, productService);
 			AboutView aboutView = new AboutView(aboutViewModel);
@@ -935,7 +1026,7 @@ namespace earchive
 
 		protected void OnButtonSearchClicked(object sender, EventArgs e)
 		{
-			if(string.IsNullOrEmpty(entryDocNumber.Text))
+			if (string.IsNullOrEmpty(entryDocNumber.Text))
 			{
 				return;
 			}
