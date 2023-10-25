@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <stetic-interface>
   <configuration>
     <images-root-path>..</images-root-path>
     <target-gtk-version>2.12</target-gtk-version>
   </configuration>
   <import>
-    <widget-library name="../../../QSProjects/Binding/Gamma.Binding/bin/Debug/GammaBinding.dll" />
-    <widget-library name="../../../QSProjects/QS.Project.Gtk/bin/Debug/QS.Project.Gtk.dll" />
-    <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
-    <widget-library name="../../../QSProjects/QSScan/bin/Debug/QSScan.dll" />
-    <widget-library name="../../../QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
-    <widget-library name="../../../QSProjects/QS.Updater.Gtk/bin/Debug/QSUpdater.dll" />
+    <widget-library name="../../../Libraries/External/QSProjects/Binding/Gamma.Binding/bin/Debug/GammaBinding.dll" />
+    <widget-library name="../../../Libraries/External/QSProjects/QS.Project.Gtk/bin/Debug/QS.Project.Gtk.dll" />
+    <widget-library name="../../../Libraries/External/QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
+    <widget-library name="../../../Libraries/External/QSProjects/QSScan/bin/Debug/QSScan.dll" />
+    <widget-library name="../../../Libraries/External/QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
+    <widget-library name="../../Services/BaseParametersService/BaseParametersService/bin/Debug/netstandard2.0/BaseParametersService.dll" />
     <widget-library name="../bin/Debug/earchive.exe" internal="true" />
   </import>
   <icon-factory>
@@ -1549,7 +1549,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Dialog" id="earchive.ViewDoc" design-size="708 435">
+  <widget class="Gtk.Dialog" id="earchive.ViewDoc" design-size="732 435">
     <action-group name="Default" />
     <property name="MemberName" />
     <property name="WindowPosition">Center</property>
@@ -1877,7 +1877,7 @@
                   <widget class="Gtk.Label" id="label2">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
-                    <property name="LabelProp" translatable="yes">Комментарии:</property>
+                    <property name="LabelProp" translatable="yes">Комментарии: </property>
                     <property name="UseMarkup">True</property>
                   </widget>
                   <packing>

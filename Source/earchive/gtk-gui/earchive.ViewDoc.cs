@@ -254,7 +254,7 @@ namespace earchive
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 0F;
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарии:");
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарии: ");
 			this.label2.UseMarkup = true;
 			this.vbox3.Add(this.label2);
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.label2]));
@@ -348,7 +348,7 @@ namespace earchive
 			{
 				this.Child.ShowAll();
 			}
-			this.DefaultWidth = 708;
+			this.DefaultWidth = 732;
 			this.DefaultHeight = 435;
 			this.yprogressbarPrint.Hide();
 			this.Show();
