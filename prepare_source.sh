@@ -14,15 +14,16 @@ find . -type d -regex '.*\(bin\|obj\)' -exec rm -rv {} +
 ;;&
     *3*)
 rm -v -f -R ./packages/*
+rm -v -f -R ./Source/packages/*
 ;;&
     *1*)
 git pull --autostash --recurse-submodules -j8
 ;;&
     *2*)
-nuget restore ./earchive.sln;
+nuget restore ./Source/earchive.sln;
 ;;&
     *4*)
-msbuild /p:Configuration=Debug /p:Platform=x86 ./earchive.sln -maxcpucount:4
+msbuild /p:Configuration=Debug /p:Platform=x86 ./Source/earchive.sln -maxcpucount:4
 ;;&
 esac
 
