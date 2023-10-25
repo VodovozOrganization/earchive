@@ -6,6 +6,7 @@ using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
 using QS.Dialog.GtkUI;
+using QS.Print;
 using QS.Project.Versioning;
 using QS.Project.Versioning.Product;
 using QS.Project.ViewModels;
@@ -896,13 +897,13 @@ namespace earchive
 			treeviewDocs.Selection.GetSelected(out TreeIter iter);
 			int docId = (int)_docsListStore.GetValue(iter, 0);
 
-			var docImage = new DocumentImage();
+			IList<DocumentImage> docImages;
 
 			QSMain.CheckConnectionAlive();
 
 			try
 			{
-				docImage = _imageLoader.LoadImage(docId, QSMain.connectionDB);
+				docImages = _imageLoader.LoadImages(docId, QSMain.connectionDB);
 			}
 			catch (Exception ex)
 			{
@@ -913,7 +914,7 @@ namespace earchive
 				return;
 			}
 
-			if (docImage.Image == null)
+			if (docImages == null)
 			{
 				QSMain.ErrorMessageWithLog(
 					"Полученный документ не содержит изображения",
@@ -923,17 +924,33 @@ namespace earchive
 			}
 
 			_logger.Debug("Печать документа. id = ({DocId}).", docId);
-			PrintImage(docImage);
+			PrintImages(docImages);
 		}
 
-		private void PrintImage(DocumentImage docImage)
+		private void PrintImages(IList<DocumentImage> docImages)
 		{
-			var document = new PrintableImage(docImage.Image);
-			document.Name = docImage.Order.ToString();
+			var documentsToPrint = new List<IPrintableImage>();
+
+			foreach (var docImage in docImages)
+			{
+				if (docImage.Image == null)
+				{
+					continue;
+				}
+
+				var document = new PrintableImage(docImage.Image);
+				document.Name = docImage.Order.ToString();
+
+				documentsToPrint.Add(document);
+			}
+
+			if (documentsToPrint.Count < 1)
+			{
+				return;
+			}
 
 			var printer = new PrintableImagesPrinter();
-
-			printer.AddImageToPrintList(document);
+			printer.SetImagesPrintList(documentsToPrint);
 
 			try
 			{

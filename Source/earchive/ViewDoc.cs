@@ -121,20 +121,24 @@ namespace earchive
 					rdr.Close();
 				}
 
-				// Загружаем изображения
-				var docImage = imageLoader.LoadImage(DocId, QSMain.connectionDB);
-
-				//Добавляем вижет
-				ImageViewer view = new ImageViewer();
-				view.VerticalFit = false;
-				view.HorizontalFit = true;
-				view.Pixbuf = docImage.Image;
-				view.ButtonPressEvent += OnImagesButtonPressEvent;
-				vboxImages.Add(view);
-				docImage.Widget = view;
-
 				Images.Clear();
-				Images.Add(docImage);
+
+				// Загружаем изображения
+				var docImages = imageLoader.LoadImages(DocId, QSMain.connectionDB);
+
+				foreach(var docImage in docImages)
+				{
+					//Добавляем вижет
+					ImageViewer view = new ImageViewer();
+					view.VerticalFit = false;
+					view.HorizontalFit = true;
+					view.Pixbuf = docImage.Image;
+					view.ButtonPressEvent += OnImagesButtonPressEvent;
+					vboxImages.Add(view);
+					docImage.Widget = view;
+
+					Images.Add(docImage);
+				}				
 
 				vboxImages.ShowAll();
 				logger.Info("Ok");

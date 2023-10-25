@@ -15,39 +15,13 @@ namespace earchive.Loaders
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public DocumentImage LoadImage(int docId, MySqlConnection connection)
+		public IList<DocumentImage> LoadImages(int docId, MySqlConnection connection)
 		{
-			DocumentImage docImage = new DocumentImage();
+			var images = LoadImages(
+				new List<int> { docId },
+				connection);
 
-			// Загружаем изображения
-			var sql = 
-				@"SELECT * 
-				FROM images
-				WHERE doc_id = @doc_id 
-				ORDER BY order_num";
-
-			using (var cmd = new MySqlCommand(sql, connection))
-			{
-				cmd.Parameters.AddWithValue("@doc_id", docId);
-
-				using (var rdr = cmd.ExecuteReader())
-				{
-					while (rdr.Read())
-					{
-						docImage.IsChanged = false;
-						docImage.Id = rdr.GetInt32("id");
-						docImage.Order = rdr.GetInt32("order_num");
-						docImage.Size = rdr.GetInt64("size");
-						docImage.Type = rdr.GetString("type");
-						docImage.File = new byte[docImage.Size];
-						rdr.GetBytes(rdr.GetOrdinal("image"), 0, docImage.File, 0, (int)docImage.Size);
-						docImage.Image = new Pixbuf(docImage.File);
-					}
-					rdr.Close();
-				}                    
-			}
-
-			return docImage;
+			return images;
 		}
 
 		public IList<DocumentImage> LoadImages(IList<int> docIds, MySqlConnection connection)
