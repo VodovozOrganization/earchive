@@ -44,8 +44,9 @@ namespace earchive.Loaders
 
 				cmd.Parameters.Clear();
 				cmd.Parameters.AddWithValue("@docIds", docIdsParameterValue);
+                cmd.CommandTimeout = 60;
 
-				using (var rdr = cmd.ExecuteReader())
+                using (var rdr = cmd.ExecuteReader())
 				{
 					// Загружаем изображения
 					while (rdr.Read())

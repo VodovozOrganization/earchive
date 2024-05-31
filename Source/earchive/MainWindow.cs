@@ -17,6 +17,7 @@ using QSWidgetLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using UpdGrpcClientService.Framework;
 
@@ -611,6 +612,7 @@ namespace earchive
 			string sqlExtra = string.Empty;
 			string sql = string.Empty;
 
+			var queryMessageBuilder = new StringBuilder();
 
 			try
 			{
@@ -637,19 +639,31 @@ namespace earchive
 				if (comboDocType.GetActiveIter(out TreeIter iter))
 				{
 					cmd.Parameters.AddWithValue("@typeId", comboDocType.Model.GetValue(iter, 1));
-				}
+					queryMessageBuilder.AppendLine($"SET @typeId={comboDocType.Model.GetValue(iter, 1)};");
+
+                }
 
 				var documentsCodesParameterValue = string.Join(",", documentsCodes);
 				cmd.Parameters.AddWithValue("@documentsCodesList", documentsCodesParameterValue);
+                queryMessageBuilder.AppendLine($"SET @documentsCodesList={documentsCodesParameterValue};");
 
-				cmd.Parameters.AddWithValue("@startDate", selectperiodDocs.DateBegin);
-				cmd.Parameters.AddWithValue(
-					"@endDate",
-					selectperiodDocs.DateEnd == default(DateTime)
+                cmd.Parameters.AddWithValue("@startDate", selectperiodDocs.DateBegin.ToString("yyyy-MM-dd"));
+                queryMessageBuilder.AppendLine($"SET @startDate={selectperiodDocs.DateBegin.ToString("yyyy-MM-dd")};");
+
+                var endDate = selectperiodDocs.DateEnd == default
 					? DateTime.Now
-					: selectperiodDocs.DateEnd);
+					: selectperiodDocs.DateEnd;
 
-				MySqlDataReader rdr = cmd.ExecuteReader();
+                cmd.Parameters.AddWithValue(
+					"@endDate", endDate.Date.AddDays(1).ToString("yyyy-MM-dd"));
+                queryMessageBuilder.AppendLine($"SET @endDate={endDate.Date.AddDays(1).ToString("yyyy-MM-dd")};");
+
+                queryMessageBuilder.AppendLine($"{cmd.CommandText};");
+
+				_logger.Debug(queryMessageBuilder.ToString());
+
+				cmd.CommandTimeout = 600;
+                MySqlDataReader rdr = cmd.ExecuteReader();
 
 				while (rdr.Read())
 				{
