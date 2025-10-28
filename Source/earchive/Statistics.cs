@@ -46,26 +46,26 @@ namespace earchive
                         LEFT JOIN docs ON images.doc_id = docs.id
                         LEFT JOIN doc_types ON doc_types.id = docs.type_id
                         WHERE 
-                            YEAR(docs.create_date) = YEAR(CURDATE())
-                             AND MONTH(docs.create_date) = MONTH(CURDATE())
+    	                    YEAR(docs.create_date) = YEAR(CURDATE())
+     	                    AND MONTH(docs.create_date) = MONTH(CURDATE())
                         GROUP BY doc_types.name, YEAR(docs.create_date), MONTH(docs.create_date)
                     ),
                     all_data AS (
-                        SELECT name, year, month, col, sum, avg FROM statistics WHERE month IS NOT NULL
+                        SELECT name, year, month, col, sum, avg FROM statistics
                         UNION ALL 
                         SELECT name, year, month, col, sum, avg FROM last_month_data
                     )
                     SELECT *
                     FROM (
-                        SELECT name, year, month, 
+	                    SELECT name, year, month, 
                            SUM(col) as col, 
                            SUM(sum) as sum, 
                            CASE 
                                WHEN SUM(col) > 0 THEN SUM(sum) / SUM(col) 
                                ELSE 0 
                            END as avg
-                        FROM all_data
-                        GROUP BY name, year, month WITH ROLLUP
+	                    FROM all_data
+	                    GROUP BY name, year, month WITH ROLLUP
                     ) as t
                     ORDER BY
                         name,
