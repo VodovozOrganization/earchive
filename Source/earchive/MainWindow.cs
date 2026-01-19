@@ -4,6 +4,7 @@ using earchive.Print;
 using EarchiveApi;
 using Gtk;
 using MySql.Data.MySqlClient;
+using NHibernate.Linq;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.Print;
@@ -40,8 +41,10 @@ namespace earchive
 		private DeliveryPointInfo _selectedDeliveryPoint;
 		private UpdServiceClient _earchiveUpdServiceClient;
 		private int _contractDocumentTypeId;
+        private int _updDocumentTypeId;
 
-		public MainWindow() : base(WindowType.Toplevel)
+
+        public MainWindow() : base(WindowType.Toplevel)
 		{
 			Build();
 
@@ -62,14 +65,17 @@ namespace earchive
 			selectperiodDocs.ActiveRadio = SelectPeriod.Period.Week;
 
 			_contractDocumentTypeId = _baseParametersProvider.ContractDocTypeId;
+			_updDocumentTypeId = _baseParametersProvider.UpdDocTypeId;
 
 			SetUpdControls();
 		}
 
 		private void SetUpdControls()
 		{
-			//Настройка контролов поиска кодов УПД
-			var serviceHost =
+            labelDocumentNumber.Visible = entryUpdDocNumber.Visible = buttonSearchUpd.Visible = false;
+
+            //Настройка контролов поиска кодов УПД
+            var serviceHost =
 			_earchiveUpdServiceClient = new UpdServiceClient(
 				GetUpdServerHostAddress(),
 				GetUpdServerHostPort());
@@ -292,7 +298,9 @@ namespace earchive
 					labelNumber.Text = "ИНН:";
 				}
 
-				PrepareDocsTable();
+				labelDocumentNumber.Visible = entryUpdDocNumber.Visible = buttonSearchUpd.Visible = CurrentTypeId == _updDocumentTypeId;
+
+                PrepareDocsTable();
 				UpdateDocs();
 			}
 		}
@@ -756,7 +764,20 @@ namespace earchive
 					sql += string.Format(" AND number LIKE '%{0}%' ", entryDocNumber.Text);
 				}
 			}
-			QSMain.CheckConnectionAlive();
+
+            if (entryUpdDocNumber.Text.Length > 0)
+            {
+                if (_curDocType.TypeId == 5)
+				{
+                    sql += string.Format(" AND extra_"
+						+ _curDocType.DBTableName
+						+ "."
+						+ _curDocType.FieldsList.First(n => n.Name.Contains("УПД")).DBName
+						+ " LIKE '%{0}%' ", entryUpdDocNumber.Text);
+                }
+            }
+
+            QSMain.CheckConnectionAlive();
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			if (comboDocType.GetActiveIter(out TreeIter iter))
 			{
@@ -1078,6 +1099,18 @@ namespace earchive
 
         protected void OnButtonSearchUpdClicked(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(entryUpdDocNumber.Text))
+            {
+                return;
+            }
+
+            SelectedCounterparty = null;
+            SelectedDeliveryPoint = null;
+
+            yentryClient.Text = string.Empty;
+            ClearComboboxAddresses();
+
+            UpdateDocs();
         }
     }
 }
