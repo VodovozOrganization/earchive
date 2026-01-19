@@ -18,7 +18,9 @@ namespace BaseParametersService
 
 		public int ContractDocTypeId => GetContractDocTypeId();
 
-		private int GetContractDocTypeId()
+        public int UpdDocTypeId => GetUpdDocTypeId();
+
+        private int GetContractDocTypeId()
 		{
 			var contractDocTypeIdKey = "contract_doc_type_id";
 
@@ -34,5 +36,22 @@ namespace BaseParametersService
 
 			throw new InvalidProgramException("В таблице параметров БД значения Id типа документов \"Договор\" установлено в неверном формате");
 		}
-	}
+
+        private int GetUpdDocTypeId()
+        {
+            var updDocTypeIdKey = "upd_doc_type_id";
+
+            if (_allParameters == null || !_allParameters.ContainsKey(updDocTypeIdKey))
+            {
+                throw new InvalidProgramException("Не найден параметр базы данных, устанавливающий значения Id типа документов \"УПД\"");
+            }
+
+            if (int.TryParse(_allParameters[updDocTypeIdKey], out int id))
+            {
+                return id;
+            }
+
+            throw new InvalidProgramException("В таблице параметров БД значения Id типа документов \"УПД\" установлено в неверном формате");
+        }
+    }
 }
