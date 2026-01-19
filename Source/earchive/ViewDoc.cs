@@ -95,14 +95,12 @@ namespace earchive
 					}
 					tableProperty.ShowAll();
 
-					//Заполняем данными документа
 					sql = "SELECT * FROM extra_" + DocInfo.DBTableName +
 						" WHERE doc_id = @doc_id";
 					cmd = new MySqlCommand(sql, QSMain.connectionDB);
 					cmd.Parameters.AddWithValue("@doc_id", DocId);
 					rdr = cmd.ExecuteReader();
 
-                    // Проверяем, найдена ли строка
                     if (rdr.Read())
                     {
                         foreach (DocFieldInfo field in DocInfo.FieldsList)
@@ -121,18 +119,11 @@ namespace earchive
                                         entry.TooltipText = value;
                                     }
                                     break;
-                                // Добавьте другие типы по мере необходимости: int, datetime и т.д.
-                                default:
-                                    Console.WriteLine($"Неизвестный тип поля: {field.Type}");
-                                    break;
                             }
                         }
                     }
                     else
                     {
-                        // Строки нет — значит, у документа ещё нет данных в extra-таблице.
-                        // Можно оставить поля пустыми (они уже пустые при инициализации),
-                        // или явно очистить их.
                         foreach (DocFieldInfo field in DocInfo.FieldsList)
                         {
                             if (FieldWidgets.TryGetValue(field.ID, out var widget) && widget is Entry entry)
