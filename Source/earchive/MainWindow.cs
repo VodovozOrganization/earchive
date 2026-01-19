@@ -1076,5 +1076,9 @@ namespace earchive
 		{
 			MessageDialogHelper.RunErrorDialog("Ошбика при выполнении запроса к службе получения УПД кодов");
 		}
-	}
+
+        protected void OnButtonSearchUpdClicked(object sender, EventArgs e)
+        {
+        }
+    }
 }
