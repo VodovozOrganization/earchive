@@ -191,14 +191,13 @@ namespace earchive
 					if (item.Display || item.Search)
 						_usedExtraFields++;
 
-			Type[] Types = new Type[5 + _usedExtraFields];
+			Type[] Types = new Type[4 + _usedExtraFields];
 			Types[0] = typeof(int); //0 - id
 			Types[1] = typeof(string); //1 - number
-            Types[2] = typeof(string); //1 - document number
-            Types[3] = typeof(string);//3 - doc date
-			Types[4] = typeof(string);//4 - created date;
+			Types[2] = typeof(string);//2 - doc date
+			Types[3] = typeof(string);//3 - created date;
 
-			int i = 5;
+			int i = 4;
 
 			if (_curDocType.FieldsList != null)
 				foreach (DocFieldInfo item in _curDocType.FieldsList)

@@ -95,30 +95,45 @@ namespace earchive
 					}
 					tableProperty.ShowAll();
 
-					//Заполняем данными документа
 					sql = "SELECT * FROM extra_" + DocInfo.DBTableName +
 						" WHERE doc_id = @doc_id";
 					cmd = new MySqlCommand(sql, QSMain.connectionDB);
 					cmd.Parameters.AddWithValue("@doc_id", DocId);
 					rdr = cmd.ExecuteReader();
-					rdr.Read();
 
-					foreach(DocFieldInfo field in DocInfo.FieldsList)
-					{
-						if(rdr[field.DBName] == DBNull.Value)
-							continue;
+                    if (rdr.Read())
+                    {
+                        foreach (DocFieldInfo field in DocInfo.FieldsList)
+                        {
+                            if (rdr[field.DBName] == DBNull.Value)
+                                continue;
 
-						switch (field.Type) {
-							case "varchar" :
-							((Entry)FieldWidgets[field.ID]).Text = rdr.GetString(field.DBName);
-							((Entry)FieldWidgets[field.ID]).TooltipText = rdr.GetString(field.DBName);
-							break;
-							default:
-							Console.WriteLine("Неизвестный тип поля");
-							break;
-						}
-					}
-					rdr.Close();
+                            switch (field.Type)
+                            {
+                                case "varchar":
+                                    var entry = FieldWidgets[field.ID] as Entry;
+                                    if (entry != null)
+                                    {
+                                        string value = rdr.GetString(field.DBName);
+                                        entry.Text = value;
+                                        entry.TooltipText = value;
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (DocFieldInfo field in DocInfo.FieldsList)
+                        {
+                            if (FieldWidgets.TryGetValue(field.ID, out var widget) && widget is Entry entry)
+                            {
+                                entry.Text = "";
+                                entry.TooltipText = "";
+                            }
+                        }
+                    }
+                    rdr.Close();
 				}
 
 				Images.Clear();
