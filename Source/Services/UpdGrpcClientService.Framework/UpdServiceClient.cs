@@ -1,12 +1,12 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Net.Client.Web;
 using Grpc.Net.Client;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using EarchiveApi;
 using Grpc.Core;
+using System.Linq;
 
 namespace UpdGrpcClientService.Framework
 {
@@ -84,9 +84,27 @@ namespace UpdGrpcClientService.Framework
 			}
 
 			return updCodes;
-		}
+        }
 
-		public void Dispose()
+        public List<UpdNumberResponseInfo> GetUpdNumbers(IEnumerable<int> orderIds)
+        {
+            var updNumbers = new List<UpdNumberResponseInfo>();
+
+			var requestInfo = new OrderIdsInfo();
+			requestInfo.OrderIds.AddRange(orderIds.Select(x => (long)x));
+
+            var response = _earchiveUpdClient.GetUpdNumbers(requestInfo);
+
+            while (response.ResponseStream.MoveNext().Result)
+            {
+                var updNumber = response.ResponseStream.Current;
+                updNumbers.Add(updNumber);
+            }
+
+            return updNumbers;
+        }
+
+        public void Dispose()
 		{
 			_channel.ShutdownAsync();
 		}

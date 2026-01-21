@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using BaseParametersService;
+using UpdGrpcClientService.Framework;
+using System.Linq;
 
 namespace earchive
 {
@@ -27,28 +29,32 @@ namespace earchive
 		private NLog.Targets.MemoryTarget RecognizeLog;
 		//private ScanAuxWorks scan = null;
 		private ScanWorks scan = null;
+		private readonly UpdServiceClient _updServiceClient;
 
-		//Настройки значков
-		string DocIconNew = Stock.New;
+        //Настройки значков
+        string DocIconNew = Stock.New;
 		string DocIconBad = Stock.No;
 		string DocIconAttention = Stock.DialogWarning;
 		string DocIconGood = Stock.Yes;
 
 		private int _contractDocumentTypeId;
-		private bool _isInnRequired;
+        private int _updDocumentTypeId;
+        private bool _isInnRequired;
 		private string _inn;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		public InputDocs(IBaseParametersProvider baseParametersProvider) :
+		public InputDocs(IBaseParametersProvider baseParametersProvider, UpdServiceClient updServiceClient) :
 				base(Gtk.WindowType.Toplevel)
 		{
 			if (baseParametersProvider is null)
 			{
 				throw new ArgumentNullException(nameof(baseParametersProvider));
-			}
+            }
 
-			this.Build();
+            _updServiceClient = updServiceClient ?? throw new ArgumentNullException(nameof(updServiceClient));
+
+            this.Build();
 
 			FieldLables = new Dictionary<int, Label>();
 			FieldWidgets = new Dictionary<int, object>();
@@ -136,7 +142,8 @@ namespace earchive
 			#endregion
 
 			_contractDocumentTypeId = baseParametersProvider.ContractDocTypeId;
-		}
+			_updDocumentTypeId = baseParametersProvider.UpdDocTypeId;
+        }
 
 		#region Settings
 		public bool IsInnRequired
@@ -204,7 +211,7 @@ namespace earchive
 			var docInn = CurrentDoc.DocInn;
 			var docInnConfidence = CurrentDoc.DocInnConfidence;
 
-			if (docTypeId > 0)
+            if (docTypeId > 0)
 			{
 				TreeIter iter;
 				if (!ImageList.GetIterFirst(out iter))
@@ -1043,6 +1050,7 @@ namespace earchive
 		protected void OnActionRecognizeActivated(object sender, EventArgs e)
 		{
 			TreeIter iter, imageiter;
+			var updDocuments = new List<Document>();
 
 			//Создаем новый лог
 			if(RecognizeLog == null)
@@ -1127,19 +1135,62 @@ namespace earchive
 					{
 						ImageList.SetValue(iter, 7, doc.Name);
 						ImageList.SetValue(iter, 3, doc);
+                    }
+
+                    ImageList.SetValue(iter, 8, GetDocIconByState(doc.State));
+
+					if(IsNeedSetUpdNumber(doc))
+					{
+						updDocuments.Add(doc);
 					}
-					ImageList.SetValue(iter, 8, GetDocIconByState(doc.State));
 				}
 				progresswork.Adjustment.Value++;
 				MainClass.WaitRedraw();
-
 			} while (ImageList.IterNext(ref iter));
-			logger.Info("Выполнено");
+			SetUpdNumbers(updDocuments);
+            logger.Info("Выполнено");
 			progresswork.Text = "Выполнено";
 			progresswork.Fraction = 0;
 			CurrentDoc = (Document)ImageList.GetValue(CurrentDocIter, 3);
 			UpdateFieldsWidgets(true);
 		}
+
+		private bool IsNeedSetUpdNumber(Document document)
+		{
+			if(document is null
+				|| string.IsNullOrWhiteSpace(document.DocNumber)
+				|| document.TypeId != _updDocumentTypeId)
+			{
+				return false;
+			}
+
+			return int.TryParse(document.DocNumber, out var orderId);
+		}
+
+        private void SetUpdNumbers(IEnumerable<Document> updDocuments)
+		{
+			try
+            {
+                var orderIds = updDocuments.Select(x => int.Parse(x.DocNumber));
+
+                logger.Info("Выполняем запрос получения номеров УПД");
+
+                var updNumbers = _updServiceClient.GetUpdNumbers(orderIds)
+                    .ToLookup(x => x.OrderId);
+
+                logger.Info("Запрос получения номеров УПД выполнен успешно");
+
+				foreach(var document in updDocuments)
+				{
+					var orderId = int.Parse(document.DocNumber);
+					document.FieldValues[1] = updNumbers[orderId].FirstOrDefault()?.UpdNumber;
+				}
+            }
+			catch(Exception ex)
+			{
+				logger.Warn(ex, "Ошибка при запросе номеров УПД");
+			}
+        }
 
 		void SetRecognizeIcon(Gtk.Image img, float confidence)
 		{
@@ -1297,8 +1348,6 @@ namespace earchive
 		protected void OnComboScanerChanged(object sender, EventArgs e)
 		{
 			scan.CurrentScanner = comboScaner.Active;
-		}
-	}
-
-
+        }
+    }
 }
