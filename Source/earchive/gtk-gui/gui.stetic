@@ -2345,7 +2345,7 @@
                 <child>
                   <widget class="Gtk.Table" id="tableFieldWidgets">
                     <property name="MemberName" />
-                    <property name="NRows">8</property>
+                    <property name="NRows">7</property>
                     <property name="NColumns">3</property>
                     <property name="RowSpacing">6</property>
                     <property name="ColumnSpacing">6</property>
@@ -2403,30 +2403,6 @@
                       <packing>
                         <property name="TopAttach">3</property>
                         <property name="BottomAttach">4</property>
-                        <property name="LeftAttach">1</property>
-                        <property name="RightAttach">2</property>
-                        <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
-                        <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
-                        <property name="XFill">True</property>
-                        <property name="XShrink">False</property>
-                        <property name="YExpand">False</property>
-                        <property name="YFill">True</property>
-                        <property name="YShrink">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="Gtk.Entry" id="entryDocumentNumber">
-                        <property name="MemberName" />
-                        <property name="CanFocus">True</property>
-                        <property name="IsEditable">True</property>
-                        <property name="InvisibleChar">●</property>
-                        <signal name="Changed" handler="OnEntryNumberChanged" />
-                      </widget>
-                      <packing>
-                        <property name="TopAttach">5</property>
-                        <property name="BottomAttach">6</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">2</property>
                         <property name="AutoSize">True</property>
@@ -2542,27 +2518,6 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Image" id="IconDocumentNumber">
-                        <property name="MemberName" />
-                        <property name="Pixbuf">stock:gtk-dialog-info Button</property>
-                      </widget>
-                      <packing>
-                        <property name="TopAttach">5</property>
-                        <property name="BottomAttach">6</property>
-                        <property name="LeftAttach">2</property>
-                        <property name="RightAttach">3</property>
-                        <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
-                        <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
-                        <property name="XFill">True</property>
-                        <property name="XShrink">False</property>
-                        <property name="YExpand">False</property>
-                        <property name="YFill">True</property>
-                        <property name="YShrink">False</property>
-                      </packing>
-                    </child>
-                    <child>
                       <widget class="Gamma.GtkWidgets.yImage" id="IconInn">
                         <property name="MemberName" />
                         <property name="Pixbuf">stock:gtk-dialog-info Menu</property>
@@ -2646,27 +2601,6 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Label" id="label12">
-                        <property name="MemberName" />
-                        <property name="Xalign">1</property>
-                        <property name="LabelProp" translatable="yes">Номер УПД&lt;span foreground="red"&gt;*&lt;/span&gt;:</property>
-                        <property name="UseMarkup">True</property>
-                      </widget>
-                      <packing>
-                        <property name="TopAttach">5</property>
-                        <property name="BottomAttach">6</property>
-                        <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
-                        <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
-                        <property name="XFill">True</property>
-                        <property name="XShrink">False</property>
-                        <property name="YExpand">False</property>
-                        <property name="YFill">True</property>
-                        <property name="YShrink">False</property>
-                      </packing>
-                    </child>
-                    <child>
                       <widget class="Gtk.Label" id="label9">
                         <property name="MemberName" />
                         <property name="Xalign">1</property>
@@ -2718,8 +2652,8 @@
                         <property name="UseUnderline">True</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">6</property>
-                        <property name="BottomAttach">7</property>
+                        <property name="TopAttach">5</property>
+                        <property name="BottomAttach">6</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">2</property>
                         <property name="AutoSize">True</property>
