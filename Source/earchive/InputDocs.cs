@@ -1171,14 +1171,14 @@ namespace earchive
 		{
 			try
             {
-                var orderIds = updDocuments.Select(x => int.Parse(x.DocNumber));
+                var orderIds = updDocuments.Select(x => int.Parse(x.DocNumber)).ToList();
 
-                logger.Info("Выполняем запрос получения номеров УПД");
+                logger.Info("Выполняем запрос получения номеров УПД. Отправлено {OrderIdsCoune} номеров заказов", orderIds.Count);
 
                 var updNumbers = _updServiceClient.GetUpdNumbers(orderIds)
                     .ToLookup(x => x.OrderId);
 
-                logger.Info("Запрос получения номеров УПД выполнен успешно");
+                logger.Info("Запрос получения номеров УПД выполнен успешно. Получены данные номеров УПД по {UpdNumbersCount} заказам", updNumbers?.Count);
 
 				foreach(var document in updDocuments)
 				{
