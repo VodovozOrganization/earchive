@@ -4,7 +4,6 @@ using earchive.Print;
 using EarchiveApi;
 using Gtk;
 using MySql.Data.MySqlClient;
-using NHibernate.Linq;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.Print;
@@ -849,7 +848,7 @@ namespace earchive
 		{
 			if (_inputDocsWin == null)
 			{
-				_inputDocsWin = new InputDocs(_baseParametersProvider);
+				_inputDocsWin = new InputDocs(_baseParametersProvider, _earchiveUpdServiceClient);
 				_inputDocsWin.DeleteEvent += OnDeleteInputDocsEvent;
 				Console.WriteLine("new");
 			}
