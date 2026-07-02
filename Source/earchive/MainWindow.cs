@@ -1,12 +1,16 @@
 using BaseParametersService;
 using earchive.Loaders;
 using earchive.Print;
+using earchive.Reports;
 using EarchiveApi;
+using Gamma.GtkWidgets;
 using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
 using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.Print;
+using QS.Project.Services.FileDialog;
 using QS.Project.Versioning;
 using QS.Project.Versioning.Product;
 using QS.Project.ViewModels;
@@ -30,6 +34,7 @@ namespace earchive
 		private readonly static ImageLoader _imageLoader = new ImageLoader(_logger);
 
 		private IApplicationInfo _applicationInfo = new ApplicationVersionInfo();
+		private IFileDialogService _fileDialogService;
 		private ListStore _docsListStore;
 		private DocumentInformation _curDocType;
 		private int _usedExtraFields;
@@ -40,13 +45,14 @@ namespace earchive
 		private DeliveryPointInfo _selectedDeliveryPoint;
 		private UpdServiceClient _earchiveUpdServiceClient;
 		private int _contractDocumentTypeId;
-        private int _updDocumentTypeId;
+		private int _updDocumentTypeId;
+		private yButton _exportUpdButton;
 
-
-        public MainWindow() : base(WindowType.Toplevel)
+		public MainWindow() : base(WindowType.Toplevel)
 		{
 			Build();
 
+			_fileDialogService = new FileDialogService();
 			QSMain.StatusBarLabel = labelStatus;
 			this.Title = $"{_applicationInfo.ProductTitle} v{_applicationInfo.Version} от {_applicationInfo.BuildDate:dd.MM.yyyy HH:mm}";
 			QSMain.MakeNewStatusTargetForNlog();
@@ -65,16 +71,37 @@ namespace earchive
 
 			_contractDocumentTypeId = _baseParametersProvider.ContractDocTypeId;
 			_updDocumentTypeId = _baseParametersProvider.UpdDocTypeId;
-
+			
+			AddExportUpdButton();
 			SetUpdControls();
+		}
+
+		private void AddExportUpdButton()
+		{
+			_exportUpdButton = new yButton
+			{
+				Label = "Экспорт в Эксель",
+				Name = "exportUpdButton"
+			};
+
+			_exportUpdButton.Sensitive = false;
+			_exportUpdButton.Clicked += ExportUpd;
+
+			hboxBottomButtons.Add(_exportUpdButton);
+
+			var exportUpdButtonContainer = (Gtk.Box.BoxChild)hboxBottomButtons[_exportUpdButton];
+			exportUpdButtonContainer.Expand = false;
+			exportUpdButtonContainer.Fill = false;
+
+			hboxBottomButtons.ShowAll();
 		}
 
 		private void SetUpdControls()
 		{
-            labelDocumentNumber.Visible = entryUpdDocNumber.Visible = buttonSearchUpd.Visible = false;
+			labelDocumentNumber.Visible = entryUpdDocNumber.Visible = buttonSearchUpd.Visible = false;
 
-            //Настройка контролов поиска кодов УПД
-            var serviceHost =
+			//Настройка контролов поиска кодов УПД
+			var serviceHost =
 			_earchiveUpdServiceClient = new UpdServiceClient(
 				GetUpdServerHostAddress(),
 				GetUpdServerHostPort());
@@ -299,7 +326,7 @@ namespace earchive
 
 				labelDocumentNumber.Visible = entryUpdDocNumber.Visible = buttonSearchUpd.Visible = CurrentTypeId == _updDocumentTypeId;
 
-                PrepareDocsTable();
+				PrepareDocsTable();
 				UpdateDocs();
 			}
 		}
@@ -648,29 +675,29 @@ namespace earchive
 					cmd.Parameters.AddWithValue("@typeId", comboDocType.Model.GetValue(iter, 1));
 					queryMessageBuilder.AppendLine($"SET @typeId={comboDocType.Model.GetValue(iter, 1)};");
 
-                }
+				}
 
 				var documentsCodesParameterValue = string.Join(",", documentsCodes);
 				cmd.Parameters.AddWithValue("@documentsCodesList", documentsCodesParameterValue);
-                queryMessageBuilder.AppendLine($"SET @documentsCodesList={documentsCodesParameterValue};");
+				queryMessageBuilder.AppendLine($"SET @documentsCodesList={documentsCodesParameterValue};");
 
-                cmd.Parameters.AddWithValue("@startDate", selectperiodDocs.DateBegin.ToString("yyyy-MM-dd"));
-                queryMessageBuilder.AppendLine($"SET @startDate={selectperiodDocs.DateBegin.ToString("yyyy-MM-dd")};");
+				cmd.Parameters.AddWithValue("@startDate", selectperiodDocs.DateBegin.ToString("yyyy-MM-dd"));
+				queryMessageBuilder.AppendLine($"SET @startDate={selectperiodDocs.DateBegin.ToString("yyyy-MM-dd")};");
 
-                var endDate = selectperiodDocs.DateEnd == default
+				var endDate = selectperiodDocs.DateEnd == default
 					? DateTime.Now
 					: selectperiodDocs.DateEnd;
 
-                cmd.Parameters.AddWithValue(
+				cmd.Parameters.AddWithValue(
 					"@endDate", endDate.Date.AddDays(1).ToString("yyyy-MM-dd"));
-                queryMessageBuilder.AppendLine($"SET @endDate={endDate.Date.AddDays(1).ToString("yyyy-MM-dd")};");
+				queryMessageBuilder.AppendLine($"SET @endDate={endDate.Date.AddDays(1).ToString("yyyy-MM-dd")};");
 
-                queryMessageBuilder.AppendLine($"{cmd.CommandText};");
+				queryMessageBuilder.AppendLine($"{cmd.CommandText};");
 
 				_logger.Debug(queryMessageBuilder.ToString());
 
 				cmd.CommandTimeout = 600;
-                MySqlDataReader rdr = cmd.ExecuteReader();
+				MySqlDataReader rdr = cmd.ExecuteReader();
 
 				while (rdr.Read())
 				{
@@ -743,6 +770,7 @@ namespace earchive
 			if (_curDocType == null)
 				return;
 			_logger.Info("Запрос документов в базе...");
+			_exportUpdButton.Sensitive = false;
 			_docsListStore.Clear();
 
 			string sqlExtra = "";
@@ -764,19 +792,19 @@ namespace earchive
 				}
 			}
 
-            if (entryUpdDocNumber.Text.Length > 0)
-            {
-                if (_curDocType.TypeId == 5)
+			if (entryUpdDocNumber.Text.Length > 0)
+			{
+				if (_curDocType.TypeId == 5)
 				{
-                    sql += string.Format(" AND extra_"
+					sql += string.Format(" AND extra_"
 						+ _curDocType.DBTableName
 						+ "."
 						+ _curDocType.FieldsList.First(n => n.Name.Contains("УПД")).DBName
 						+ " LIKE '%{0}%' ", entryUpdDocNumber.Text);
-                }
-            }
+				}
+			}
 
-            QSMain.CheckConnectionAlive();
+			QSMain.CheckConnectionAlive();
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			if (comboDocType.GetActiveIter(out TreeIter iter))
 			{
@@ -829,6 +857,7 @@ namespace earchive
 				"Получено {0} документов."));
 
 			ybuttonOpenAll.Sensitive = SelectedDocumentTypeId.HasValue && _docsListStore.IterNChildren() > 0;
+			_exportUpdButton.Sensitive = SelectedDocumentTypeId.HasValue && SelectedDocumentTypeId.Value == _updDocumentTypeId;
 		}
 
 		protected void OnSelectperiodDocsDatesChanged(object sender, EventArgs e)
@@ -869,7 +898,7 @@ namespace earchive
 			ViewDoc win = new ViewDoc();
 			win.Fill(ItemId, _imageLoader);
 			win.Show();
-			if ((ResponseType)win.Run() == ResponseType.Ok)
+			if((ResponseType)win.Run() == ResponseType.Ok)
 			{
 				if (GetUpdDocs())
 				{
@@ -1072,7 +1101,6 @@ namespace earchive
 			ClearComboboxAddresses();
 
 			UpdateDocs();
-
 		}
 
 		protected void OnEntryDocNumberActivated(object sender, EventArgs e)
@@ -1093,23 +1121,34 @@ namespace earchive
 
 		private void ShowGrpcServiceErrorMessage()
 		{
-			MessageDialogHelper.RunErrorDialog("Ошбика при выполнении запроса к службе получения УПД кодов");
+			MessageDialogHelper.RunErrorDialog("Ошибка при выполнении запроса к службе получения УПД кодов");
 		}
 
-        protected void OnButtonSearchUpdClicked(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(entryUpdDocNumber.Text))
-            {
-                return;
-            }
+		protected void OnButtonSearchUpdClicked(object sender, EventArgs e)
+		{
+			if (string.IsNullOrEmpty(entryUpdDocNumber.Text))
+			{
+				return;
+			}
 
-            SelectedCounterparty = null;
-            SelectedDeliveryPoint = null;
+			SelectedCounterparty = null;
+			SelectedDeliveryPoint = null;
 
-            yentryClient.Text = string.Empty;
-            ClearComboboxAddresses();
+			yentryClient.Text = string.Empty;
+			ClearComboboxAddresses();
 
-            UpdateDocs();
-        }
-    }
+			UpdateDocs();
+		}
+
+		private void ExportUpd(object sender, EventArgs e)
+		{
+			var updReport = new UpdReport(_fileDialogService);
+			
+			if(!updReport.Export(_docsListStore, selectperiodDocs.DateBegin, selectperiodDocs.DateEnd, out var message)
+				&& !string.IsNullOrWhiteSpace(message))
+			{
+				MessageDialogHelper.RunErrorDialog(message);
+			}
+		}
+	}
 }
