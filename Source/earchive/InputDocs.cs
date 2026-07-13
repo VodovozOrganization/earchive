@@ -95,6 +95,7 @@ namespace earchive
 			{
 				scan = new ScanWorks();
 				scan.ScanerSetup = ScanerSetup.Native;
+				scan.SaveImageAsJpegOnPngEncodingError = true;
 				scan.Pulse += OnScanWorksPulse;
 				scan.ImageTransfer += OnScanWorksImageTransfer;
 
