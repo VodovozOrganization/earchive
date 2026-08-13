@@ -40,7 +40,8 @@ namespace earchive
 			using (var engine = new TesseractEngine(@"./tessdata", "rus", EngineMode.Default))
 			{
 				TextMarker Marker = Doc.Template.Markers[0];
-				Pixbuf PixBox;
+
+				Pixbuf PixBox = null;
 
 				logger.Info("Вычисляем сдвиг");
 				Pixbuf WorkImage = Images[0];
@@ -50,6 +51,7 @@ namespace earchive
 				for (int i = 1; i <= 7; i++)
 				{
 					logger.Debug("Попытка {0}, box: x={1},y={2},w={3},h={4}", i, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
+					PixBox?.Dispose();
 					PixBox = new Pixbuf(WorkImage, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
 					using (var img = RecognizeHelper.PixbufToPix(PixBox))
 					{
@@ -106,6 +108,7 @@ namespace earchive
 						
 						Doc.DocNumberConfidence = 0;
 						for (int i = 1; i <= 5; i++) {
+							PixBox?.Dispose();
 							PixBox = new Pixbuf (WorkImage, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
 							using (var img = RecognizeHelper.PixbufToPix (PixBox)) {
 								using (var page = engine.Process (img, PageSegMode.SingleLine)) {
@@ -155,6 +158,7 @@ namespace earchive
 					if (CurRule.Box != null) {
 						CurRule.Box.SetShiftByMarker (Marker);
 
+						PixBox?.Dispose();
 						PixBox = new Pixbuf (WorkImage, CurRule.Box.PosX, CurRule.Box.PosY, CurRule.Box.Width, CurRule.Box.Heigth);
 						using (var img = RecognizeHelper.PixbufToPix (PixBox)) {
 							using (var page = engine.Process (img, PageSegMode.SingleLine)) {
@@ -201,6 +205,8 @@ namespace earchive
 				}
 
 				//FIXME Добавить распознование дополнительных полей.
+
+				PixBox?.Dispose();
 			}
 		}
 

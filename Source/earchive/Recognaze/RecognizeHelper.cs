@@ -14,24 +14,21 @@ namespace earchive
 
 		public static Pix PixbufToPix(Pixbuf image)
 		{
-			MemoryStream  stream = new MemoryStream(image.SaveToBuffer("png"));
-			stream.Position = 0;
-
-			Bitmap sysimage = new Bitmap(stream);
-			stream.Close();
-
-			return PixConverter.ToPix(sysimage);
+			using (var stream = new MemoryStream(image.SaveToBuffer("png")))
+			using (var rawBitmap = new Bitmap(stream))
+			using (var sysimage = new Bitmap(rawBitmap))
+			{
+				return PixConverter.ToPix(sysimage);
+			}
 		}
 
 		public static Bitmap PixbufToBitmap(Pixbuf image)
 		{
-			MemoryStream  stream = new MemoryStream(image.SaveToBuffer("png"));
-			stream.Position = 0;
-
-			Bitmap sysimage = new Bitmap(stream);
-			stream.Close();
-
-			return sysimage;
+			using (var stream = new MemoryStream(image.SaveToBuffer("png")))
+			using (var rawBitmap = new Bitmap(stream))
+			{
+				return new Bitmap(rawBitmap);
+			}
 		}
 
 	}

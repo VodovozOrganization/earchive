@@ -1289,6 +1289,30 @@ namespace earchive
 			catch(Exception ex)
 			{
 				QSMain.ErrorMessageWithLog(this, "Ошибка в работе со сканером!", logger, ex);
+
+				try
+				{
+					scan.Close();
+				}
+				catch (Exception closeEx)
+				{
+					logger.Warn(closeEx, "Не удалось корректно закрыть сессию сканера после ошибки");
+				}
+				finally
+				{
+					var selectedScanner = comboScaner.Active;
+					scan = new ScanWorks
+					{
+						ScanerSetup = ScanerSetup.Native,
+						SaveImageAsJpegOnPngEncodingError = true
+					};
+					scan.Pulse += OnScanWorksPulse;
+					scan.ImageTransfer += OnScanWorksImageTransfer;
+					if (selectedScanner >= 0 && selectedScanner < scan.ScannerCount)
+					{
+						scan.CurrentScanner = selectedScanner;
+					}
+				}
 			}
 		}
 
