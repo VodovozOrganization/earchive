@@ -444,6 +444,12 @@ namespace earchive
 					document.Open();
 					foreach(DocumentImage img in Images)
 					{
+						// Пустое изображение (строка без файла) — в PDF не выводим
+						if(img.Image == null)
+						{
+							continue;
+						}
+
 						if(img.Image.Width > img.Image.Height)
 							document.SetPageSize(iTextSharp.text.PageSize.A4.Rotate());
 						else 

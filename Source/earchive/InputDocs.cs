@@ -1,3 +1,6 @@
+using BaseParametersService;
+using earchive.FileStorage;
+using FileStorageService;
 using Gdk;
 using Gtk;
 using MySql.Data.MySqlClient;
@@ -8,9 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using BaseParametersService;
-using UpdGrpcClientService.Framework;
 using System.Linq;
+using UpdGrpcClientService.Framework;
 
 namespace earchive
 {
@@ -939,6 +941,7 @@ namespace earchive
 				Document doc = (Document)ImageList.GetValue(iter, 3);
 				QSMain.CheckConnectionAlive();
 				MySqlTransaction trans = QSMain.connectionDB.BeginTransaction();
+				var uploadedS3Keys = new List<string>();
 				try
 				{
 					string sql = "INSERT INTO docs(number, date, create_date, user_id, type_id, inn) " +
@@ -952,7 +955,7 @@ namespace earchive
 					cmd.Parameters.AddWithValue("@inn", doc.DocInn);
 					cmd.ExecuteNonQuery();
 					long docid = cmd.LastInsertedId;
-					if(doc.CountExtraFields > 0)
+					if (doc.CountExtraFields > 0)
 					{
 						cmd = new MySqlCommand();
 						cmd.Connection = QSMain.connectionDB;
@@ -971,35 +974,67 @@ namespace earchive
 						cmd.CommandText = sqlinsert + sqlvalues;
 						cmd.ExecuteNonQuery();
 					}
+
 					Console.WriteLine("doc");
-					sql = "INSERT INTO images(order_num, doc_id, type, size, image) " +
-						"VALUES(@order_num, @doc_id, @type, @size, @image)";
 					int order = 1;
+					var s3 = S3StorageFactory.Get();
 					ImageList.IterChildren(out imageiter, iter);
 					do
 					{
 						Console.WriteLine("image");
-						cmd = new MySqlCommand(sql, QSMain.connectionDB, trans);
+						var pix = (Pixbuf)ImageList.GetValue(imageiter, 5);
+						var rawdata = pix.SaveToBuffer("jpeg", new string[] { "quality" }, new string[] { "10" });
+
+						// Сначала строка — ключ в S3 строится из её id
+						var sqlImage =
+							"INSERT INTO images_s3(order_num, doc_id, type, size) " +
+							"VALUES(@order_num, @doc_id, @type, @size)";
+						cmd = new MySqlCommand(sqlImage, QSMain.connectionDB, trans);
 						cmd.Parameters.AddWithValue("@doc_id", docid);
 						cmd.Parameters.AddWithValue("@order_num", order);
 						cmd.Parameters.AddWithValue("@type", "jpg");
-						Pixbuf pix = (Pixbuf)ImageList.GetValue(imageiter, 5);
-						byte[] rawdata = pix.SaveToBuffer("jpeg", new string[] { "quality" }, new string[] { "10" });
 						cmd.Parameters.AddWithValue("@size", rawdata.LongLength);
-						cmd.Parameters.AddWithValue("@image", rawdata);
 						cmd.ExecuteNonQuery();
+						var imageId = cmd.LastInsertedId;
+						var s3Key = ImageS3Keys.Build(docid, imageId);
+
+						using (var ms = new MemoryStream(rawdata))
+						{
+							// Ключ новый; если он всё же занят чужим объектом — ошибка и откат, объект не трогаем
+							s3.UploadImageAsync(s3Key, ms, ImageS3Keys.ContentType, imageId).GetAwaiter().GetResult();
+						}
+						uploadedS3Keys.Add(s3Key);
+
+						cmd = new MySqlCommand(
+							"UPDATE images_s3 SET s3_key = @s3_key WHERE id = @id",
+							QSMain.connectionDB, trans);
+						cmd.Parameters.AddWithValue("@s3_key", s3Key);
+						cmd.Parameters.AddWithValue("@id", imageId);
+						cmd.ExecuteNonQuery();
+						order++;
 					}
 					while (ImageList.IterNext(ref imageiter));
 
 					trans.Commit();
+					uploadedS3Keys.Clear(); // успешно — подчищать нечего
 					progresswork.Adjustment.Value++;
 					MainClass.WaitRedraw();
 					ForRemove.Add(iter);
 					logger.Info("Ok");
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
-					trans.Rollback();
+					try
+					{
+						trans.Rollback();
+					}
+					catch (Exception rbEx)
+					{
+						logger.Warn(rbEx, "Ошибка Rollback транзакции");
+					}
+
+					DeleteUploadedS3Objects(uploadedS3Keys);
+
 					QSMain.ErrorMessageWithLog(this, "Ошибка сохранения документов!", logger, ex);
 					return;
 				}
@@ -1013,6 +1048,40 @@ namespace earchive
 			}
 			progresswork.Text = "Ок";
 			progresswork.Fraction = 0;
+		}
+
+		/// <summary>
+		/// Удаляет из S3 файлы, загруженные при сохранении документа, который не удалось записать в БД.
+		/// Ошибки только логируются: в бакете останется лишь неиспользуемый файл
+		/// </summary>
+		/// <param name="uploadedS3Keys">Ключи загруженных объектов</param>
+		private void DeleteUploadedS3Objects(IList<string> uploadedS3Keys)
+		{
+			if (uploadedS3Keys.Count == 0)
+			{
+				return;
+			}
+
+			try
+			{
+				var s3 = S3StorageFactory.Get();
+				foreach (var key in uploadedS3Keys)
+				{
+					try
+					{
+						s3.DeleteAsync(key).GetAwaiter().GetResult();
+						logger.Info("Откат: удалён объект S3 {0}", key);
+					}
+					catch (Exception ex)
+					{
+						logger.Warn(ex, "Откат: не удалось удалить объект S3 {0}", key);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				logger.Warn(ex, "Откат: ошибка при очистке S3");
+			}
 		}
 
 		protected void OnRotate90ActionActivated(object sender, EventArgs e)

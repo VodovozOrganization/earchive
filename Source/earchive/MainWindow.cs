@@ -1,4 +1,5 @@
 using BaseParametersService;
+using earchive.FileStorage;
 using earchive.Loaders;
 using earchive.Print;
 using earchive.Reports;
@@ -1049,10 +1050,74 @@ namespace earchive
 
 			string sql = "DELETE FROM docs WHERE id = @id";
 			QSMain.CheckConnectionAlive();
+			var imageKeys = LoadDocImageS3Keys(itemid);
 			MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
 			cmd.Parameters.AddWithValue("@id", itemid);
 			cmd.ExecuteNonQuery();
+			DeleteImageS3Objects(imageKeys);
 			UpdateDocs();
+		}
+
+		/// <summary>
+		/// Ключи S3 изображений документа
+		/// </summary>
+		/// <param name="docId">Id документа</param>
+		/// <returns>Изображения документа, у которых есть файл в S3</returns>
+		private static List<ImageS3Key> LoadDocImageS3Keys(int docId)
+		{
+			var keys = new List<ImageS3Key>();
+			var sql = "SELECT id, s3_key FROM images_s3 WHERE doc_id = @doc_id AND s3_key IS NOT NULL";
+			using (var cmd = new MySqlCommand(sql, QSMain.connectionDB))
+			{
+				cmd.Parameters.AddWithValue("@doc_id", docId);
+				using (var rdr = cmd.ExecuteReader())
+				{
+					while (rdr.Read())
+					{
+						keys.Add(new ImageS3Key
+						{
+							ImageId = rdr.GetInt64(0),
+							S3Key = rdr.GetString(1)
+						});
+					}
+				}
+			}
+			return keys;
+		}
+
+		/// <summary>
+		/// Удаляет из S3 файлы изображений удалённого документа.
+		/// Строки изображений удаляет каскад в БД, файлы в S3 — только этот метод.
+		/// Удаляются только объекты, помеченные id своего изображения: чужой объект с тем же ключом не трогается.
+		/// Документ к этому моменту уже удалён, поэтому ошибки только логируются: в бакете останется лишь неиспользуемый файл
+		/// </summary>
+		/// <param name="imageKeys">Изображения удалённого документа</param>
+		private static void DeleteImageS3Objects(IList<ImageS3Key> imageKeys)
+		{
+			foreach (var image in imageKeys)
+			{
+				try
+				{
+					var s3 = S3StorageFactory.Get();
+					var info = s3.GetInfoAsync(image.S3Key).GetAwaiter().GetResult();
+					if (info == null)
+					{
+						continue;
+					}
+
+					if (info.OwnerImageId != image.ImageId)
+					{
+						_logger.Warn("Объект S3 {0} не помечен изображением id={1}, не удаляется", image.S3Key, image.ImageId);
+						continue;
+					}
+
+					s3.DeleteAsync(image.S3Key).GetAwaiter().GetResult();
+				}
+				catch (Exception ex)
+				{
+					_logger.Warn(ex, "Не удалось удалить объект S3 {0} удалённого документа", image.S3Key);
+				}
+			}
 		}
 
 		protected void OnButtonRefreshClicked(object sender, EventArgs e)

@@ -139,6 +139,8 @@
     <EmbeddedResource Include="icons\emblem-documents.24.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileStorage\ImageS3Key.cs" />
+    <Compile Include="FileStorage\S3StorageFactory.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Loaders\ImageLoader.cs" />
     <Compile Include="MainWindow.cs" />
@@ -219,6 +221,10 @@
     <ProjectReference Include="..\Services\BaseParametersService\BaseParametersService\BaseParametersService.csproj">
       <Project>{CCB8C244-4444-4593-B07D-5E5901E688F7}</Project>
       <Name>BaseParametersService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\FileStorageService\FileStorageService\FileStorageService.csproj">
+      <Project>{6F0D2A7E-3B1C-4E59-9C2D-8A41E5B7C3D1}</Project>
+      <Name>FileStorageService</Name>
     </ProjectReference>
     <ProjectReference Include="..\Services\UpdGrpcClientService.Framework\UpdGrpcClientService.Framework.csproj">
       <Project>{328c128a-7caf-4b0f-8970-e0d2d1978d39}</Project>

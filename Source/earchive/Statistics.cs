@@ -42,7 +42,7 @@ namespace earchive
                             COUNT(images.id) as col,
                             SUM(images.size / 1048576) as sum,
                             AVG(images.size / 1048576) as avg
-                        FROM images
+                        FROM images_s3 images
                         LEFT JOIN docs ON images.doc_id = docs.id
                         LEFT JOIN doc_types ON doc_types.id = docs.type_id
                         WHERE 

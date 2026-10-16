@@ -330,6 +330,12 @@ namespace earchive
 		public byte[] File { get; set; }
 		public bool IsChanged { get; set; }
 		public ImageViewer Widget { get; set; }
+
+		/// <summary>
+		/// Ключ объекта в S3.
+		/// null — пустое изображение (без файла)
+		/// </summary>
+		public string S3Key { get; set; }
 	}
 	
 }
