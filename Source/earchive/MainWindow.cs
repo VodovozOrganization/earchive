@@ -63,8 +63,8 @@ namespace earchive
 
 			UsersAction.Sensitive = QSMain.User.Admin;
 			labelUser.LabelProp = QSMain.User.Name;
-		/*	ActionDocTypes.Sensitive = QSMain.User.Permissions["edit_db"];
-			buttonInput.Sensitive = QSMain.User.Permissions["can_edit"];*/
+			ActionDocTypes.Sensitive = QSMain.User.Permissions["edit_db"];
+			buttonInput.Sensitive = QSMain.User.Permissions["can_edit"];
 
 			// Создаем главное окно
 			ComboWorks.ComboFillReference(comboDocType, "doc_types", ComboWorks.ListMode.OnlyItems);
