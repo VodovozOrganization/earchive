@@ -12,11 +12,12 @@ namespace earchive
 
 		/// <summary>
 		/// Пытается распознать QR-код с данными документа на страницах изображения.
-		/// Сначала используется gRPC-сервис на движке WeChat, затем локальный ZXing.
+		/// Сначала используется локальный движок WeChat, при его недоступности —
+		/// gRPC-сервис (если настроен), затем ZXing.
 		/// </summary>
 		/// <param name="images">Страницы документа.</param>
 		/// <param name="doc">Документ, в который записываются номер и дата.</param>
-		/// <param name="qrServiceClient">Клиент сервиса распознавания QR; может быть null.</param>
+		/// <param name="qrServiceClient">Необязательный клиент сервиса распознавания QR.</param>
 		public static bool TryParse(Pixbuf[] images, ref Document doc, QrServiceClient qrServiceClient = null)
 		{
 			if (images == null)
@@ -39,13 +40,29 @@ namespace earchive
 
 		private static IEnumerable<string> ReadCodes(Pixbuf image, QrServiceClient qrServiceClient)
 		{
+			// Локальный WeChat QR — основной способ, без обращения к хосту.
+			var localCodes = WeChatQrScanner.Read(image);
+
+			if (localCodes != null)
+			{
+				if (localCodes.Count == 0)
+					logger.Debug("Локальный WeChat QR не нашёл кодов на странице.");
+
+				foreach (var localCode in localCodes)
+					yield return localCode;
+
+				yield break;
+			}
+
+			logger.Warn("Локальный WeChat QR недоступен: {0}. Пробуем сервис/Zxing.", WeChatQrScanner.LastError);
+
 			if (qrServiceClient != null)
 			{
 				var remoteCodes = qrServiceClient.Recognize(image.SaveToBuffer("jpeg"));
 
 				if (remoteCodes == null)
 				{
-					logger.Warn("Сервис распознавания QR недоступен: {0}. Пробуем локальный распознаватель.",
+					logger.Warn("Сервис распознавания QR недоступен: {0}. Пробуем ZXing.",
 						qrServiceClient.LastError);
 				}
 				else
@@ -56,8 +73,6 @@ namespace earchive
 					foreach (var remoteCode in remoteCodes)
 						yield return remoteCode;
 
-					// Если сервис ответил, локальный ZXing уже не нужен: он слабее
-					// на сканах УПД и только замедляет пакетное распознавание.
 					yield break;
 				}
 			}

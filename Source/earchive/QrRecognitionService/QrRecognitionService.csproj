@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Models\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\QrModels\**" Link="Models\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

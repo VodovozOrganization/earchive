@@ -211,6 +211,7 @@ namespace earchive
 
 		protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 		{
+			WeChatQrScanner.Shutdown();
 			_qrServiceClient?.Dispose();
 			_earchiveUpdServiceClient?.Dispose();
 			Application.Quit();
