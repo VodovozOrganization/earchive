@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+option csharp_namespace = "EarchiveQr";
+
+package earchive.qr;
+
+// Сервис распознавания QR-кодов на изображениях документов.
+// Реализация использует движок WeChat QRCode (OpenCV wechat_qrcode),
+// который устойчивее к шумам печати и сканирования, чем ZXing.
+service QrRecognition {
+  // Распознать QR-коды на одном изображении (странице документа).
+  rpc Recognize (QrRecognizeRequest) returns (QrRecognizeResponse);
+}
+
+message QrRecognizeRequest {
+  // Содержимое изображения (JPEG/PNG/BMP).
+  bytes image = 1;
+
+  // Необязательная подсказка о формате: "jpeg", "png", ...
+  string image_format = 2;
+}
+
+message QrRecognizeResponse {
+  // Найденные QR-коды. Обычно один, но документ может содержать несколько.
+  repeated QrCode codes = 1;
+}
+
+message QrCode {
+  // Текст, закодированный в QR-коде.
+  string text = 1;
+}

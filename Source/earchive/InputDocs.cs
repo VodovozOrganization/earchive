@@ -32,6 +32,7 @@ namespace earchive
 		//private ScanAuxWorks scan = null;
 		private ScanWorks scan = null;
 		private readonly UpdServiceClient _updServiceClient;
+		private readonly QrServiceClient _qrServiceClient;
 
         //Настройки значков
         string DocIconNew = Stock.New;
@@ -46,7 +47,7 @@ namespace earchive
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		public InputDocs(IBaseParametersProvider baseParametersProvider, UpdServiceClient updServiceClient) :
+		public InputDocs(IBaseParametersProvider baseParametersProvider, UpdServiceClient updServiceClient, QrServiceClient qrServiceClient = null) :
 				base(Gtk.WindowType.Toplevel)
 		{
 			if (baseParametersProvider is null)
@@ -55,6 +56,7 @@ namespace earchive
             }
 
             _updServiceClient = updServiceClient ?? throw new ArgumentNullException(nameof(updServiceClient));
+            _qrServiceClient = qrServiceClient;
 
             this.Build();
 
@@ -1167,7 +1169,7 @@ namespace earchive
 					Document doc = (Document)ImageList.GetValue(iter, 3);
 
 					//Распознание QR кода с распознаванием типа документа
-					var qrResult = QRCodeRecognizer.TryParse(Images, ref doc);
+					var qrResult = QRCodeRecognizer.TryParse(Images, ref doc, _qrServiceClient);
 
 					//Если QR кода нет или не распознан попытка распознать другими способами
 					if(!qrResult)

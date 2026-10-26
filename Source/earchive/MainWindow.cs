@@ -45,6 +45,7 @@ namespace earchive
 		private CounterpartyInfo _selectedCounterparty;
 		private DeliveryPointInfo _selectedDeliveryPoint;
 		private UpdServiceClient _earchiveUpdServiceClient;
+		private QrServiceClient _qrServiceClient;
 		private int _contractDocumentTypeId;
 		private int _updDocumentTypeId;
 		private yButton _exportUpdButton;
@@ -106,6 +107,27 @@ namespace earchive
 			_earchiveUpdServiceClient = new UpdServiceClient(
 				GetUpdServerHostAddress(),
 				GetUpdServerHostPort());
+
+			//Сервис распознавания QR-кодов (движок WeChat)
+			var qrServiceHost = GetQrServerHostAddress();
+			var qrServicePort = GetQrServerHostPort();
+			if (!string.IsNullOrWhiteSpace(qrServiceHost) && qrServicePort > 0)
+			{
+				try
+				{
+					_qrServiceClient = new QrServiceClient(qrServiceHost, qrServicePort, GetQrServerUseTls());
+				}
+				catch (Exception ex)
+				{
+					_logger.Error(ex, "Не удалось создать клиент сервиса распознавания QR. " +
+						"Будет использоваться локальный распознаватель ZXing.");
+				}
+			}
+			else
+			{
+				_logger.Info("Сервис распознавания QR не настроен (qr_grpc_address/qr_grpc_port). " +
+					"Для QR-кодов будет использоваться локальный распознаватель ZXing.");
+			}
 
 			yentryClient.Completion = new EntryCompletion();
 			yentryClient.Completion.Model = new ListStore(typeof(CounterpartyInfo));
@@ -189,6 +211,8 @@ namespace earchive
 
 		protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 		{
+			_qrServiceClient?.Dispose();
+			_earchiveUpdServiceClient?.Dispose();
 			Application.Quit();
 			a.RetVal = true;
 		}
@@ -334,64 +358,58 @@ namespace earchive
 
 		#region Поиск УПД
 
-		private string GetUpdServerHostAddress()
+		private string GetBaseParameterValue(string parameterName)
 		{
-			string hostAddress = string.Empty;
 			try
 			{
-				string sql =
-					@"SELECT str_value FROM base_parameters
-					WHERE name = @parameterName";
-				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
-				cmd.Parameters.AddWithValue("@parameterName", "upd_grpc_address");
-				MySqlDataReader rdr = cmd.ExecuteReader();
+				const string sql = @"SELECT str_value FROM base_parameters WHERE name = @parameterName";
 
-				if (!rdr.Read())
+				using (var cmd = new MySqlCommand(sql, QSMain.connectionDB))
 				{
-					return hostAddress;
+					cmd.Parameters.AddWithValue("@parameterName", parameterName);
+
+					using (var rdr = cmd.ExecuteReader())
+					{
+						if (!rdr.Read())
+							return string.Empty;
+
+						return rdr.GetString("str_value");
+					}
 				}
-
-				hostAddress = rdr.GetString("str_value");
-
-				rdr.Close();
 			}
 			catch (Exception ex)
 			{
-				hostAddress = string.Empty;
-				_logger.Error(ex, "Ошибка при выполнении запроса адреса хоста сервера поиска кодов УПД");
+				_logger.Error(ex, "Ошибка при получении параметра {0}", parameterName);
+				return string.Empty;
 			}
-			return hostAddress;
+		}
+
+		private string GetUpdServerHostAddress()
+		{
+			return GetBaseParameterValue("upd_grpc_address");
 		}
 
 		private int GetUpdServerHostPort()
 		{
-			string hostPort = string.Empty;
-			try
-			{
-				string sql =
-					@"SELECT str_value FROM base_parameters
-					WHERE name = @parameterName";
-				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
-				cmd.Parameters.AddWithValue("@parameterName", "upd_grpc_port");
-				MySqlDataReader rdr = cmd.ExecuteReader();
+			int.TryParse(GetBaseParameterValue("upd_grpc_port"), out int port);
+			return port;
+		}
 
-				if (!rdr.Read())
-				{
-					return 0;
-				}
+		private string GetQrServerHostAddress()
+		{
+			return GetBaseParameterValue("qr_grpc_address");
+		}
 
-				hostPort = rdr.GetString("str_value");
+		private int GetQrServerHostPort()
+		{
+			int.TryParse(GetBaseParameterValue("qr_grpc_port"), out int port);
+			return port;
+		}
 
-				rdr.Close();
-			}
-			catch (Exception ex)
-			{
-				hostPort = string.Empty;
-				_logger.Error(ex, "Ошибка при выполнении запроса порта хоста сервера поиска кодов УПД");
-			}
-
-			int.TryParse(hostPort, out int hostPortInt);
-			return hostPortInt;
+		private bool GetQrServerUseTls()
+		{
+			bool.TryParse(GetBaseParameterValue("qr_grpc_use_tls"), out bool useTls);
+			return useTls;
 		}
 
 		private void SetUpdSearchControlsSettings()
@@ -878,7 +896,7 @@ namespace earchive
 		{
 			if (_inputDocsWin == null)
 			{
-				_inputDocsWin = new InputDocs(_baseParametersProvider, _earchiveUpdServiceClient);
+				_inputDocsWin = new InputDocs(_baseParametersProvider, _earchiveUpdServiceClient, _qrServiceClient);
 				_inputDocsWin.DeleteEvent += OnDeleteInputDocsEvent;
 				Console.WriteLine("new");
 			}

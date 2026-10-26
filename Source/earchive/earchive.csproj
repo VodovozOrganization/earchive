@@ -1,5 +1,6 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Grpc.Tools.2.53.0\build\Grpc.Tools.props" Condition="Exists('..\packages\Grpc.Tools.2.53.0\build\Grpc.Tools.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -124,6 +125,27 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ComponentModel" />
+    <Reference Include="Google.Protobuf, Version=3.21.7.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Protobuf.3.21.7\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="Grpc.Core.Api, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d754f35622e28bad, processorArchitecture=MSIL">
+      <HintPath>..\packages\Grpc.Core.Api.2.53.0\lib\netstandard2.0\Grpc.Core.Api.dll</HintPath>
+    </Reference>
+    <Reference Include="Grpc.Net.Client, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d754f35622e28bad, processorArchitecture=MSIL">
+      <HintPath>..\packages\Grpc.Net.Client.2.53.0\lib\netstandard2.0\Grpc.Net.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Grpc.Net.Client.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d754f35622e28bad, processorArchitecture=MSIL">
+      <HintPath>..\packages\Grpc.Net.Client.Web.2.53.0\lib\netstandard2.0\Grpc.Net.Client.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="Grpc.Net.Common, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d754f35622e28bad, processorArchitecture=MSIL">
+      <HintPath>..\packages\Grpc.Net.Common.2.53.0\lib\netstandard2.0\Grpc.Net.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=3.0.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.3.0.3\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -175,8 +197,10 @@
     <Compile Include="Recognaze\Template\BarCodeRule.cs" />
     <Compile Include="Recognaze\QRCodeRecognizer.cs" />
     <Compile Include="Recognaze\QRScanner.cs" />
+    <Compile Include="Recognaze\QrServiceClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Grpc.Tools.2.53.0\build\Grpc.Tools.targets" Condition="Exists('..\packages\Grpc.Tools.2.53.0\build\Grpc.Tools.targets')" />
   <ItemGroup>
     <ProjectReference Include="..\..\Libraries\External\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
       <Project>{190cea0d-ea23-4c91-8030-203a5afed7b7}</Project>
@@ -259,6 +283,12 @@
     <PackageReference Include="ZXing.Net">
       <Version>0.16.6</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Protobuf Include="Recognaze\Protos\earchive_qr.proto">
+      <Generator>MSBuild:Compile</Generator>
+      <GrpcServices>Client</GrpcServices>
+    </Protobuf>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
