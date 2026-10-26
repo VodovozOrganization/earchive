@@ -80,7 +80,6 @@ namespace Earchive.QrService
             {
                 CreateVariants(source, variants);
 
-                // Экземпляр WeChatQRCode не является потокобезопасным.
                 lock (_sync)
                 {
                     for (int i = 0; i < variants.Count; i++)
@@ -118,32 +117,26 @@ namespace Earchive.QrService
 
         private void CreateVariants(Mat source, List<Mat> variants)
         {
-            // 1. Исходная страница целиком.
             variants.Add(source.Clone());
 
             using var roi = CropQrRegion(source);
             using var padded = Pad(roi, 32);
 
-            // 2. Область QR без изменений.
             variants.Add(padded.Clone());
 
             using var gray = padded.CvtColor(ColorConversionCodes.BGR2GRAY);
 
-            // 3. Повышение контраста.
             using var enhancedGray = new Mat();
             _clahe.Apply(gray, enhancedGray);
             using var enhanced = enhancedGray.CvtColor(ColorConversionCodes.GRAY2BGR);
 
             variants.Add(enhanced.Clone());
 
-            // 4. Небольшие повороты на случай перекоса скана.
             foreach (double angle in SkewAngles)
                 variants.Add(Rotate(enhanced, angle));
 
-            // 5. Резкость.
             variants.Add(Unsharp(enhanced));
 
-            // 6. Бинаризация и увеличение — помогает на бледной печати.
             variants.Add(ThresholdAndScale(gray, 2.0));
         }
 

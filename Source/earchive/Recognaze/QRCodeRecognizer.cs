@@ -12,23 +12,25 @@ namespace earchive
 
 		/// <summary>
 		/// Пытается распознать QR-код с данными документа на страницах изображения.
-		/// Сначала используется локальный движок WeChat, при его недоступности —
-		/// gRPC-сервис (если настроен), затем ZXing.
+		/// Сначала используется локальный движок WeChat, при его недоступности — ZXing.
 		/// </summary>
 		/// <param name="images">Страницы документа.</param>
 		/// <param name="doc">Документ, в который записываются номер и дата.</param>
-		/// <param name="qrServiceClient">Необязательный клиент сервиса распознавания QR.</param>
-		public static bool TryParse(Pixbuf[] images, ref Document doc, QrServiceClient qrServiceClient = null)
+		public static bool TryParse(Pixbuf[] images, ref Document doc)
 		{
 			if (images == null)
 				return false;
 
-			foreach (var image in images)
+			for (int i = 0; i < images.Length; i++)
 			{
+				var image = images[i];
+
 				if (image == null)
 					continue;
 
-				foreach (var text in ReadCodes(image, qrServiceClient))
+				// Перебор ориентаций страницы имеет смысл в основном для первой
+				// страницы: на остальных это заметно замедляет пакетное распознавание.
+				foreach (var text in ReadCodes(image, i == 0))
 				{
 					if (TryApplyCode(text, ref doc))
 						return true;
@@ -38,10 +40,10 @@ namespace earchive
 			return false;
 		}
 
-		private static IEnumerable<string> ReadCodes(Pixbuf image, QrServiceClient qrServiceClient)
+		private static IEnumerable<string> ReadCodes(Pixbuf image, bool tryAllOrientations)
 		{
 			// Локальный WeChat QR — основной способ, без обращения к хосту.
-			var localCodes = WeChatQrScanner.Read(image);
+			var localCodes = WeChatQrScanner.Read(image, tryAllOrientations);
 
 			if (localCodes != null)
 			{
@@ -54,28 +56,7 @@ namespace earchive
 				yield break;
 			}
 
-			logger.Warn("Локальный WeChat QR недоступен: {0}. Пробуем сервис/Zxing.", WeChatQrScanner.LastError);
-
-			if (qrServiceClient != null)
-			{
-				var remoteCodes = qrServiceClient.Recognize(image.SaveToBuffer("jpeg"));
-
-				if (remoteCodes == null)
-				{
-					logger.Warn("Сервис распознавания QR недоступен: {0}. Пробуем ZXing.",
-						qrServiceClient.LastError);
-				}
-				else
-				{
-					if (remoteCodes.Count == 0)
-						logger.Debug("Сервис распознавания QR не нашёл кодов на странице.");
-
-					foreach (var remoteCode in remoteCodes)
-						yield return remoteCode;
-
-					yield break;
-				}
-			}
+			logger.Warn("Локальный WeChat QR недоступен: {0}. Пробуем ZXing.", WeChatQrScanner.LastError);
 
 			var localResult = QRScanner.ReadQRCode(image);
 			if (localResult != null && !string.IsNullOrWhiteSpace(localResult.Text))

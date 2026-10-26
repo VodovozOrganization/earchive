@@ -9,7 +9,7 @@ namespace Earchive.QrService
     /// <summary>
     /// gRPC-обёртка над распознавателем WeChat QR.
     /// </summary>
-    public sealed class QrRecognitionGrpcService : EarchiveQr.QrRecognition.QrRecognitionBase
+    public sealed class QrRecognitionGrpcService : QrRecognition.QrRecognitionBase
     {
         private readonly WeChatQrRecognizer _recognizer;
         private readonly ILogger<QrRecognitionGrpcService> _logger;

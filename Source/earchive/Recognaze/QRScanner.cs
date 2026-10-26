@@ -1,17 +1,17 @@
-﻿using System;
-using ZXing.QrCode;
-using Gdk;
-using ZXing;
-using ZXing.Common;
+﻿using Gdk;
+using NLog;
+using System;
 using System.ComponentModel;
 using System.Drawing;
-using NLog;
+using ZXing;
+using ZXing.Common;
+using ZXing.QrCode;
 
 namespace earchive
 {
 	public static class QRScanner
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private readonly static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		public static Result ReadQRCode(Pixbuf pb)
 		{
@@ -67,8 +67,8 @@ namespace earchive
 
 		private static Result DecodeQRCode (Bitmap bm)
 		{
-			Result decodeResult = null;
-			try {
+            Result decodeResult;
+            try {
 				QRCodeReader reader = new QRCodeReader();
 				BitmapLuminanceSource source = new BitmapLuminanceSource (bm);
 				BinaryBitmap bb = new BinaryBitmap (new HybridBinarizer (source));

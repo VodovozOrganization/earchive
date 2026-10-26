@@ -45,7 +45,6 @@ namespace earchive
 		private CounterpartyInfo _selectedCounterparty;
 		private DeliveryPointInfo _selectedDeliveryPoint;
 		private UpdServiceClient _earchiveUpdServiceClient;
-		private QrServiceClient _qrServiceClient;
 		private int _contractDocumentTypeId;
 		private int _updDocumentTypeId;
 		private yButton _exportUpdButton;
@@ -80,14 +79,13 @@ namespace earchive
 
 		private void AddExportUpdButton()
 		{
-			_exportUpdButton = new yButton
-			{
-				Label = "Экспорт в Эксель",
-				Name = "exportUpdButton"
-			};
-
-			_exportUpdButton.Sensitive = false;
-			_exportUpdButton.Clicked += ExportUpd;
+            _exportUpdButton = new yButton
+            {
+                Label = "Экспорт в Эксель",
+                Name = "exportUpdButton",
+                Sensitive = false
+            };
+            _exportUpdButton.Clicked += ExportUpd;
 
 			hboxBottomButtons.Add(_exportUpdButton);
 
@@ -102,38 +100,18 @@ namespace earchive
 		{
 			labelDocumentNumber.Visible = entryUpdDocNumber.Visible = buttonSearchUpd.Visible = false;
 
-			//Настройка контролов поиска кодов УПД
 			var serviceHost =
 			_earchiveUpdServiceClient = new UpdServiceClient(
 				GetUpdServerHostAddress(),
 				GetUpdServerHostPort());
 
-			//Сервис распознавания QR-кодов (движок WeChat)
-			var qrServiceHost = GetQrServerHostAddress();
-			var qrServicePort = GetQrServerHostPort();
-			if (!string.IsNullOrWhiteSpace(qrServiceHost) && qrServicePort > 0)
-			{
-				try
-				{
-					_qrServiceClient = new QrServiceClient(qrServiceHost, qrServicePort, GetQrServerUseTls());
-				}
-				catch (Exception ex)
-				{
-					_logger.Error(ex, "Не удалось создать клиент сервиса распознавания QR. " +
-						"Будет использоваться локальный распознаватель ZXing.");
-				}
-			}
-			else
-			{
-				_logger.Info("Сервис распознавания QR не настроен (qr_grpc_address/qr_grpc_port). " +
-					"Для QR-кодов будет использоваться локальный распознаватель ZXing.");
-			}
-
-			yentryClient.Completion = new EntryCompletion();
-			yentryClient.Completion.Model = new ListStore(typeof(CounterpartyInfo));
-			yentryClient.Completion.MinimumKeyLength = 2;
-			yentryClient.Completion.TextColumn = 0;
-			yentryClient.Completion.Complete();
+            yentryClient.Completion = new EntryCompletion
+            {
+                Model = new ListStore(typeof(CounterpartyInfo)),
+                MinimumKeyLength = 2,
+                TextColumn = 0
+            };
+            yentryClient.Completion.Complete();
 			var cell = new CellRendererText();
 			yentryClient.Completion.PackStart(cell, true);
 			yentryClient.Completion.SetCellDataFunc(cell, OnCellLayoutDataFunc);
@@ -212,7 +190,6 @@ namespace earchive
 		protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 		{
 			WeChatQrScanner.Shutdown();
-			_qrServiceClient?.Dispose();
 			_earchiveUpdServiceClient?.Dispose();
 			Application.Quit();
 			a.RetVal = true;
@@ -394,23 +371,6 @@ namespace earchive
 		{
 			int.TryParse(GetBaseParameterValue("upd_grpc_port"), out int port);
 			return port;
-		}
-
-		private string GetQrServerHostAddress()
-		{
-			return GetBaseParameterValue("qr_grpc_address");
-		}
-
-		private int GetQrServerHostPort()
-		{
-			int.TryParse(GetBaseParameterValue("qr_grpc_port"), out int port);
-			return port;
-		}
-
-		private bool GetQrServerUseTls()
-		{
-			bool.TryParse(GetBaseParameterValue("qr_grpc_use_tls"), out bool useTls);
-			return useTls;
 		}
 
 		private void SetUpdSearchControlsSettings()
@@ -897,7 +857,7 @@ namespace earchive
 		{
 			if (_inputDocsWin == null)
 			{
-				_inputDocsWin = new InputDocs(_baseParametersProvider, _earchiveUpdServiceClient, _qrServiceClient);
+				_inputDocsWin = new InputDocs(_baseParametersProvider, _earchiveUpdServiceClient);
 				_inputDocsWin.DeleteEvent += OnDeleteInputDocsEvent;
 				Console.WriteLine("new");
 			}
