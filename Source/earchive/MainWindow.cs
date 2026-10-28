@@ -79,14 +79,13 @@ namespace earchive
 
 		private void AddExportUpdButton()
 		{
-			_exportUpdButton = new yButton
-			{
-				Label = "Экспорт в Эксель",
-				Name = "exportUpdButton"
-			};
-
-			_exportUpdButton.Sensitive = false;
-			_exportUpdButton.Clicked += ExportUpd;
+            _exportUpdButton = new yButton
+            {
+                Label = "Экспорт в Эксель",
+                Name = "exportUpdButton",
+                Sensitive = false
+            };
+            _exportUpdButton.Clicked += ExportUpd;
 
 			hboxBottomButtons.Add(_exportUpdButton);
 
@@ -101,17 +100,18 @@ namespace earchive
 		{
 			labelDocumentNumber.Visible = entryUpdDocNumber.Visible = buttonSearchUpd.Visible = false;
 
-			//Настройка контролов поиска кодов УПД
 			var serviceHost =
 			_earchiveUpdServiceClient = new UpdServiceClient(
 				GetUpdServerHostAddress(),
 				GetUpdServerHostPort());
 
-			yentryClient.Completion = new EntryCompletion();
-			yentryClient.Completion.Model = new ListStore(typeof(CounterpartyInfo));
-			yentryClient.Completion.MinimumKeyLength = 2;
-			yentryClient.Completion.TextColumn = 0;
-			yentryClient.Completion.Complete();
+            yentryClient.Completion = new EntryCompletion
+            {
+                Model = new ListStore(typeof(CounterpartyInfo)),
+                MinimumKeyLength = 2,
+                TextColumn = 0
+            };
+            yentryClient.Completion.Complete();
 			var cell = new CellRendererText();
 			yentryClient.Completion.PackStart(cell, true);
 			yentryClient.Completion.SetCellDataFunc(cell, OnCellLayoutDataFunc);
@@ -189,6 +189,8 @@ namespace earchive
 
 		protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 		{
+			WeChatQrScanner.Shutdown();
+			_earchiveUpdServiceClient?.Dispose();
 			Application.Quit();
 			a.RetVal = true;
 		}
@@ -334,64 +336,41 @@ namespace earchive
 
 		#region Поиск УПД
 
-		private string GetUpdServerHostAddress()
+		private string GetBaseParameterValue(string parameterName)
 		{
-			string hostAddress = string.Empty;
 			try
 			{
-				string sql =
-					@"SELECT str_value FROM base_parameters
-					WHERE name = @parameterName";
-				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
-				cmd.Parameters.AddWithValue("@parameterName", "upd_grpc_address");
-				MySqlDataReader rdr = cmd.ExecuteReader();
+				const string sql = @"SELECT str_value FROM base_parameters WHERE name = @parameterName";
 
-				if (!rdr.Read())
+				using (var cmd = new MySqlCommand(sql, QSMain.connectionDB))
 				{
-					return hostAddress;
+					cmd.Parameters.AddWithValue("@parameterName", parameterName);
+
+					using (var rdr = cmd.ExecuteReader())
+					{
+						if (!rdr.Read())
+							return string.Empty;
+
+						return rdr.GetString("str_value");
+					}
 				}
-
-				hostAddress = rdr.GetString("str_value");
-
-				rdr.Close();
 			}
 			catch (Exception ex)
 			{
-				hostAddress = string.Empty;
-				_logger.Error(ex, "Ошибка при выполнении запроса адреса хоста сервера поиска кодов УПД");
+				_logger.Error(ex, "Ошибка при получении параметра {0}", parameterName);
+				return string.Empty;
 			}
-			return hostAddress;
+		}
+
+		private string GetUpdServerHostAddress()
+		{
+			return GetBaseParameterValue("upd_grpc_address");
 		}
 
 		private int GetUpdServerHostPort()
 		{
-			string hostPort = string.Empty;
-			try
-			{
-				string sql =
-					@"SELECT str_value FROM base_parameters
-					WHERE name = @parameterName";
-				MySqlCommand cmd = new MySqlCommand(sql, QSMain.connectionDB);
-				cmd.Parameters.AddWithValue("@parameterName", "upd_grpc_port");
-				MySqlDataReader rdr = cmd.ExecuteReader();
-
-				if (!rdr.Read())
-				{
-					return 0;
-				}
-
-				hostPort = rdr.GetString("str_value");
-
-				rdr.Close();
-			}
-			catch (Exception ex)
-			{
-				hostPort = string.Empty;
-				_logger.Error(ex, "Ошибка при выполнении запроса порта хоста сервера поиска кодов УПД");
-			}
-
-			int.TryParse(hostPort, out int hostPortInt);
-			return hostPortInt;
+			int.TryParse(GetBaseParameterValue("upd_grpc_port"), out int port);
+			return port;
 		}
 
 		private void SetUpdSearchControlsSettings()

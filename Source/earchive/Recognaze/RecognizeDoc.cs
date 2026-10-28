@@ -1,8 +1,8 @@
+using Gdk;
+using NLog;
 using System;
 using System.Drawing;
 using System.Linq;
-using Gdk;
-using NLog;
 using Tesseract;
 using ZXing;
 
@@ -10,28 +10,28 @@ namespace earchive
 {
 	class RecognizeDoc
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
-		Document Doc;
-		Pixbuf[] Images;
+		private readonly static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly Document _doc;
+		private readonly Pixbuf[] _images;
 		public bool DiagnosticMode = false;
 		public Gtk.Window parent;
 
 		public RecognizeDoc (Document doc, Pixbuf[] images)
 		{
-			Doc = doc;
-			Images = images;
+			_doc = doc;
+			_images = images;
 
 		}
 
 		public void Recognize()
 		{
-			if (Doc.Template.UseBarCode)
+			if (_doc.Template.UseBarCode)
 			{
-				foreach (var rule in Doc.Template.BarCodeRules)
+				foreach (var rule in _doc.Template.BarCodeRules)
 					RecognizeBarCode (rule);
 			}
 
-			if (Doc.Template.UseTess)
+			if (_doc.Template.UseTess)
 				RecognizeTess ();
 		}
 
@@ -39,12 +39,12 @@ namespace earchive
 		{
 			using (var engine = new TesseractEngine(@"./tessdata", "rus", EngineMode.Default))
 			{
-				TextMarker Marker = Doc.Template.Markers[0];
+				TextMarker Marker = _doc.Template.Markers[0];
 
 				Pixbuf PixBox = null;
 
 				logger.Info("Вычисляем сдвиг");
-				Pixbuf WorkImage = Images[0];
+				Pixbuf WorkImage = _images[0];
 				Marker.SetTarget(WorkImage.Width, WorkImage.Height);
 				
 				RelationalRectangle WorkZone = Marker.Zone.Clone();
@@ -59,7 +59,7 @@ namespace earchive
 						{
 							int Distance, MarkerPosX, MarkerPosY;
 							double MarkerSkew;
-							RecognazeRule[] rules = new RecognazeRule[]{ Doc.Template.NumberRule, Doc.Template.DateRule};
+							RecognazeRule[] rules = new RecognazeRule[]{ _doc.Template.NumberRule, _doc.Template.DateRule};
 							Distance = GetTextPosition(Marker.Text, page, out MarkerPosX, out MarkerPosY, out MarkerSkew, rules);
 							if (Distance < 5)
 							{
@@ -90,9 +90,9 @@ namespace earchive
 				RecognazeRule CurRule;
 
 				logger.Info("Распознаем номер");
-				if (Doc.Template.NumberRule != null)
+				if (_doc.Template.NumberRule != null)
 				{
-					CurRule = Doc.Template.NumberRule;
+					CurRule = _doc.Template.NumberRule;
 
 					if(CurRule.Box != null)
 					{
@@ -106,7 +106,7 @@ namespace earchive
 						WorkZone.RelativeWidth *= 0.6;
 						WorkZone.RelativeHeigth *= 0.6;
 						
-						Doc.DocNumberConfidence = 0;
+						_doc.DocNumberConfidence = 0;
 						for (int i = 1; i <= 5; i++) {
 							PixBox?.Dispose();
 							PixBox = new Pixbuf (WorkImage, WorkZone.PosX, WorkZone.PosY, WorkZone.Width, WorkZone.Heigth);
@@ -114,9 +114,9 @@ namespace earchive
 								using (var page = engine.Process (img, PageSegMode.SingleLine)) {
 
 									string FieldText = page.GetText ().Trim ();
-									if (page.GetMeanConfidence () > Doc.DocNumberConfidence) {
-										Doc.DocNumber = FieldText;
-										Doc.DocNumberConfidence = page.GetMeanConfidence ();
+									if (page.GetMeanConfidence () > _doc.DocNumberConfidence) {
+										_doc.DocNumber = FieldText;
+										_doc.DocNumberConfidence = page.GetMeanConfidence ();
 										logger.Debug ("Try: {0}", i);
 										logger.Debug ("Found Field Value: {0}", FieldText);
 										logger.Debug ("Recognize confidence: {0}", page.GetMeanConfidence ());
@@ -127,14 +127,14 @@ namespace earchive
 									}
 									if (CurRule.Validate == ValidationTypes.IsNumber) {
 										int tempInt;
-										bool BoxIsNumber = int.TryParse (Doc.DocNumber, out tempInt);
+										bool BoxIsNumber = int.TryParse (_doc.DocNumber, out tempInt);
 										if (BoxIsNumber) {
 											break;
 										} else {
-											Doc.DocNumberConfidence = 0;
+											_doc.DocNumberConfidence = 0;
 										}
 									}
-									if (Doc.DocNumberConfidence > 0.8) {
+									if (_doc.DocNumberConfidence > 0.8) {
 										break;
 									} else {//Увеличиваем размер зоны поиска.
 										ExpandRelativeZone (WorkZone);
@@ -146,15 +146,15 @@ namespace earchive
 					else if (CurRule.NextAfterTextMarker)
 					{
 						logger.Debug ("By after market detection: {0}", CurRule.AfterTextMarkerValue);
-						Doc.DocNumber = CurRule.AfterTextMarkerValue;
-						Doc.DocNumberConfidence = CurRule.AfterTextMarkerConfidence;
+						_doc.DocNumber = CurRule.AfterTextMarkerValue;
+						_doc.DocNumberConfidence = CurRule.AfterTextMarkerConfidence;
 					}
 				}
 
 				logger.Info("Распознаем Дату");
-				if(Doc.Template.DateRule != null)
+				if(_doc.Template.DateRule != null)
 				{
-					CurRule = Doc.Template.DateRule;
+					CurRule = _doc.Template.DateRule;
 					if (CurRule.Box != null) {
 						CurRule.Box.SetShiftByMarker (Marker);
 
@@ -173,10 +173,10 @@ namespace earchive
 								}
 
 								if (DateTime.TryParse (Date, out TempDate)) {
-									Doc.DocDate = TempDate;
-									Doc.DocDateConfidence = page.GetMeanConfidence ();
+									_doc.DocDate = TempDate;
+									_doc.DocDateConfidence = page.GetMeanConfidence ();
 								} else {
-									Doc.DocDateConfidence = -2;
+									_doc.DocDateConfidence = -2;
 								}
 								logger.Debug ("Found Field Value: {0}", FieldText);
 								logger.Debug ("Split date Value: {0}", Date);
@@ -193,13 +193,13 @@ namespace earchive
 						logger.Debug ("By after market detection: {0}", CurRule.AfterTextMarkerValue);
 						if (DateTime.TryParse (CurRule.AfterTextMarkerValue, out DateTime docDate)) 
 						{
-							Doc.DocDate = docDate;
-							logger.Debug ("Date parsed:{0}", Doc.DocDate);
-							Doc.DocDateConfidence = CurRule.AfterTextMarkerConfidence;
+							_doc.DocDate = docDate;
+							logger.Debug ("Date parsed:{0}", _doc.DocDate);
+							_doc.DocDateConfidence = CurRule.AfterTextMarkerConfidence;
 						} 
 						else
 						{
-							Doc.DocDateConfidence = -2;
+							_doc.DocDateConfidence = -2;
 						}
 					}
 				}
@@ -212,7 +212,7 @@ namespace earchive
 
 		private void RecognizeBarCode (BarCodeRule rule)
 		{
-			Pixbuf WorkImage = Images[0];
+			Pixbuf WorkImage = _images[0];
 
 			RelationalRectangle WorkZone =  rule.Box.Clone();
 
@@ -233,7 +233,7 @@ namespace earchive
 			if (result != null) {
 				logger.Debug ("Формат штрих кода: {0}", result.BarcodeFormat.ToString ());
 				logger.Debug ("Текст штрих кода разпознан как: {0}", result.Text);
-				rule.ParseCode (Doc, result.BarcodeFormat, result.Text);
+				rule.ParseCode (_doc, result.BarcodeFormat, result.Text);
 			} else
 				logger.Warn ("Штрих код не распознан.");
 		}

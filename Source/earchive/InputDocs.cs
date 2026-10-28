@@ -1119,17 +1119,18 @@ namespace earchive
 
 		protected void OnActionRecognizeActivated(object sender, EventArgs e)
 		{
-			TreeIter iter, imageiter;
-			var updDocuments = new List<Document>();
+            var updDocuments = new List<Document>();
 
-			//Создаем новый лог
-			if(RecognizeLog == null)
+            //Создаем новый лог
+            if (RecognizeLog == null)
 			{
 				NLog.Config.LoggingConfiguration config = LogManager.Configuration;
-				RecognizeLog = new NLog.Targets.MemoryTarget();
-				RecognizeLog.Name = "recognizelog";
-				RecognizeLog.Layout = "${level} ${message}";
-				config.AddTarget("recognizelog", RecognizeLog);
+                RecognizeLog = new NLog.Targets.MemoryTarget
+                {
+                    Name = "recognizelog",
+                    Layout = "${level} ${message}"
+                };
+                config.AddTarget("recognizelog", RecognizeLog);
 				NLog.Config.LoggingRule rule = new NLog.Config.LoggingRule("*", LogLevel.Debug, RecognizeLog);
 				config.LoggingRules.Add(rule);
 
@@ -1139,7 +1140,7 @@ namespace earchive
 				RecognizeLog.Logs.Clear();
 
 			logger.Info("Запущен новый процесс распознования...");
-			if(!ImageList.GetIterFirst(out iter))
+			if(!ImageList.GetIterFirst(out TreeIter iter))
 			{
 				logger.Warn("Список изображений пуст. Остановка.");
 				return;
@@ -1157,7 +1158,7 @@ namespace earchive
 					int ImagesCount = ImageList.IterNChildren(iter);
 					Pixbuf[] Images = new Pixbuf[ImagesCount];
 					int i = 0;
-					ImageList.IterChildren(out imageiter, iter);
+					ImageList.IterChildren(out TreeIter imageiter, iter);
 					do
 					{
 						Images[i] = (Pixbuf)ImageList.GetValue(imageiter, 5);
@@ -1187,11 +1188,13 @@ namespace earchive
 						logger.Info("Тип: {0}", doc.Name);
 						logger.Info("Количество страниц: {0}", ImagesCount);
 						logger.Info("Инициализация движка...");
-						RecognizeDoc tess = new RecognizeDoc(doc, Images);
-						tess.DiagnosticMode = checkDiagnostic.Active;
-						//FIXME Для теста
-						tess.parent = this;
-						try
+                        RecognizeDoc tess = new RecognizeDoc(doc, Images)
+                        {
+                            DiagnosticMode = checkDiagnostic.Active,
+                            //FIXME Для теста
+                            parent = this
+                        };
+                        try
 						{
 							tess.Recognize();
 						}
@@ -1301,18 +1304,24 @@ namespace earchive
 				text += str + Environment.NewLine;
 			}
 
-			Dialog HistoryDialog = new Dialog("Лог работы модуля распознования.", this, Gtk.DialogFlags.DestroyWithParent);
-			HistoryDialog.Modal = true;
-			HistoryDialog.AddButton("Закрыть", ResponseType.Close);
+            Dialog HistoryDialog = new Dialog("Лог работы модуля распознования.", this, Gtk.DialogFlags.DestroyWithParent)
+            {
+                Modal = true
+            };
+            HistoryDialog.AddButton("Закрыть", ResponseType.Close);
 
-			TextView HistoryTextView = new TextView();
-			HistoryTextView.WidthRequest = 700;
-			HistoryTextView.WrapMode = WrapMode.Word;
-			HistoryTextView.Sensitive = false;
-			HistoryTextView.Buffer.Text = text;
-			Gtk.ScrolledWindow ScrollW = new ScrolledWindow();
-			ScrollW.HeightRequest = 500;
-			ScrollW.Add(HistoryTextView);
+            TextView HistoryTextView = new TextView
+            {
+                WidthRequest = 700,
+                WrapMode = WrapMode.Word,
+                Sensitive = false
+            };
+            HistoryTextView.Buffer.Text = text;
+            Gtk.ScrolledWindow ScrollW = new ScrolledWindow
+            {
+                HeightRequest = 500
+            };
+            ScrollW.Add(HistoryTextView);
 			HistoryDialog.VBox.Add(ScrollW);
 
 			HistoryDialog.ShowAll();
@@ -1433,7 +1442,7 @@ namespace earchive
 
 		public override void Destroy()
 		{
-			if(scan != null)
+            if (scan != null)
 				scan.Close();
 
 			base.Destroy();
