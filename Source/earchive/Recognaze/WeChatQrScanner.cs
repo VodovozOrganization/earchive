@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Gdk;
 using NLog;
@@ -17,11 +18,9 @@ namespace earchive
 	public static class WeChatQrScanner
 	{
 		private const long MaxImagePixels = 60_000_000;
-
-		// WeChat-детектор плохо работает на очень больших страницах (например,
-		// 600 dpi, 4960x7014): QR после внутреннего ресайза становится слишком
-		// мелким. Ограничиваем длинную сторону.
 		private const int MaxDetectionDimension = 2500;
+		private const int FirstPageBudgetMs = 2500;
+		private const int OtherPageBudgetMs = 1000;
 
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly object sync = new object();
@@ -54,7 +53,6 @@ namespace earchive
 			if (image is null)
 				return Array.Empty<string>();
 
-			// PNG без потерь: не портим и без того слабый QR повторным JPEG-сжатием.
 			return ReadImage(image.SaveToBuffer("png"), tryAllOrientations);
 		}
 
@@ -124,17 +122,47 @@ namespace earchive
 
 						lock (sync)
 						{
-							var fullResults = TryFullImageScales(working);
+							var watch = Stopwatch.StartNew();
+							int budgetMs = tryAllOrientations ? FirstPageBudgetMs : OtherPageBudgetMs;
+
+							bool hasCandidate = HasQrCandidate(working);
+
+							if (!hasCandidate)
+							{
+								foreach (var flags in new[]
+								{
+									RotateFlags.Rotate90Clockwise,
+									RotateFlags.Rotate180,
+									RotateFlags.Rotate90Counterclockwise
+								})
+								{
+									using (var rotated = RotateQuarter(working, flags))
+									{
+										if (HasQrCandidate(rotated))
+										{
+											hasCandidate = true;
+											break;
+										}
+									}
+								}
+							}
+
+							if (!hasCandidate)
+							{
+								logger.Debug("QR-кандидатов не найдено, быстрый режим.");
+								return RecognizeFast(working);
+							}
+
+							var fullResults = TryFullImageScales(working, watch, budgetMs);
 							if (fullResults.Count > 0)
 								return fullResults;
 
-							return RecognizePage(working, tryAllOrientations);
+							return RecognizePage(working, tryAllOrientations, watch, budgetMs);
 						}
 					}
 					finally
 					{
-						if (resized != null)
-							resized.Dispose();
+                        resized?.Dispose();
 					}
 				}
 			}
@@ -212,19 +240,59 @@ namespace earchive
 			}
 		}
 
-		private static IReadOnlyList<string> TryFullImageScales(Mat source)
+		private static IReadOnlyList<string> RecognizeFast(Mat source)
 		{
 			var results = new List<string>();
-			int maxDimension = Math.Max(source.Width, source.Height);
 
 			TryDetectWhole(source, results);
 			if (results.Count > 0)
 				return results;
 
+			using (var blurred = Blur(source, 9))
+			{
+				TryDetectWhole(blurred, results);
+				if (results.Count > 0)
+					return results;
+			}
+
+			using (var roi = CropQrRegion(source))
+			using (var padded = Pad(roi, 48))
+			using (var gray = padded.CvtColor(ColorConversionCodes.BGR2GRAY))
+			using (var enhancedGray = new Mat())
+			using (var clahe = Cv2.CreateCLAHE(2.0, new OpenCvSharp.Size(8, 8)))
+			using (var enhanced = new Mat())
+			{
+				clahe.Apply(gray, enhancedGray);
+				Cv2.CvtColor(enhancedGray, enhanced, ColorConversionCodes.GRAY2BGR);
+				TryDetectWhole(enhanced, results);
+			}
+
+			return results;
+		}
+
+		private static IReadOnlyList<string> TryFullImageScales(Mat source, Stopwatch watch, int budgetMs)
+		{
+			var results = new List<string>();
+			int maxDimension = Math.Max(source.Width, source.Height);
+
+			if (watch.ElapsedMilliseconds >= budgetMs)
+				return results;
+
+			TryDetectWhole(source, results);
+			if (results.Count > 0)
+				return results;
+
+			double aspect = (double)Math.Min(source.Width, source.Height) / maxDimension;
+			bool pageLike = aspect < 0.85;
+			int minSize = pageLike ? 1000 : 300;
+
 			foreach (int size in new[] { 2500, 2000, 1600, 1200, 900, 700, 500, 400, 300 })
 			{
-				if (size >= maxDimension)
+				if (size >= maxDimension || size < minSize)
 					continue;
+
+				if (watch.ElapsedMilliseconds >= budgetMs)
+					break;
 
 				using (var resized = ResizeToMax(source, size))
 				{
@@ -287,15 +355,12 @@ namespace earchive
 			return resized;
 		}
 
-		private static IReadOnlyList<string> RecognizePage(Mat source, bool tryAllOrientations)
+		private static IReadOnlyList<string> RecognizePage(Mat source, bool tryAllOrientations, Stopwatch watch, int budgetMs)
 		{
-			var results = Recognize(source, true);
+			var results = Recognize(source, true, watch, budgetMs);
 			if (results.Count > 0 || !tryAllOrientations)
 				return results;
 
-			// Скан мог быть повёрнут на 90/180/270 градусов. Пробуем вернуть
-			// страницу в нормальную ориентацию: тогда QR снова окажется
-			// в правом верхнем углу.
 			foreach (var flags in new[]
 			{
 				RotateFlags.Rotate90Clockwise,
@@ -303,35 +368,83 @@ namespace earchive
 				RotateFlags.Rotate90Counterclockwise
 			})
 			{
+				if (watch.ElapsedMilliseconds >= budgetMs)
+					break;
+
 				using (var rotated = RotateQuarter(source, flags))
 				{
-					var wholeResults = TryFullImageScales(rotated);
+					if (!HasQrCandidate(rotated))
+						continue;
+
+					var wholeResults = TryFullImageScales(rotated, watch, budgetMs);
 					if (wholeResults.Count > 0)
 						return wholeResults;
 
-					results = Recognize(rotated, false);
+					results = Recognize(rotated, false, watch, budgetMs);
 					if (results.Count > 0)
 						return results;
 				}
 			}
 
-			logger.Debug("WeChat QR не нашёл кодов ни в одной ориентации страницы.");
+			if (watch.ElapsedMilliseconds >= budgetMs)
+				logger.Debug("WeChat QR: исчерпан бюджет времени ({0} мс).", budgetMs);
+			else
+				logger.Debug("WeChat QR не нашёл кодов ни в одной ориентации страницы.");
+
 			return results;
 		}
 
-		private static IReadOnlyList<string> Recognize(Mat source, bool logMiss)
+		private static bool HasQrCandidate(Mat image)
 		{
-			var results = new List<string>();
+			try
+			{
+				using (var qrDetector = new QRCodeDetector())
+				{
+					int maxDimension = Math.Max(image.Width, image.Height);
+
+					if (maxDimension > 1000)
+					{
+						using (var resized = ResizeToMax(image, 1000))
+						{
+                            return qrDetector.Detect(resized, out Point2f[] resizedPoints)
+                                && resizedPoints != null
+                                && resizedPoints.Length > 0;
+                        }
+					}
+
+                    return qrDetector.Detect(image, out Point2f[] points)
+                        && points != null
+                        && points.Length > 0;
+                }
+			}
+			catch (Exception ex)
+			{
+				logger.Debug(ex, "Быстрая проверка QR не удалась.");
+				return false;
+			}
+		}
+
+		private static IReadOnlyList<string> Recognize(Mat source, bool logMiss, Stopwatch watch, int budgetMs)
+		{			var results = new List<string>();
 			var variants = new List<Mat>();
 			var failures = 0;
 			Exception firstFailure = null;
 
 			try
 			{
-				CreateVariants(source, variants);
+				double aspect = (double)Math.Min(source.Width, source.Height) / Math.Max(source.Width, source.Height);
+				bool pageLike = aspect < 0.85;
+
+				CreateVariants(source, variants, pageLike);
 
 				for (int i = 0; i < variants.Count; i++)
 				{
+					if (watch.ElapsedMilliseconds >= budgetMs)
+					{
+						logger.Debug("WeChat QR: исчерпан бюджет времени ({0} мс) на вариантах.", budgetMs);
+						break;
+					}
+
 					try
 					{
                         detector.DetectAndDecode(variants[i], out Mat[] boxes, out string[] texts);
@@ -390,15 +503,25 @@ namespace earchive
 				|| ex is TypeInitializationException;
 		}
 
-		private static void CreateVariants(Mat source, List<Mat> variants)
+		private static void CreateVariants(Mat source, List<Mat> variants, bool pageLike)
 		{
 			variants.Add(source.Clone());
 
-			foreach (int k in new[] { 3, 5, 7, 9 })
-				variants.Add(Blur(source, k));
+			if (pageLike)
+			{
+				foreach (int k in new[] { 5, 7, 9 })
+					variants.Add(Blur(source, k));
 
-			foreach (int k in new[] { 3, 4, 5 })
-				variants.Add(MorphOpen(source, k));
+				variants.Add(MorphOpen(source, 5));
+			}
+			else
+			{
+				foreach (int k in new[] { 3, 5, 7, 9 })
+					variants.Add(Blur(source, k));
+
+				foreach (int k in new[] { 3, 4, 5 })
+					variants.Add(MorphOpen(source, k));
+			}
 
 			using (var roi = CropQrRegion(source))
 			using (var padded = Pad(roi, 48))
